@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Population Health Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+<nav class="top-nav">
+    <a href="map.html" class="nav-item"> Map Overview</a>
+    <a href="scatter.html" class="nav-item"> Migration vs Life Expectancy</a>
+    <a href="dashboard.html" class="nav-item"> Population Health Dashboard</a>
+</nav>
+
+<div class="container">
+    <h1>Population Health Dashboard</h1>
+    <p class="subtitle">Explore relationships among life expectancy, infant mortality, birth, and death rates.</p>
+
+    <div id="controls">
+
+        <a href="scatter.html" class="back-link">← Previous: Migration vs Life Expectancy</a>
+        <a href="map.html" class="back-link">← Back to Map Overview</a>
+
+        <label for="filter">Filter by:</label>
+        <select id="filter">
+            <option value="all">All Countries</option>
+            <option value="Asia">Asia</option>
+            <option value="Africa">Africa</option>
+            <option value="Europe">Europe</option>
+            <option value="North America">North America</option>
+            <option value="South America">South America</option>
+            <option value="Australia">Australia</option>
+            <option value="Antarctica">Antarctica</option>
+        </select>
+    </div>
+
+    <div id="dashboard">
+        <div id="plot1" class="plot"></div>
+        <div id="plot2" class="plot"></div>
+    </div>
+
+    <div class="story-block">
+        <h2>Story: How Health and Demography Are Linked</h2>
+        <p>
+            Countries with <b>high life expectancy</b> and <b>low infant mortality</b> typically maintain
+            <b>balanced birth and death rates</b> — indicators of stable, developed populations.
+            Meanwhile, nations with high infant mortality often show very high birth rates, reflecting
+            younger demographic structures and faster population growth.
+        </p>
+        <p>
+            Use the brushing tool to select a group of countries in either scatter plot — the same points
+            will highlight in the other plot, revealing how health outcomes relate to demographic trends.
+        </p>
+    </div>
+
+    <div id="legend-dashboard">
+        <svg width="400" height="100"></svg>
+    </div>
+
+</div>
+
+<script src="js/dashboard.js"></script>
+
+<script>
+    const path = window.location.pathname;
+    document.querySelectorAll('.nav-item').forEach(link => {
+        if (path.includes(link.getAttribute('href'))) {
+            link.classList.add('active');
+        }
+    });
+</script>
+
+</body>
+</html>

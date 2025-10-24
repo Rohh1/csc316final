@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Global Net Migration Rate Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/topojson@3"></script>
+</head>
+<body>
+
+<div id="legend-map">
+    <svg width="320" height="55"></svg>
+</div>
+
+<nav class="top-nav">
+    <a href="map.html" class="nav-item"> Map Overview</a>
+    <a href="scatter.html" class="nav-item"> Migration vs Life Expectancy</a>
+    <a href="dashboard.html" class="nav-item"> Population Health Dashboard</a>
+</nav>
+
+
+<div class="container">
+    <h1>Global Net Migration Rate (per 1,000 population)</h1>
+    <p class="subtitle">Blue = more immigrants, Red = more emigrants (CIA Factbook 2024)</p>
+
+    <div id="controls">
+        <label for="filter">Filter by:</label>
+        <select id="filter">
+            <option value="all">All Countries</option>
+            <option value="Asia">Asia</option>
+            <option value="Africa">Africa</option>
+            <option value="Europe">Europe</option>
+            <option value="North America">North America</option>
+            <option value="South America">South America</option>
+            <option value="Australia">Australia</option>
+            <option value="Antarctica">Antarctica</option>
+            <option disabled>───────────────</option>
+            <option value="Developed">Developed Economies</option>
+            <option value="Developing">Developing Economies</option>
+        </select>
+    </div>
+
+    <div id="map"></div>
+
+    <a href="scatter.html" class="forward-link">→ View Scatter Plot</a>
+
+
+    <div class="story-block">
+        <h2>Story: Migration Flows Reflect Economic Opportunity</h2>
+        <p>
+            Countries in **North America and Western Europe** generally show <b>positive net migration rates</b>,
+            meaning they attract more immigrants than they lose citizens.
+            This trend reflects strong labor markets, political stability, and high living standards.
+        </p>
+        <p>
+            In contrast, many **developing economies** in Africa, Asia, and Latin America have
+            <b>negative net migration rates</b>, as citizens seek better opportunities abroad.
+            The global map illustrates this divide clearly — regions with higher income and stability
+            consistently attract population inflows.
+        </p>
+    </div>
+</div>
+
+<script src="js/map.js"></script>
+
+<script>
+    const path = window.location.pathname;
+    document.querySelectorAll('.nav-item').forEach(link => {
+        if (path.includes(link.getAttribute('href'))) {
+            link.classList.add('active');
+        }
+    });
+</script>
+
+</body>
+</html>
