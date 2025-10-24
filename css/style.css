@@ -1,0 +1,163 @@
+body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background-color: #fafafa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 960px;
+    margin: 30px auto;
+    text-align: center;
+}
+
+h1 {
+    font-size: 26px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+#controls {
+    margin-bottom: 15px;
+}
+
+select {
+    font-size: 15px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #fff;
+}
+
+#map {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.country {
+    stroke: #fff;
+    stroke-width: 0.5px;
+}
+
+.tooltip {
+    position: absolute;
+    padding: 6px 10px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    pointer-events: none;
+    font-size: 13px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.story-block {
+    text-align: left;
+    background: #f2f6fa;
+    padding: 18px 22px;
+    border-radius: 10px;
+    line-height: 1.6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.story-block h2 {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+#scatter svg {
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.back-link {
+    margin-left: 10px;
+    font-size: 14px;
+    text-decoration: none;
+    color: #0077cc;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+#legend-map, #legend-scatter {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0 25px;
+}
+
+
+
+
+#dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 25px;
+}
+.plot svg {
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+.brush .selection {
+    fill: #1f77b4;
+    fill-opacity: 0.15;
+    stroke: #1f77b4;
+}
+
+#legend-dashboard {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.back-link {
+    margin-left: 10px;
+    font-size: 14px;
+    text-decoration: none;
+    color: #0077cc;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+
+/* Top Navigation Bar */
+.top-nav {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    background: #0b0f14;
+    padding: 12px 0;
+    border-bottom: 2px solid #243040;
+    margin-bottom: 25px;
+}
+
+.nav-item {
+    color: #e8eef7;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.3s;
+}
+
+.nav-item:hover {
+    background: #243040;
+}
+
+.nav-item.active {
+    background: #0077cc;
+    color: white;
+}
