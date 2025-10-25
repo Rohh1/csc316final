@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Animated Migration Force Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson@3"></script>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="map.html" class="nav-item">Map Overview</a>
+  <a href="scatter.html" class="nav-item">Migration vs Life Expectancy</a>
+  <a href="dashboard.html" class="nav-item">Population Health Dashboard</a>
+  <a href="forcemap.html" class="nav-item">Animated Migration Map</a>
+</nav>
+
+<div class="container">
+  <h1>Animated Migration Force Map</h1>
+  <p class="subtitle">
+    Countries drift under a “prosperity gravity” — high life expectancy attracts, low repels.
+  </p>
+
+  <div id="controls">
+    <button id="playPauseBtn">⏸ Pause</button>
+    <button id="resetBtn">↺ Reset</button>
+    <div id="legend-forcemap">
+      <svg width="520" height="70"></svg>
+    </div>    
+
+    <label for="speed">Speed:</label>
+    <input id="speed" type="range" min="0.2" max="3" step="0.1" value="1" />
+    <span id="speedVal">1.0×</span>
+
+    <label for="filter">Filter:</label>
+    <select id="filter">
+      <option value="all">All Countries</option>
+      <option value="Africa">Africa</option>
+      <option value="Asia">Asia</option>
+      <option value="Europe">Europe</option>
+      <option value="North America">North America</option>
+      <option value="South America">South America</option>
+      <option value="Australia">Australia</option>
+      <option value="Oceania">Oceania</option>
+      <option value="Antarctica">Antarctica</option>
+      <option disabled>───────────────</option>
+      <option value="Developed">Developed Economies</option>
+      <option value="Developing">Developing Economies</option>
+    </select>
+
+    <small style="opacity:.7">Tip: hover points for details; drag to pan (trackpad/two-finger).</small>
+  </div>
+
+  <div id="forcemap"></div>
+
+  <div class="story-block">
+    <h2>Story: Prosperity as Gravity</h2>
+    <p>
+      Circles are countries (size = population). Blue glow indicates net immigration; red glow indicates net emigration.
+      A gentle “pull” toward the global attractor (derived from countries with top life expectancy) visualizes
+      how health and prosperity draw people, while countries with lower life expectancy drift outward.
+    </p>
+  </div>
+</div>
+
+<script src="js/forcemap.js"></script>
+<script>
+  // highlight active tab
+  const path = window.location.pathname;
+  document.querySelectorAll('.nav-item').forEach(link => {
+    if (path.includes(link.getAttribute('href'))) link.classList.add('active');
+  });
+</script>
+</body>
+</html>

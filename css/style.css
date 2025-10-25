@@ -161,3 +161,17 @@ select {
     background: #0077cc;
     color: white;
 }
+#forcemap svg { background:#f7fafc; border:1px solid #cbd5e1; }
+.basemap .country { fill:#cbd5e1; stroke:#475569; stroke-width:0.5px; }
+.basemap .graticule { stroke:#94a3b8; stroke-opacity:.3; fill:none; }
+.nodes .country { stroke:#fff; stroke-width:.8px; }
+.loading, .error-banner {
+  font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  background: #111827; color: #fff; padding: 6px 10px; border-radius: 8px;
+  position: absolute; z-index: 10; pointer-events: none; opacity: .9;
+}
+.error-banner { background:#b91c1c; }
+#legend-forcemap svg { display:block; margin:10px 0 6px; }
+.legend-row { font-size:12px; fill:#374151; }
+.legend-swatch { stroke:#0f172a; stroke-opacity:.15; }
+.legend-pill { rx:9; ry:9; }
