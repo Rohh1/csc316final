@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Demographic Pressure Balance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* Specific styles for the bar chart container */
+        #demographics-plot {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        #demographics-plot svg {
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: visible; /* Allows axis labels to show */
+        }
+        .bar-group:hover rect {
+            opacity: 0.8;
+        }
+        .zero-line {
+            stroke: #475569;
+            stroke-dasharray: 2 2;
+        }
+        .x-axis-title {
+            fill: black;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <a href="map.html" class="nav-item">Map Overview</a>
+    <a href="scatter.html" class="nav-item">Migration vs Life Expectancy</a>
+    <a href="dashboard.html" class="nav-item">Population Health Dashboard</a>
+    <a href="forcemap.html" class="nav-item">Animated Migration Map</a>
+    <a href="demographics.html" class="nav-item">Demographic Balance</a> <!-- New Nav Item -->
+</nav>
+
+<div class="container">
+    <h1>Demographic Pressure Balance</h1>
+    <p class="subtitle">
+        Visualizing the components of population change: Natural Change vs. Net Migration.
+    </p>
+
+    <div id="controls">
+        <label for="sort">Sort by:</label>
+        <select id="sort">
+            <option value="total">Total Population Growth Rate</option>
+            <option value="natural">Natural Change Rate</option>
+            <option value="migration">Net Migration Rate</option>
+        </select>
+
+        <label for="filter">Filter by:</label>
+        <select id="filter">
+            <option value="Asia">Asia</option>
+            <option value="Africa">Africa</option>
+            <option value="Europe">Europe</option>
+            <option value="North America">North America</option>
+            <option value="South America">South America</option>
+            <option value="Australia">Australia</option>
+            <option disabled>───────────────</option>
+            <option value="Developed">Developed Economies</option>
+            <option value="Developing">Developing Economies</option>
+        </select>
+    </div>
+
+    <div id="demographics-plot"></div>
+    <div id="legend-demographics">
+        <svg width="600" height="80"></svg>
+    </div>
+
+    <div class="story-block">
+        <h2>Story: Dual Drivers of Population Change</h2>
+        <p>
+            This stacked bar chart breaks down a country's total population growth rate (length of the bar) into its two major components:
+            the Natural Change Rate (Births - Deaths) and the Net Migration Rate.
+        </p>
+        <p>
+            The chart reveals that population stability in Developed Economies is often heavily reliant on Net Immigration (blue segments) to offset low or negative natural change. Conversely, for many Developing Economies, growth is driven almost entirely by the Natural Change Rate (green/brown segments), even if they experience significant net emigration.
+        </p>
+    </div>
+</div>
+
+<script src="js/demographics.js"></script>
+
+<script>
+    // highlight active tab
+    const path = window.location.pathname;
+    document.querySelectorAll('.nav-item').forEach(link => {
+        if (path.includes(link.getAttribute('href'))) {
+            link.classList.add('active');
+        }
+    });
+</script>
+</body>
+</html>

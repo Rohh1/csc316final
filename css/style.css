@@ -70,7 +70,8 @@ select {
     margin-bottom: 8px;
 }
 
-#scatter svg {
+/* UPDATED: Added #demographics-plot svg for consistent border/background */
+#scatter svg, #demographics-plot svg {
     background: #fafafa;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -87,13 +88,12 @@ select {
     text-decoration: underline;
 }
 
-#legend-map, #legend-scatter {
+/* UPDATED: Added #legend-demographics to the list */
+#legend-map, #legend-scatter, #legend-dashboard, #legend-demographics {
     display: flex;
     justify-content: center;
     margin: 15px 0 25px;
 }
-
-
 
 
 #dashboard {
@@ -175,3 +175,23 @@ select {
 .legend-row { font-size:12px; fill:#374151; }
 .legend-swatch { stroke:#0f172a; stroke-opacity:.15; }
 .legend-pill { rx:9; ry:9; }
+
+/* NEW DEMOGRAPHICS PLOT STYLES */
+#demographics-plot {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.bar-group:hover rect {
+    opacity: 0.8;
+}
+
+.zero-line {
+    stroke: #475569;
+    stroke-dasharray: 2 2;
+}
+
+.x-axis-title {
+    fill: black;
+}
