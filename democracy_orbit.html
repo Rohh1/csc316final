@@ -18,24 +18,24 @@
             gap: 15px;
             flex-wrap: wrap;
         }
-        
+
         .control-group {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
+
         #yearSlider {
             width: 300px;
         }
-        
+
         #yearDisplay {
             font-size: 1.3em;
             font-weight: bold;
             color: #0077cc;
             min-width: 60px;
         }
-        
+
         button {
             padding: 8px 16px;
             background: #0077cc;
@@ -45,64 +45,64 @@
             cursor: pointer;
             font-size: 14px;
         }
-        
+
         button:hover {
             background: #005fa3;
         }
-        
+
         button.active {
             background: #2e7d32;
         }
-        
+
         #orbit-chart {
             background: #fafafa;
             border: 1px solid #ddd;
             border-radius: 8px;
         }
-        
+
         .axis-label {
             fill: #555;
             font-size: 14px;
         }
-        
+
         .trail {
             fill: none;
             stroke-width: 1.5;
             opacity: 0.5;
         }
-        
+
         .planet {
             cursor: pointer;
         }
-        
+
         .planet:hover {
             stroke-width: 3;
         }
-        
+
         .orbit-legend {
             background: #f2f6fa;
             padding: 15px;
             border-radius: 8px;
             margin-top: 20px;
         }
-        
+
         .legend-title {
             font-weight: bold;
             margin-bottom: 10px;
         }
-        
+
         .legend-items {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
         }
-        
+
         .legend-item {
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        
+
         .legend-color {
             width: 20px;
             height: 20px;
@@ -123,7 +123,7 @@
 <div class="container">
     <h1>Democracy Orbit</h1>
     <div class="subtitle">How countries drift toward or away from their neighbors' democratic norms (1950-2020)</div>
-    
+
     <div class="orbit-controls">
         <div class="control-group">
             <label for="yearSlider">Year:</label>
@@ -138,24 +138,24 @@
             <label><input type="checkbox" id="showTrails" checked> Show trails</label>
         </div>
     </div>
-    
+
     <div id="orbit-vis"></div>
-    
+
     <div class="orbit-legend">
         <div class="legend-title">Regime Categories</div>
         <div class="legend-items" id="legendItems"></div>
     </div>
-    
+
     <div class="story-block">
         <h2>Story: Democratic Gravity</h2>
         <p>
-            Each country is positioned based on its neighbors' average democratic characteristics. 
-            The <b>X-axis</b> shows neighbors' electoral index (right = more democratic elections). 
+            Each country is positioned based on its neighbors' average democratic characteristics.
+            The <b>X-axis</b> shows neighbors' electoral index (right = more democratic elections).
             The <b>Y-axis</b> shows neighbors' democracy level (up = more democratic neighbors).
         </p>
         <p>
-            <b>Planet size</b> represents parliament members. <b>Yellow rings</b> indicate proportional voting systems. 
-            <b>Trails</b> show historical paths, revealing how countries drift toward or away from 
+            <b>Planet size</b> represents parliament members. <b>Yellow rings</b> indicate proportional voting systems.
+            <b>Trails</b> show historical paths, revealing how countries drift toward or away from
             their neighbors' democratic norms over decades.
         </p>
     </div>
@@ -185,33 +185,33 @@
             d.regimeCategory = d.regime_category;
             d.electoralCategory = d.electoral_category;
         });
-        
+
         // Filter out rows with invalid spatial data (only NaN, 0 is valid)
-        data = data.filter(d => 
-            !isNaN(d.spatialElectoral) && 
+        data = data.filter(d =>
+            !isNaN(d.spatialElectoral) &&
             !isNaN(d.spatialDemocracy)
         );
-        
+
         console.log('Data loaded:', data.length, 'rows');
         console.log('Sample:', data.slice(0, 3));
         console.log('Year 1950 data:', data.filter(d => d.year === 1950).length, 'countries');
-        
+
         // Set up dimensions
         const margin = {top: 20, right: 80, bottom: 80, left: 100};
         const width = 900 - margin.left - margin.right;
         const height = 600 - margin.top - margin.bottom;
-        
+
         const svg = d3.select('#orbit-vis').append("svg")
             .attr("id", "orbit-chart")
             .attr('width', width + margin.left + margin.right)
             .attr('height', height + margin.top + margin.bottom)
             .append('g')
             .attr('transform', `translate(${margin.left},${margin.top})`);
-        
+
         const tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
-        
+
         // Color scheme for regime types - map various regimes to colors
         const regimeColors = {
             'Closed autocracy': '#d32f2f',
@@ -239,41 +239,41 @@
             'Part of Yugoslavia': '#757575',
             'Part of the USSR': '#757575'
         };
-        
+
         // Scales
         const xExtent = d3.extent(data, d => d.spatialElectoral);
         const yExtent = d3.extent(data, d => d.spatialDemocracy);
-        
+
         console.log('X extent (spatial electoral):', xExtent);
         console.log('Y extent (spatial democracy):', yExtent);
-        
+
         const xScale = d3.scaleLinear()
             .domain(xExtent[0] !== undefined ? xExtent : [0, 10])
             .range([0, width])
             .nice();
-        
+
         const yScale = d3.scaleLinear()
             .domain(yExtent[0] !== undefined ? yExtent : [0, 10])
             .range([height, 0])
             .nice();
-        
+
         const sizeScale = d3.scaleSqrt()
             .domain([0, d3.max(data, d => d.lowerHouseMembers + d.upperHouseMembers) || 1000])
             .range([3, 18]);
-        
+
         // Add axes
         const xAxis = d3.axisBottom(xScale).ticks(10).tickFormat(d3.format('.1f'));
         const yAxis = d3.axisLeft(yScale).ticks(10).tickFormat(d3.format('.1f'));
-        
+
         svg.append('g')
             .attr('class', 'x-axis')
             .attr('transform', `translate(0,${height})`)
             .call(xAxis);
-        
+
         svg.append('g')
             .attr('class', 'y-axis')
             .call(yAxis);
-        
+
         // Add axis labels
         svg.append('text')
             .attr('class', 'axis-label')
@@ -281,7 +281,7 @@
             .attr('x', width / 2)
             .attr('y', height + 45)
             .text('Neighbors\' Electoral Index (← less | more →)');
-        
+
         svg.append('text')
             .attr('class', 'axis-label')
             .attr('text-anchor', 'middle')
@@ -289,13 +289,13 @@
             .attr('x', -height / 2)
             .attr('y', -60)
             .text('Neighbors\' Democracy Level (← less | more →)');
-        
+
         // Group data by country for trails
         const countryData = d3.group(data, d => d.country);
-        
+
         // Create trail paths
         const trailsGroup = svg.append('g').attr('class', 'trails');
-        
+
         function getRegimeColor(regime) {
             if (!regime) return '#bdbdbd';
             // Check exact match first
@@ -306,7 +306,7 @@
             if (regime.toLowerCase().includes('colony') || regime.toLowerCase().includes('territory')) return '#9e9e9e';
             return '#bdbdbd'; // default gray for unknown
         }
-        
+
         // Create legend
         const uniqueRegimes = [...new Set(data.map(d => d.regimeCategory))].filter(d => d).sort();
         const legendItems = d3.select('#legendItems');
@@ -317,27 +317,27 @@
                 .style('background-color', getRegimeColor(regime));
             item.append('span').text(regime);
         });
-        
+
         // Create planets group
         const planetsGroup = svg.append('g').attr('class', 'planets');
-        
+
         let currentYear = 1950;
         let isPlaying = false;
         let playInterval = null;
-        
+
         // Update function
         function updateVisualization(year) {
             currentYear = year;
             d3.select('#yearDisplay').text(year);
             d3.select('#yearSlider').property('value', year);
-            
+
             const showTrails = d3.select('#showTrails').property('checked');
-            
+
             // Update trails
             if (showTrails) {
                 const trails = trailsGroup.selectAll('.trail')
                     .data(Array.from(countryData.entries()), d => d[0]);
-                
+
                 trails.enter()
                     .append('path')
                     .attr('class', 'trail')
@@ -347,15 +347,15 @@
                             .filter(p => p.year <= year)
                             .filter(p => !isNaN(p.spatialElectoral) && !isNaN(p.spatialDemocracy))
                             .sort((a, b) => a.year - b.year);
-                        
+
                         if (countryPoints.length < 2) return '';
-                        
+
                         const line = d3.line()
                             .x(p => xScale(p.spatialElectoral))
                             .y(p => yScale(p.spatialDemocracy))
                             .defined(p => !isNaN(xScale(p.spatialElectoral)) && !isNaN(yScale(p.spatialDemocracy)))
                             .curve(d3.curveCardinal.tension(0.5));
-                        
+
                         return line(countryPoints);
                     })
                     .attr('stroke', d => {
@@ -364,21 +364,21 @@
                             .sort((a, b) => b.year - a.year)[0];
                         return latestPoint && latestPoint.regimeCategory ? getRegimeColor(latestPoint.regimeCategory) : '#bdbdbd';
                     });
-                
+
                 trails.exit().remove();
             } else {
                 trailsGroup.selectAll('.trail').remove();
             }
-            
+
             // Get current year data
             const yearData = data.filter(d => d.year === year && !isNaN(d.spatialElectoral) && !isNaN(d.spatialDemocracy));
-            
+
             console.log('Year', year, ':', yearData.length, 'countries with valid data');
-            
+
             // Update planets
             const planets = planetsGroup.selectAll('.planet')
                 .data(yearData, d => d.country);
-            
+
             // Enter new planets
             const planetsEnter = planets.enter()
                 .append('circle')
@@ -386,7 +386,7 @@
                 .attr('cx', d => xScale(d.spatialElectoral))
                 .attr('cy', d => yScale(d.spatialDemocracy))
                 .attr('r', 0);
-            
+
             // Update all planets
             planets.merge(planetsEnter)
                 .transition()
@@ -401,14 +401,14 @@
                 .attr('stroke', d => d.hasProportionalVoting ? '#fbc02d' : '#888')
                 .attr('stroke-width', d => d.hasProportionalVoting ? 2.5 : 1)
                 .attr('opacity', 0.8);
-            
+
             // Remove old planets
             planets.exit()
                 .transition()
                 .duration(300)
                 .attr('r', 0)
                 .remove();
-            
+
             // Add hover interactions
             planetsGroup.selectAll('.planet')
                 .on('mouseover', function(event, d) {
@@ -417,7 +417,7 @@
                         .duration(200)
                         .attr('opacity', 1)
                         .attr('stroke-width', 3);
-                    
+
                     tooltip.transition().duration(100).style('opacity', 1);
                     tooltip.html(`
                         <strong>${d.country} (${d.year})</strong><br/>
@@ -438,16 +438,16 @@
                         .duration(200)
                         .attr('opacity', 0.8)
                         .attr('stroke-width', d => d.hasProportionalVoting ? 2.5 : 1);
-                    
+
                     tooltip.transition().duration(200).style('opacity', 0);
                 });
         }
-        
+
         // Play/pause functionality
         function togglePlay() {
             isPlaying = !isPlaying;
             const button = d3.select('#playButton');
-            
+
             if (isPlaying) {
                 button.text('⏸ Pause').classed('active', true);
                 playInterval = setInterval(() => {
@@ -457,7 +457,7 @@
                         currentYear++;
                     }
                     updateVisualization(currentYear);
-                    
+
                     if (currentYear >= 2020) {
                         togglePlay();
                     }
@@ -470,24 +470,24 @@
                 }
             }
         }
-        
+
         // Event listeners
         d3.select('#playButton').on('click', togglePlay);
-        
+
         d3.select('#resetButton').on('click', () => {
             if (isPlaying) togglePlay();
             updateVisualization(1950);
         });
-        
+
         d3.select('#yearSlider').on('input', function() {
             if (isPlaying) togglePlay();
             updateVisualization(+this.value);
         });
-        
+
         d3.select('#showTrails').on('change', () => {
             updateVisualization(currentYear);
         });
-        
+
         // Initial render
         updateVisualization(1950);
     }).catch(error => {
