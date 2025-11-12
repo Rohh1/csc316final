@@ -6,119 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <style>
-        /* Additional styles for Democracy Orbit */
-        .orbit-controls {
-            background: #f2f6fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .control-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #yearSlider {
-            width: 300px;
-        }
-
-        #yearDisplay {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #0077cc;
-            min-width: 60px;
-        }
-
-        button {
-            padding: 8px 16px;
-            background: #0077cc;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        button:hover {
-            background: #005fa3;
-        }
-
-        button.active {
-            background: #2e7d32;
-        }
-
-        #orbit-chart {
-            background: #fafafa;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-
-        .axis-label {
-            fill: #555;
-            font-size: 14px;
-        }
-
-        .trail {
-            fill: none;
-            stroke-width: 1.5;
-            opacity: 0.5;
-        }
-
-        .planet {
-            cursor: pointer;
-        }
-
-        .planet:hover {
-            stroke-width: 3;
-        }
-
-        .orbit-legend {
-            background: #f2f6fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .legend-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .legend-items {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-        }
-    </style>
 </head>
 <body>
 
-<nav class="top-nav">
+<<nav class="top-nav">
     <a href="map.html" class="nav-item"> Map Overview</a>
     <a href="scatter.html" class="nav-item"> Migration vs Life Expectancy</a>
     <a href="dashboard.html" class="nav-item"> Population Health Dashboard</a>
     <a href="forcemap.html" class="nav-item"> Animated Migration Map</a>
     <a href="democracy_orbit.html" class="nav-item"> Democracy Orbit</a>
 </nav>
+
 
 <div class="container">
     <h1>Democracy Orbit</h1>

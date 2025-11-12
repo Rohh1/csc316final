@@ -18,8 +18,10 @@
     <a href="map.html" class="nav-item"> Map Overview</a>
     <a href="scatter.html" class="nav-item"> Migration vs Life Expectancy</a>
     <a href="dashboard.html" class="nav-item"> Population Health Dashboard</a>
+    <a href="forcemap.html" class="nav-item"> Animated Migration Map</a>
     <a href="democracy_orbit.html" class="nav-item"> Democracy Orbit</a>
 </nav>
+
 
 
 <div class="container">
@@ -69,9 +71,7 @@
 <script>
     const path = window.location.pathname;
     document.querySelectorAll('.nav-item').forEach(link => {
-        if (path.includes(link.getAttribute('href'))) {
-            link.classList.add('active');
-        }
+        if (path.includes(link.getAttribute('href'))) link.classList.add('active');
     });
 </script>
 

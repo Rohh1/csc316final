@@ -17,8 +17,10 @@
     <a href="map.html" class="nav-item"> Map Overview</a>
     <a href="scatter.html" class="nav-item"> Migration vs Life Expectancy</a>
     <a href="dashboard.html" class="nav-item"> Population Health Dashboard</a>
+    <a href="forcemap.html" class="nav-item"> Animated Migration Map</a>
     <a href="democracy_orbit.html" class="nav-item"> Democracy Orbit</a>
 </nav>
+
 
 <div class="container">
     <h1>Migration vs. Life Expectancy</h1>
@@ -41,7 +43,6 @@
             <option value="Developed">Developed Economies</option>
             <option value="Developing">Developing Economies</option>
         </select>
-        <a href="map.html" class="back-link">← Back to Map</a>
     </div>
 
     <div id="scatter"></div>
@@ -63,9 +64,7 @@
 <script>
     const path = window.location.pathname;
     document.querySelectorAll('.nav-item').forEach(link => {
-        if (path.includes(link.getAttribute('href'))) {
-            link.classList.add('active');
-        }
+        if (path.includes(link.getAttribute('href'))) link.classList.add('active');
     });
 </script>
 

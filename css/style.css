@@ -1,7 +1,16 @@
+:root {
+    --primary-color: #0077cc;
+    --accent-color: #fbc02d;
+    --background-color: #f2f6fa;
+    --text-color: #243040;
+    --card-bg: #ffffff;
+    --shadow: 0 3px 8px rgba(0,0,0,0.08);
+}
+
 body {
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    background-color: #fafafa;
-    color: #333;
+    font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
     margin: 0;
     padding: 0;
 }
@@ -175,3 +184,105 @@ select {
 .legend-row { font-size:12px; fill:#374151; }
 .legend-swatch { stroke:#0f172a; stroke-opacity:.15; }
 .legend-pill { rx:9; ry:9; }
+
+/* Additional styles for Democracy Orbit */
+.orbit-controls {
+    background: #f2f6fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#yearSlider {
+    width: 300px;
+}
+
+#yearDisplay {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077cc;
+    min-width: 60px;
+}
+
+button {
+    padding: 8px 16px;
+    background: #0077cc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover {
+    background: #005fa3;
+}
+
+button.active {
+    background: #2e7d32;
+}
+
+#orbit-chart {
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.axis-label {
+    fill: #555;
+    font-size: 14px;
+}
+
+.trail {
+    fill: none;
+    stroke-width: 1.5;
+    opacity: 0.5;
+}
+
+.planet {
+    cursor: pointer;
+}
+
+.planet:hover {
+    stroke-width: 3;
+}
+
+.orbit-legend {
+    background: #f2f6fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.legend-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
