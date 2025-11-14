@@ -1,238 +1,413 @@
-const width = 900, height = 500, margin = { top: 40, right: 40, bottom: 60, left: 70 };
+
+const width = 960,
+    height = 560,
+    margin = { top: 40, right: 260, bottom: 70, left: 70 };
 
 const svg = d3.select("#scatter")
     .append("svg")
     .attr("width", width)
     .attr("height", height);
 
+const infoPanel = d3.select("#scatter-info");
+
+const width = 960,
+    height = 560,
+    margin = { top: 40, right: 260, bottom: 70, left: 70 };
+
+const svg = d3.select("#scatter")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+const infoPanel = d3.select("#scatter-info");
+
 const tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
-    .style("opacity", 0);
+    .style("opacity", 0)
+    .style("pointer-events", "none");
 
-Promise.all([
-    d3.csv("data/cia_factbook.csv", d3.autoType)
-]).then(([data]) => {
+Promise.all([ d3.csv("data/cia_factbook.csv", d3.autoType) ])
+    .then(([data]) => {
 
-    // Define scales
-    const x = d3.scaleLinear()
-        .domain(d3.extent(data, d => d.life_exp_at_birth))
-        .nice()
-        .range([margin.left, width - margin.right]);
+        const continentLookup = new Map([
+            ["Canada","North America"],["United States","North America"],["Mexico","North America"],
+            ["Brazil","South America"],["Argentina","South America"],["Chile","South America"],
+            ["United Kingdom","Europe"],["Germany","Europe"],["France","Europe"],["Italy","Europe"],
+            ["Spain","Europe"],["Russia","Europe"],
+            ["China","Asia"],["India","Asia"],["Japan","Asia"],["South Korea","Asia"],
+            ["Indonesia","Asia"],["Saudi Arabia","Asia"],
+            ["Nigeria","Africa"],["Egypt","Africa"],["South Africa","Africa"],["Kenya","Africa"],
+            ["Australia","Oceania"],["New Zealand","Oceania"]
+        ]);
 
-    const y = d3.scaleLinear()
-        .domain(d3.extent(data, d => d.net_migration_rate))
-        .nice()
-        .range([height - margin.bottom, margin.top]);
-
-    const r = d3.scaleSqrt()
-        .domain(d3.extent(data, d => d.population))
-        .range([2, 18]);
-
-    const color = d3.scaleOrdinal()
-        .domain(["North America", "Europe", "Asia", "Africa", "Oceania"])
-        .range(["#1f77b4", "#9467bd", "#2ca02c", "#d62728", "#ff7f0e"]);
-
-    const continentGroup = new Map([
-        // North America
-        ["Canada", "North America"],
-        ["United States", "North America"],
-        ["Mexico", "North America"],
-
-        // South America
-        ["Brazil", "South America"],
-        ["Argentina", "South America"],
-        ["Chile", "South America"],
-        ["Colombia", "South America"],
-
-        // Europe
-        ["United Kingdom", "Europe"],
-        ["France", "Europe"],
-        ["Germany", "Europe"],
-        ["Italy", "Europe"],
-        ["Spain", "Europe"],
-        ["Russia", "Europe"],
-
-        // Africa
-        ["Nigeria", "Africa"],
-        ["South Africa", "Africa"],
-        ["Egypt", "Africa"],
-        ["Kenya", "Africa"],
-
-        // Asia
-        ["China", "Asia"],
-        ["India", "Asia"],
-        ["Japan", "Asia"],
-        ["South Korea", "Asia"],
-        ["Indonesia", "Asia"],
-        ["Saudi Arabia", "Asia"],
-
-        // Australia / Oceania
-        ["Australia", "Australia"],
-        ["New Zealand", "Australia"],
-
-        // Antarctica
-        ["Antarctica", "Antarctica"]
-    ]);
+        const economicGroup = new Map([
+            ["United States","Developed"],["Canada","Developed"],
+            ["Germany","Developed"],["France","Developed"],
+            ["Japan","Developed"],["Australia","Developed"],
+            ["China","Developing"],["India","Developing"],
+            ["Brazil","Developing"],["Russia","Developing"],
+            ["Nigeria","Developing"]
+        ]);
 
 
-    const economicGroup = new Map([
-        ["United States", "Developed"],
-        ["Canada", "Developed"],
-        ["Germany", "Developed"],
-        ["Australia", "Developed"],
-        ["China", "Developing"],
-        ["India", "Developing"],
-        ["Brazil", "Developing"],
-        ["Russia", "Developing"],
-        ["Nigeria", "Developing"]
-    ]);
+        const metrics = {
+            life_exp_at_birth: "Life Expectancy",
+            net_migration_rate: "Net Migration Rate",
+            birth_rate: "Birth Rate",
+            death_rate: "Death Rate",
+            population: "Population"
+        };
 
-    // Draw axes
-    svg.append("g")
-        .attr("transform", `translate(0,${height - margin.bottom})`)
-        .call(d3.axisBottom(x))
-        .append("text")
-        .attr("x", width / 2)
-        .attr("y", 40)
-        .attr("fill", "black")
-        .text("Life Expectancy (Years)");
+        let currentX = "life_exp_at_birth";
+        let currentY = "net_migration_rate";
 
-    svg.append("g")
-        .attr("transform", `translate(${margin.left},0)`)
-        .call(d3.axisLeft(y))
-        .append("text")
-        .attr("x", -50)
-        .attr("y", 20)
-        .attr("fill", "black")
-        .text("Net Migration Rate (per 1,000)");
+        let x = d3.scaleLinear().range([margin.left, width - margin.right]);
+        let y = d3.scaleLinear().range([height - margin.bottom, margin.top]);
+        const r = d3.scaleSqrt()
+            .domain(d3.extent(data, d => d.population))
+            .range([3, 22]);
 
-    // Plot points
-    const circles = svg.selectAll("circle")
-        .data(data)
-        .join("circle")
-        .attr("cx", d => x(d.life_exp_at_birth))
-        .attr("cy", d => y(d.net_migration_rate))
-        .attr("r", d => r(d.population))
-        .attr("fill", d => color(continentGroup.get(d.country) || "gray"))
-        .attr("opacity", 0.8)
-        .on("mouseover", (event, d) => {
-            tooltip.transition().duration(100).style("opacity", 1);
-            tooltip.html(`
-        <strong>${d.country}</strong><br/>
-        Life Expectancy: ${d.life_exp_at_birth}<br/>
-        Net Migration Rate: ${d.net_migration_rate}<br/>
-        Population: ${d3.format(",")(d.population)}
-      `)
-                .style("left", (event.pageX + 8) + "px")
-                .style("top", (event.pageY - 30) + "px");
-        })
-        .on("mouseout", () => tooltip.transition().duration(200).style("opacity", 0));
+        const color = d3.scaleOrdinal()
+            .domain(["North America","Europe","Asia","Africa","South America","Oceania"])
+            .range(["#1f77b4","#9467bd","#2ca02c","#d62728","#ff7f0e","#17becf"]);
 
-    // Filtering by region/economy
-    d3.select("#filter").on("change", e => {
-        const selected = e.target.value;
+        const xAxisG = svg.append("g").attr("transform", `translate(0,${height-margin.bottom})`);
+        const yAxisG = svg.append("g").attr("transform", `translate(${margin.left},0)`);
 
-        const filteredData = data.filter(d => {
-            const cont = continentGroup.get(d.country);
-            const econ = economicGroup.get(d.country);
-            if (selected === "all") return true;
-            if (["Developed", "Developing"].includes(selected))
-                return econ === selected;
-            return cont === selected;
+        const xLabel = svg.append("text")
+            .attr("x", width/2)
+            .attr("y", height - 20)
+            .attr("text-anchor","middle")
+            .style("font-size","14px");
+
+        const yLabel = svg.append("text")
+            .attr("transform","rotate(-90)")
+            .attr("x", -height/2)
+            .attr("y", 25)
+            .attr("text-anchor","middle")
+            .style("font-size","14px");
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.8, 8])
+            .on("zoom", function(event) {
+                svg.selectAll("circle").attr("transform", event.transform);
+                xAxisG.call(d3.axisBottom(x).scale(event.transform.rescaleX(x)));
+                yAxisG.call(d3.axisLeft(y).scale(event.transform.rescaleY(y)));
+            });
+
+        svg.call(zoom);
+
+
+        function draw(filtered) {
+
+            x.domain(d3.extent(filtered, d => d[currentX])).nice();
+            y.domain(d3.extent(filtered, d => d[currentY])).nice();
+
+            xAxisG.transition().duration(400).call(d3.axisBottom(x));
+            yAxisG.transition().duration(400).call(d3.axisLeft(y));
+
+            xLabel.text(metrics[currentX]);
+            yLabel.text(metrics[currentY]);
+
+            let pts = svg.selectAll("circle")
+                .data(filtered, d => d.country);
+
+            pts.exit()
+                .transition().duration(300)
+                .attr("r", 0)
+                .remove();
+
+            pts.transition().duration(400)
+                .attr("cx", d => x(d[currentX]))
+                .attr("cy", d => y(d[currentY]))
+                .attr("r", d => r(d.population))
+                .attr("fill", d => color(continentLookup.get(d.country)))
+                .attr("opacity", 0.85);
+
+            pts.enter()
+                .append("circle")
+                .attr("cx", d => x(d[currentX]))
+                .attr("cy", d => y(d[currentY]))
+                .attr("r", 0)
+                .attr("fill", d => color(continentLookup.get(d.country)))
+                .attr("opacity", 0.85)
+                .transition().duration(400)
+                .attr("r", d => r(d.population));
+
+            svg.selectAll("circle")
+                .on("mouseover", function(event, d) {
+                    const cont = continentLookup.get(d.country);
+
+                    d3.select(this)
+                        .raise()
+                        .transition()
+                        .duration(120)
+                        .attr("r", r(d.population) + 4)
+                        .attr("stroke", "#000")
+                        .attr("stroke-width", 1.4);
+
+                    svg.selectAll("circle")
+                        .filter(p => p.country !== d.country)
+                        .transition()
+                        .duration(120)
+                        .attr("opacity", 0.18);
+
+                    tooltip.style("opacity", 1)
+                        .html(`
+                        <strong>${d.country}</strong><br>
+                        ${metrics[currentX]}: ${d[currentX]}<br>
+                        ${metrics[currentY]}: ${d[currentY]}
+                    `)
+                        .style("left", event.pageX + 12 + "px")
+                        .style("top", event.pageY - 28 + "px");
+
+                    infoPanel.style("display", "block").html(`
+                    <h3>${d.country}</h3>
+                    <b>${metrics[currentX]}:</b> ${d[currentX]}<br>
+                    <b>${metrics[currentY]}:</b> ${d[currentY]}<br>
+                    <b>Population:</b> ${d3.format(",")(d.population)}
+                `);
+                })
+                .on("mousemove", (event) => {
+                    tooltip.style("left", event.pageX + 12 + "px")
+                        .style("top", event.pageY - 28 + "px");
+                })
+                .on("mouseout", function(event, d) {
+                    d3.select(this)
+                        .transition()
+                        .duration(120)
+                        .attr("r", r(d.population))
+                        .attr("stroke-width", 0);
+
+                    svg.selectAll("circle")
+                        .transition()
+                        .attr("opacity", 0.85);
+
+                    tooltip.style("opacity", 0);
+                    infoPanel.style("display", "none");
+                });
+        }
+
+        function applyFilter() {
+            const sel = document.getElementById("filter").value;
+
+            let filtered;
+            if (sel === "all") filtered = data;
+            else if (sel === "Developed" || sel === "Developing")
+                filtered = data.filter(d => economicGroup.get(d.country) === sel);
+            else
+                filtered = data.filter(d => continentLookup.get(d.country) === sel);
+
+            draw(filtered);
+        }
+
+        d3.select("#axis-x").on("change", e => {
+            currentX = e.target.value;
+            applyFilter();
         });
 
-        const update = svg.selectAll("circle")
-            .data(filteredData, d => d.country);
+        d3.select("#axis-y").on("change", e => {
+            currentY = e.target.value;
+            applyFilter();
+        });
 
-        update.exit()
-            .transition()
-            .duration(500)
-            .attr("r", 0)
-            .remove();
+        d3.select("#filter").on("change", applyFilter);
 
-        update.transition()
-            .duration(600)
-            .attr("cx", d => x(d.life_exp_at_birth))
-            .attr("cy", d => y(d.net_migration_rate))
-            .attr("r", d => r(d.population))
-            .attr("fill", d => color(continentGroup.get(d.country) || "gray"))
-            .attr("opacity", 0.85);
+        draw(data);
 
-        update.enter()
-            .append("circle")
-            .attr("cx", d => x(d.life_exp_at_birth))
-            .attr("cy", d => y(d.net_migration_rate))
-            .attr("r", 0)
-            .attr("fill", d => color(continentGroup.get(d.country) || "gray"))
-            .attr("opacity", 0.85)
-            .transition()
-            .duration(600)
-            .attr("r", d => r(d.population));
-
-        svg.selectAll("circle")
-            .on("mouseover", (event, d) => {
-                tooltip.transition().duration(100).style("opacity", 1);
-                tooltip.html(`
-        <strong>${d.country}</strong><br/>
-        Life Expectancy: ${d.life_exp_at_birth}<br/>
-        Net Migration Rate: ${d.net_migration_rate}<br/>
-        Population: ${d3.format(",")(d.population)}
-      `)
-                    .style("left", (event.pageX + 8) + "px")
-                    .style("top", (event.pageY - 30) + "px");
-            })
-            .on("mouseout", () => tooltip.transition().duration(200).style("opacity", 0));
     });
 
-    // Legend for Scatter Plot
-    const legendSvg = d3.select("#legend-scatter svg");
+const tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0)
+    .style("pointer-events", "none");
 
-// Color legend (continent)
-    const continents = color.domain();
-    const legendX = 30, legendY = 20;
+Promise.all([ d3.csv("data/cia_factbook.csv", d3.autoType) ])
+    .then(([data]) => {
 
-    continents.forEach((c, i) => {
-        legendSvg.append("circle")
-            .attr("cx", legendX)
-            .attr("cy", legendY + i * 18)
-            .attr("r", 6)
-            .attr("fill", color(c));
+        const continentLookup = new Map([
+            ["Canada","North America"],["United States","North America"],["Mexico","North America"],
+            ["Brazil","South America"],["Argentina","South America"],["Chile","South America"],
+            ["United Kingdom","Europe"],["Germany","Europe"],["France","Europe"],["Italy","Europe"],
+            ["Spain","Europe"],["Russia","Europe"],
+            ["China","Asia"],["India","Asia"],["Japan","Asia"],["South Korea","Asia"],
+            ["Indonesia","Asia"],["Saudi Arabia","Asia"],
+            ["Nigeria","Africa"],["Egypt","Africa"],["South Africa","Africa"],["Kenya","Africa"],
+            ["Australia","Oceania"],["New Zealand","Oceania"]
+        ]);
 
-        legendSvg.append("text")
-            .attr("x", legendX + 14)
-            .attr("y", legendY + i * 18 + 4)
-            .text(c)
-            .style("font-size", "13px")
-            .style("fill", "#333");
+        const economicGroup = new Map([
+            ["United States","Developed"],["Canada","Developed"],
+            ["Germany","Developed"],["France","Developed"],
+            ["Japan","Developed"],["Australia","Developed"],
+            ["China","Developing"],["India","Developing"],
+            ["Brazil","Developing"],["Russia","Developing"],
+            ["Nigeria","Developing"]
+        ]);
+
+        const metrics = {
+            life_exp_at_birth: "Life Expectancy",
+            net_migration_rate: "Net Migration Rate",
+            birth_rate: "Birth Rate",
+            death_rate: "Death Rate",
+            population: "Population"
+        };
+
+        let currentX = "life_exp_at_birth";
+        let currentY = "net_migration_rate";
+
+        let x = d3.scaleLinear().range([margin.left, width - margin.right]);
+        let y = d3.scaleLinear().range([height - margin.bottom, margin.top]);
+        const r = d3.scaleSqrt()
+            .domain(d3.extent(data, d => d.population))
+            .range([3, 22]);
+
+        const color = d3.scaleOrdinal()
+            .domain(["North America","Europe","Asia","Africa","South America","Oceania"])
+            .range(["#1f77b4","#9467bd","#2ca02c","#d62728","#ff7f0e","#17becf"]);
+
+        const xAxisG = svg.append("g").attr("transform", `translate(0,${height-margin.bottom})`);
+        const yAxisG = svg.append("g").attr("transform", `translate(${margin.left},0)`);
+
+        const xLabel = svg.append("text")
+            .attr("x", width/2)
+            .attr("y", height - 20)
+            .attr("text-anchor","middle")
+            .style("font-size","14px");
+
+        const yLabel = svg.append("text")
+            .attr("transform","rotate(-90)")
+            .attr("x", -height/2)
+            .attr("y", 25)
+            .attr("text-anchor","middle")
+            .style("font-size","14px");
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.8, 8])
+            .on("zoom", function(event) {
+                svg.selectAll("circle").attr("transform", event.transform);
+                xAxisG.call(d3.axisBottom(x).scale(event.transform.rescaleX(x)));
+                yAxisG.call(d3.axisLeft(y).scale(event.transform.rescaleY(y)));
+            });
+
+        svg.call(zoom);
+
+
+        function draw(filtered) {
+
+            x.domain(d3.extent(filtered, d => d[currentX])).nice();
+            y.domain(d3.extent(filtered, d => d[currentY])).nice();
+
+            xAxisG.transition().duration(400).call(d3.axisBottom(x));
+            yAxisG.transition().duration(400).call(d3.axisLeft(y));
+
+            xLabel.text(metrics[currentX]);
+            yLabel.text(metrics[currentY]);
+
+            let pts = svg.selectAll("circle")
+                .data(filtered, d => d.country);
+
+            pts.exit()
+                .transition().duration(300)
+                .attr("r", 0)
+                .remove();
+
+            pts.transition().duration(400)
+                .attr("cx", d => x(d[currentX]))
+                .attr("cy", d => y(d[currentY]))
+                .attr("r", d => r(d.population))
+                .attr("fill", d => color(continentLookup.get(d.country)))
+                .attr("opacity", 0.85);
+
+            pts.enter()
+                .append("circle")
+                .attr("cx", d => x(d[currentX]))
+                .attr("cy", d => y(d[currentY]))
+                .attr("r", 0)
+                .attr("fill", d => color(continentLookup.get(d.country)))
+                .attr("opacity", 0.85)
+                .transition().duration(400)
+                .attr("r", d => r(d.population));
+
+            svg.selectAll("circle")
+                .on("mouseover", function(event, d) {
+                    const cont = continentLookup.get(d.country);
+
+                    d3.select(this)
+                        .raise()
+                        .transition()
+                        .duration(120)
+                        .attr("r", r(d.population) + 4)
+                        .attr("stroke", "#000")
+                        .attr("stroke-width", 1.4);
+
+                    svg.selectAll("circle")
+                        .filter(p => p.country !== d.country)
+                        .transition()
+                        .duration(120)
+                        .attr("opacity", 0.18);
+
+                    tooltip.style("opacity", 1)
+                        .html(`
+                        <strong>${d.country}</strong><br>
+                        ${metrics[currentX]}: ${d[currentX]}<br>
+                        ${metrics[currentY]}: ${d[currentY]}
+                    `)
+                        .style("left", event.pageX + 12 + "px")
+                        .style("top", event.pageY - 28 + "px");
+
+                    infoPanel.style("display", "block").html(`
+                    <h3>${d.country}</h3>
+                    <b>${metrics[currentX]}:</b> ${d[currentX]}<br>
+                    <b>${metrics[currentY]}:</b> ${d[currentY]}<br>
+                    <b>Population:</b> ${d3.format(",")(d.population)}
+                `);
+                })
+                .on("mousemove", (event) => {
+                    tooltip.style("left", event.pageX + 12 + "px")
+                        .style("top", event.pageY - 28 + "px");
+                })
+                .on("mouseout", function(event, d) {
+                    d3.select(this)
+                        .transition()
+                        .duration(120)
+                        .attr("r", r(d.population))
+                        .attr("stroke-width", 0);
+
+                    svg.selectAll("circle")
+                        .transition()
+                        .attr("opacity", 0.85);
+
+                    tooltip.style("opacity", 0);
+                    infoPanel.style("display", "none");
+                });
+        }
+
+        function applyFilter() {
+            const sel = document.getElementById("filter").value;
+
+            let filtered;
+            if (sel === "all") filtered = data;
+            else if (sel === "Developed" || sel === "Developing")
+                filtered = data.filter(d => economicGroup.get(d.country) === sel);
+            else
+                filtered = data.filter(d => continentLookup.get(d.country) === sel);
+
+            draw(filtered);
+        }
+
+        d3.select("#axis-x").on("change", e => {
+            currentX = e.target.value;
+            applyFilter();
+        });
+
+        d3.select("#axis-y").on("change", e => {
+            currentY = e.target.value;
+            applyFilter();
+        });
+
+        d3.select("#filter").on("change", applyFilter);
+
+        draw(data);
+
     });
-
-// ---- Size legend (population) ----
-    const popLegend = [1e6, 5e7, 2e8, 1e9]; // adjust to fit your data range
-    const sizeLegendX = 200, sizeLegendY = 40;
-
-    legendSvg.append("text")
-        .attr("x", sizeLegendX)
-        .attr("y", 15)
-        .text("Population size")
-        .style("font-size", "13px")
-        .style("fill", "#333");
-
-    popLegend.forEach((p, i) => {
-        legendSvg.append("circle")
-            .attr("cx", sizeLegendX + i * 55)
-            .attr("cy", sizeLegendY)
-            .attr("r", r(p))
-            .attr("fill", "none")
-            .attr("stroke", "#555");
-
-        legendSvg.append("text")
-            .attr("x", sizeLegendX + i * 55)
-            .attr("y", sizeLegendY + r(p) + 14)
-            .attr("text-anchor", "middle")
-            .text(d3.format(".2s")(p))
-            .style("font-size", "11px")
-            .style("fill", "#555");
-    });
-
-
-});

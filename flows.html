@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Interactive Migration Flow Chord + Transport Bar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+<nav class="top-nav">
+    <a href="map.html" class="nav-item">Map Overview</a>
+    <a href="scatter.html" class="nav-item">Migration vs Life Expectancy</a>
+    <a href="dashboard.html" class="nav-item">Population Dashboard</a>
+    <a href="forcemap.html" class="nav-item">Animated Migration Map</a>
+    <a href="democracy_orbit.html" class="nav-item">Democracy Orbit</a>
+    <a href="flows.html" class="nav-item">Migration Flows</a>
+    <a href="birth_death_matrix.html" class="nav-item active">Force Galaxy</a>
+</nav>
+
+<div class="container">
+    <h1>Migration Flows: Chord + Active Transport Bar</h1>
+    <p class="subtitle">
+        Hover over continents or ribbons to reveal detailed migration flow bars.
+    </p>
+
+    <div id="chord"></div>
+        <button id="toggleFlow" class="btn">Show Inbound</button>
+
+    <div id="bar"></div>
+
+    <div class="story-block">
+        <h2>Story: Linking Global and Regional Views</h2>
+        <p>
+            The chord diagram shows migration between continents, while the bar chart reveals how strongly each region connects with others.
+            Hover over a region to discover its dominant migration relationships.
+        </p>
+    </div>
+</div>
+
+
+<script>
+    const path = window.location.pathname;
+    document.querySelectorAll('.nav-item').forEach(l=>{
+        if (path.includes(l.getAttribute('href'))) l.classList.add('active');
+    });
+
+    const width = 800, height = 850;
+    const outerRadius = Math.min(width, height) * 0.43;
+    const innerRadius = outerRadius - 20;
+
+    const svg = d3.select("#chord")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", `translate(${width/2}, ${height/2})`);
+
+    const barSvg = d3.select("#bar")
+        .append("svg")
+        .attr("width", 700)
+        .attr("height", 250)
+        .style("display", "block")
+        .style("margin", "auto");
+
+    const continents = ["Africa","Asia","Europe","North America","South America","Oceania"];
+    const color = d3.scaleOrdinal()
+        .domain(continents)
+        .range(["#d32f2f","#f57c00","#388e3c","#1976d2","#6a1b9a","#00838f"]);
+
+    const baseMatrix = [
+        [0, 50, 30, 10, 8, 2],
+        [40, 0, 70, 25, 15, 6],
+        [25, 80, 0, 45, 12, 5],
+        [12, 30, 50, 0, 20, 4],
+        [10, 15, 25, 35, 0, 3],
+        [3, 8, 10, 4, 2, 0]
+    ];
+
+    let flowMode = "outbound";
+
+    function getMatrix(mode) {
+        if (mode === "outbound") return baseMatrix;
+        if (mode === "inbound") {
+            return baseMatrix[0].map((_, i) => baseMatrix.map(row => row[i]));
+        }
+    }
+
+    function drawChord(matrix) {
+        svg.selectAll("*").remove();
+        const chord = d3.chord().padAngle(0.05).sortSubgroups(d3.descending)(matrix);
+        const arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius);
+        const ribbon = d3.ribbon().radius(innerRadius);
+
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip").style("opacity", 0);
+
+        const group = svg.append("g").selectAll("g")
+            .data(chord.groups)
+            .join("g");
+
+        group.append("path")
+            .attr("fill", d => color(continents[d.index]))
+            .attr("stroke", d => d3.rgb(color(continents[d.index])).darker())
+            .attr("d", arc)
+            .on("mouseover", (event, d) => {
+                updateBars(d.index);
+                highlightGroup(d.index);
+            })
+            .on("mouseout", clearHighlight);
+
+        group.append("text")
+            .each(d => d.angle = (d.startAngle + d.endAngle) / 2)
+            .attr("dy", ".35em")
+            .attr("transform", d => `
+      rotate(${d.angle * 180 / Math.PI - 90})
+      translate(${outerRadius + 15})
+      ${d.angle > Math.PI ? "rotate(180)" : ""}
+    `)
+            .attr("text-anchor", d => d.angle > Math.PI ? "end" : "start")
+            .style("font-size", "13px")
+            .text(d => continents[d.index]);
+
+        svg.append("g")
+            .attr("fill-opacity", 0.85)
+            .selectAll("path")
+            .data(chord)
+            .join("path")
+            .attr("class", "ribbon")
+            .attr("d", ribbon)
+            .attr("fill", d => color(continents[d.target.index]))
+            .attr("stroke", d => d3.rgb(color(continents[d.target.index])).darker())
+            .on("mouseover", (event, d) => {
+                updateBars(d.source.index, d.target.index);
+                highlightConnection(d.source.index, d.target.index);
+                tooltip.transition().duration(100).style("opacity", 1);
+                tooltip.html(`
+        <strong>${continents[d.source.index]}</strong> → ${continents[d.target.index]}<br/>
+        Migrants: ${matrix[d.source.index][d.target.index]}k
+      `)
+                    .style("left", (event.pageX + 12) + "px")
+                    .style("top", (event.pageY - 20) + "px");
+            })
+            .on("mouseout", () => {
+                tooltip.transition().duration(200).style("opacity", 0);
+                clearHighlight();
+            });
+    }
+
+    function highlightGroup(i) {
+        svg.selectAll(".ribbon")
+            .transition().duration(150)
+            .style("opacity", d => d.source.index===i || d.target.index===i ? 1 : 0.1);
+    }
+    function highlightConnection(s, t) {
+        svg.selectAll(".ribbon")
+            .transition().duration(150)
+            .style("opacity", d => (d.source.index===s && d.target.index===t) || (d.source.index===t && d.target.index===s) ? 1 : 0.1);
+    }
+    function clearHighlight() {
+        svg.selectAll(".ribbon").transition().duration(200).style("opacity", 0.85);
+        drawEmptyBars();
+    }
+
+    const barWidth = 700, barHeight = 250;
+    const margin = {top: 20, right: 100, bottom: 30, left: 90};
+    const x = d3.scaleLinear().range([margin.left, barWidth - margin.right]);
+    const y = d3.scaleBand().range([margin.top, barHeight - margin.bottom]).padding(0.15);
+
+    function updateBars(regionIndex, targetIndex = null) {
+        const matrix = getMatrix(flowMode);
+        let data = [];
+        if (targetIndex === null) {
+            data = matrix[regionIndex].map((v, i) => ({target: continents[i], value: v}))
+                .filter(d => d.value > 0);
+        } else {
+            data = [{target: continents[targetIndex], value: matrix[regionIndex][targetIndex]}];
+        }
+        data.sort((a, b) => b.value - a.value);
+        x.domain([0, d3.max(data, d => d.value)]);
+        y.domain(data.map(d => d.target));
+
+        const bars = barSvg.selectAll(".bar").data(data, d => d.target);
+        bars.join(
+            enter => enter.append("rect")
+                .attr("class", "bar")
+                .attr("x", x(0))
+                .attr("y", d => y(d.target))
+                .attr("height", y.bandwidth())
+                .attr("width", 0)
+                .attr("fill", color(continents[regionIndex]))
+                .transition().duration(600)
+                .attr("width", d => x(d.value) - x(0)),
+            update => update.transition().duration(600)
+                .attr("y", d => y(d.target))
+                .attr("width", d => x(d.value) - x(0)),
+            exit => exit.transition().duration(400).attr("width", 0).remove()
+        );
+
+        const labels = barSvg.selectAll(".label").data(data, d => d.target);
+        labels.join(
+            enter => enter.append("text")
+                .attr("class", "label")
+                .attr("x", d => x(d.value) - 10) // position near right edge of bar
+                .attr("y", d => y(d.target) + y.bandwidth()/1.6)
+                .attr("text-anchor", "end") // align text to right edge
+                .text(d => `${d.target} (${d.value}k)`)
+                .style("font-size", "13px")
+                .style("fill", "white") // white text for contrast
+
+                    .style("opacity", 0)
+                .transition().duration(600).style("opacity", 1),
+            update => update.transition().duration(600)
+                .attr("x", d => x(d.value) + 6)
+                .attr("y", d => y(d.target) + y.bandwidth()/1.6)
+                .text(d => `${d.target} (${d.value}k)`),
+            exit => exit.transition().duration(400).style("opacity", 0).remove()
+        );
+    }
+
+    function drawEmptyBars() {
+        barSvg.selectAll(".bar").transition().duration(400).attr("width", 0).remove();
+        barSvg.selectAll(".label").transition().duration(400).style("opacity", 0).remove();
+    }
+
+    drawChord(getMatrix(flowMode));
+    drawEmptyBars();
+
+    d3.select("#toggleFlow").on("click", () => {
+        flowMode = flowMode === "outbound" ? "inbound" : "outbound";
+        d3.select("#toggleFlow").text(flowMode === "outbound" ? "Show Inbound" : "Show Outbound");
+        svg.selectAll("*").transition().duration(600).style("opacity", 0.2);
+        setTimeout(() => {
+            drawChord(getMatrix(flowMode));
+        }, 400);
+    });
+</script>
