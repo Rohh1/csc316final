@@ -2,34 +2,78 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Migration & Life Expectancy</title>
+    <title>Migration vs Life Expectancy — Scatter Plot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="stylesheet" href="css/style.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        #scatter { position: relative; }
+
+        #scatter-info {
+            position: absolute;
+            top: 50px;
+            right: 30px;
+            width: 240px;
+            background: #ffffff;
+            padding: 14px 16px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            font-size: 13px;
+            display: none;
+            line-height: 1.45;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #1f2937;
+            color: white;
+            padding: 6px 9px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .controls-row select {
+            padding: 6px 10px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+    </style>
 </head>
+
 <body>
 
-<div id="legend-scatter">
-    <svg width="400" height="100"></svg>
-</div>
-
 <nav class="top-nav">
-    <a href="map.html" class="nav-item"> Map Overview</a>
-    <a href="scatter.html" class="nav-item"> Migration vs Life Expectancy</a>
-    <a href="dashboard.html" class="nav-item"> Population Health Dashboard</a>
-    <a href="forcemap.html" class="nav-item"> Animated Migration Map</a>
-    <a href="democracy_orbit.html" class="nav-item"> Democracy Orbit</a>
+    <a href="map.html" class="nav-item">Map Overview</a>
+    <a href="scatter.html" class="nav-item active">Migration vs Life Expectancy</a>
+    <a href="dashboard.html" class="nav-item">Population Dashboard</a>
+    <a href="forcemap.html" class="nav-item">Animated Migration Map</a>
+    <a href="democracy_orbit.html" class="nav-item">Democracy Orbit</a>
+    <a href="flows.html" class="nav-item">Migration Flows</a>
+    <a href="birth_death_matrix.html" class="nav-item">Force Galaxy</a>
 </nav>
-
 
 <div class="container">
     <h1>Migration vs. Life Expectancy</h1>
     <p class="subtitle">
-        Do countries with higher life expectancy attract more immigrants?
+        Explore demographic patterns with zooming, panning, brushing, and dynamic axis selection.
     </p>
 
-    <div id="controls">
-        <label for="filter">Filter by:</label>
+    <div class="controls-row">
+        <label><strong>Filter:</strong></label>
         <select id="filter">
             <option value="all">All Countries</option>
             <option value="Asia">Asia</option>
@@ -37,24 +81,42 @@
             <option value="Europe">Europe</option>
             <option value="North America">North America</option>
             <option value="South America">South America</option>
-            <option value="Australia">Australia</option>
-            <option value="Antarctica">Antarctica</option>
+            <option value="Oceania">Oceania</option>
             <option disabled>───────────────</option>
             <option value="Developed">Developed Economies</option>
             <option value="Developing">Developing Economies</option>
         </select>
+
+        <label><strong>X-Axis:</strong></label>
+        <select id="axis-x">
+            <option value="life_exp_at_birth">Life Expectancy</option>
+            <option value="net_migration_rate">Net Migration</option>
+            <option value="birth_rate">Birth Rate</option>
+            <option value="death_rate">Death Rate</option>
+            <option value="population">Population</option>
+        </select>
+
+        <label><strong>Y-Axis:</strong></label>
+        <select id="axis-y">
+            <option value="net_migration_rate">Net Migration</option>
+            <option value="life_exp_at_birth">Life Expectancy</option>
+            <option value="birth_rate">Birth Rate</option>
+            <option value="death_rate">Death Rate</option>
+            <option value="population">Population</option>
+        </select>
     </div>
 
     <div id="scatter"></div>
+    <div id="scatter-info"></div>
 
     <div class="story-block">
-        <h2>Story: Prosperity Attracts People</h2>
+        <h2>Story: How Prosperity Shapes Migration</h2>
         <p>
-            This scatter plot shows that countries with <b>higher life expectancy</b>—often proxies
-            for better healthcare, safety, and living standards—tend to have
-            <b>positive net migration rates</b>. In contrast, countries with
-            <b>shorter life expectancy</b> frequently experience population outflows,
-            as citizens move abroad seeking better conditions.
+            Countries with higher life expectancy often attract more immigrants, reflecting stronger healthcare,
+            quality of life, and stability. Meanwhile, countries with lower life expectancy frequently experience net emigration.
+        </p>
+        <p>
+            Try zooming into Europe or East Asia to see contrasting demographic dynamics.
         </p>
     </div>
 </div>
@@ -63,8 +125,10 @@
 
 <script>
     const path = window.location.pathname;
-    document.querySelectorAll('.nav-item').forEach(link => {
-        if (path.includes(link.getAttribute('href'))) link.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(link=>{
+        if(path.includes(link.getAttribute('href'))){
+            link.classList.add('active');
+        }
     });
 </script>
 
