@@ -122,6 +122,9 @@
             .style("font-size", "13px")
             .text(d => continents[d.index]);
 
+        // Create defs for gradients
+        const defs = svg.append("defs");
+
         svg.append("g")
             .attr("fill-opacity", 0.85)
             .selectAll("path")
@@ -129,7 +132,38 @@
             .join("path")
             .attr("class", "ribbon")
             .attr("d", ribbon)
-            .attr("fill", d => color(continents[d.target.index]))
+            .each(function(d) {
+                // Calculate the center angles of source and target arcs
+                const sourceAngle = (d.source.startAngle + d.source.endAngle) / 2;
+                const targetAngle = (d.target.startAngle + d.target.endAngle) / 2;
+
+                // Calculate positions on the circle for gradient direction
+                const sourceX = Math.cos(sourceAngle - Math.PI / 2) * innerRadius;
+                const sourceY = Math.sin(sourceAngle - Math.PI / 2) * innerRadius;
+                const targetX = Math.cos(targetAngle - Math.PI / 2) * innerRadius;
+                const targetY = Math.sin(targetAngle - Math.PI / 2) * innerRadius;
+
+                // Create unique gradient for this ribbon
+                const gradientId = `gradient-${d.source.index}-${d.target.index}-${Math.random().toString(36).substr(2, 9)}`;
+                const gradient = defs.append("linearGradient")
+                    .attr("id", gradientId)
+                    .attr("gradientUnits", "userSpaceOnUse")
+                    .attr("x1", sourceX)
+                    .attr("y1", sourceY)
+                    .attr("x2", targetX)
+                    .attr("y2", targetY);
+
+                gradient.append("stop")
+                    .attr("offset", "0%")
+                    .attr("stop-color", color(continents[d.source.index]));
+
+                gradient.append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", color(continents[d.target.index]));
+
+                // Apply the gradient to this ribbon
+                d3.select(this).attr("fill", `url(#${gradientId})`);
+            })
             .attr("stroke", d => d3.rgb(color(continents[d.target.index])).darker())
             .on("mouseover", (event, d) => {
                 updateBars(d.source.index, d.target.index);
