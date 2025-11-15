@@ -1,35 +1,110 @@
-const width = 420, height = 420, margin = { top: 40, right: 30, bottom: 60, left: 60 };
+// Population Health Dashboard
+// Linked scatter + force-directed "quadrant swarm"
 
-const color = d3.scaleOrdinal()
-    .domain(["Asia","Africa","Europe","North America","South America","Australia","Antarctica"])
-    .range(["#1f77b4","#ff7f0e","#2ca02c","#9467bd","#d62728","#8c564b","#7f7f7f"]);
+const width  = 430;
+const height = 430;
+const margin = { top: 50, right: 30, bottom: 55, left: 65 };
 
-const continentGroup = new Map([
-    ["Canada","North America"], ["United States","North America"], ["Mexico","North America"],
-    ["Brazil","South America"], ["Argentina","South America"], ["Chile","South America"], ["Colombia", "South America"], ["Venezuela", "South America"],
-    ["Germany","Europe"], ["France","Europe"], ["United Kingdom","Europe"], ["Russia","Europe"], ["Spain", "Europe"], ["Italy", "Europe"],
-    ["China","Asia"], ["India","Asia"], ["Japan","Asia"], ["Saudi Arabia","Asia"], ["Iran", "Asia"], ["Turkey", "Asia"],
-    ["Nigeria","Africa"], ["South Africa","Africa"], ["Egypt","Africa"], ["Kenya","Africa"],
-    ["Australia","Australia"], ["New Zealand","Australia"], ["Antarctica","Antarctica"],
-    ["Kuwait", "Asia"], ["Lebanon", "Asia"], ["Cyprus", "Europe"], ["Israel", "Asia"], ["Qatar", "Asia"], ["Singapore", "Asia"],
-    ["Maldives", "Asia"], ["Macau", "Asia"], ["Syria", "Asia"], ["Zimbabwe", "Africa"], ["Jordan", "Asia"], ["Libya", "Africa"],
-    ["Cayman Islands", "North America"], ["Bahrain", "Asia"], ["United Arab Emirates", "Asia"], ["Anguilla", "North America"],
-    ["Turks and Caicos Islands", "North America"], ["South Sudan", "Africa"], ["Aruba", "North America"], ["El Salvador", "North America"],
-    ["Saint Pierre and Miquelon", "North America"], ["Sao Tome and Principe", "Africa"], ["Puerto Rico", "North America"],
-    ["Somalia", "Africa"], ["Saint Vincent and the Grenadines", "North America"], ["Guyana", "South America"], ["Moldova", "Europe"],
-    ["Samoa", "Australia"], ["Nauru", "Australia"], ["Tonga", "Australia"], ["Micronesia, Federated States of", "Australia"],
-    ["American Samoa", "Australia"], ["British Virgin Islands", "North America"]
-]);
+// Shared tooltip (uses .tooltip styles from style.css)
+const tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("display", "none");
 
-Promise.all([
-    d3.csv("data/cia_factbook.csv", d3.autoType)
-]).then(([data]) => {
+// Global state
+let data = [];
+let dotsScatter, dotsSwarm;
+let brushedCountries = new Set();
+let currentRegion = "all";
+let activeQuadrant = null;
 
-    const r = d3.scaleSqrt()
+// Load CIA Factbook data
+d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
+    // Basic cleaning: keep rows with all required fields
+    data = raw.filter(d =>
+        d.country &&
+        !isNaN(d.life_exp_at_birth) &&
+        !isNaN(d.infant_mortality_rate) &&
+        !isNaN(d.birth_rate) &&
+        !isNaN(d.death_rate) &&
+        d.population > 0
+    );
+
+    // Region values straight from the dataset (e.g., "Africa", "Europe", etc.)
+    const regions = Array.from(new Set(data.map(d => d.region))).sort();
+    const color = d3.scaleOrdinal()
+        .domain(regions)
+        .range(d3.schemeTableau10.concat(d3.schemeSet3).slice(0, regions.length));
+
+    const rPop = d3.scaleSqrt()
         .domain(d3.extent(data, d => d.population))
-        .range([2, 14]);
+        .range([3, 15]);
 
-    // Scatter 1: life expectancy vs infant mortality (Health)
+    // ----- Populate region filter from data -----
+    const filterSelect = d3.select("#filter");
+    filterSelect.selectAll("option").remove();
+    filterSelect.append("option")
+        .attr("value", "all")
+        .text("All regions");
+    regions.forEach(region => {
+        filterSelect.append("option")
+            .attr("value", region)
+            .text(region);
+    });
+
+    filterSelect.on("change", e => {
+        currentRegion = e.target.value;
+        updateStyles();
+        updateSummary();
+    });
+
+    // ----- Derived thresholds for quadrants -----
+    const medianBirth = d3.median(data, d => d.birth_rate);
+    const medianDeath = d3.median(data, d => d.death_rate);
+
+    const quadrantKey = (b, d) => {
+        if (b >= medianBirth && d <  medianDeath) return "highBirth_lowDeath";
+        if (b >= medianBirth && d >= medianDeath) return "highBirth_highDeath";
+        if (b <  medianBirth && d <  medianDeath) return "lowBirth_lowDeath";
+        return "lowBirth_highDeath";
+    };
+
+    const quadrantConfig = {
+        highBirth_lowDeath: {
+            label: "Fast-growing",
+            detail: "High birth, low death",
+            x: 0.25,
+            y: 0.3
+        },
+        highBirth_highDeath: {
+            label: "High churn",
+            detail: "High birth, high death",
+            x: 0.75,
+            y: 0.3
+        },
+        lowBirth_lowDeath: {
+            label: "Stable",
+            detail: "Low birth, low death",
+            x: 0.25,
+            y: 0.75
+        },
+        lowBirth_highDeath: {
+            label: "Aging & pressured",
+            detail: "Low birth, high death",
+            x: 0.75,
+            y: 0.75
+        }
+    };
+
+    data.forEach(d => {
+        const key = quadrantKey(d.birth_rate, d.death_rate);
+        d.quadrantKey = key;
+        d.quadrantLabel = quadrantConfig[key].label;
+    });
+
+    // ---------------------------------------------------------------------
+    // Panel 1: Life expectancy vs infant mortality scatter
+    // ---------------------------------------------------------------------
     const svg1 = d3.select("#plot1").append("svg")
         .attr("width", width)
         .attr("height", height);
@@ -37,269 +112,405 @@ Promise.all([
     const x1 = d3.scaleLinear()
         .domain(d3.extent(data, d => d.life_exp_at_birth)).nice()
         .range([margin.left, width - margin.right]);
+
     const y1 = d3.scaleLinear()
         .domain(d3.extent(data, d => d.infant_mortality_rate)).nice()
         .range([height - margin.bottom, margin.top]);
 
-    svg1.append("g").attr("transform", `translate(0,${height - margin.bottom})`).call(d3.axisBottom(x1));
-    svg1.append("g").attr("transform", `translate(${margin.left},0)`).call(d3.axisLeft(y1));
-    svg1.append("text").attr("x", width/2).attr("y", height-15).attr("text-anchor","middle").text("Life Expectancy");
-    svg1.append("text").attr("x", -height/2).attr("y", 20).attr("transform","rotate(-90)").attr("text-anchor","middle").text("Infant Mortality Rate");
+    // axes
+    svg1.append("g")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x1));
+    svg1.append("g")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y1));
 
-    const dots1 = svg1.append("g")
+    // axis labels
+    svg1.append("text")
+        .attr("x", width / 2)
+        .attr("y", height - 15)
+        .attr("text-anchor", "middle")
+        .text("Life expectancy at birth (years)");
+
+    svg1.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -height / 2)
+        .attr("y", 20)
+        .attr("text-anchor", "middle")
+        .text("Infant mortality (deaths per 1,000 births)");
+
+    // panel title
+    svg1.append("text")
+        .attr("x", width / 2)
+        .attr("y", 20)
+        .attr("text-anchor", "middle")
+        .style("font-weight", 600)
+        .text("Life vs Infant Survival");
+
+    // median lines for guidance (life & infant)
+    const medianLife = d3.median(data, d => d.life_exp_at_birth);
+    const medianInfant = d3.median(data, d => d.infant_mortality_rate);
+
+    svg1.append("line")
+        .attr("x1", x1(medianLife))
+        .attr("x2", x1(medianLife))
+        .attr("y1", margin.top)
+        .attr("y2", height - margin.bottom)
+        .attr("stroke", "#9ca3af")
+        .attr("stroke-dasharray", "4,4");
+
+    svg1.append("line")
+        .attr("x1", margin.left)
+        .attr("x2", width - margin.right)
+        .attr("y1", y1(medianInfant))
+        .attr("y2", y1(medianInfant))
+        .attr("stroke", "#9ca3af")
+        .attr("stroke-dasharray", "4,4");
+
+    // dots
+    dotsScatter = svg1.append("g")
         .selectAll("circle")
-        .data(data.filter(d => d.life_exp_at_birth != null && d.infant_mortality_rate != null))
+        .data(data)
         .join("circle")
         .attr("cx", d => x1(d.life_exp_at_birth))
         .attr("cy", d => y1(d.infant_mortality_rate))
-        .attr("r", d => r(d.population))
-        .attr("fill", d => color(continentGroup.get(d.country) || "gray"))
-        .attr("opacity", 0.8);
-    
-    // Mean Marker 1 (Health)
-    const meanMarker1 = svg1.append("polygon")
-        .attr("points", "0,0 0,0 0,0 0,0") // Placeholder for diamond shape
-        .attr("fill", "gold")
-        .attr("stroke", "#333")
-        .attr("stroke-width", 2)
-        .attr("opacity", 0)
-        .style("pointer-events", "none");
+        .attr("r", d => rPop(d.population))
+        .attr("fill", d => color(d.region))
+        .attr("fill-opacity", 0.9)
+        .attr("class", "dot-scatter")
+        .on("mousemove", (event, d) => showTooltip(event, d))
+        .on("mouseleave", () => hideTooltip())
+        .on("click", (event, d) => focusSingleCountry(d.country));
 
-    // Scatter 2: birth vs death rate (Demography)
+    // brushing on scatter
+    const brush = d3.brush()
+        .extent([[margin.left, margin.top], [width - margin.right, height - margin.bottom]])
+        .on("brush end", brushed);
+
+    svg1.append("g")
+        .attr("class", "brush")
+        .call(brush);
+
+    function brushed(event) {
+        if (!event.selection) {
+            brushedCountries.clear();
+            updateStyles();
+            updateSummary();
+            return;
+        }
+        const [[x0, y0], [x1b, y1b]] = event.selection;
+        brushedCountries = new Set(
+            data
+                .filter(d => {
+                    const px = x1(d.life_exp_at_birth);
+                    const py = y1(d.infant_mortality_rate);
+                    return px >= x0 && px <= x1b && py >= y0 && py <= y1b;
+                })
+                .map(d => d.country)
+        );
+        updateStyles();
+        updateSummary();
+    }
+
+    // ---------------------------------------------------------------------
+    // Panel 2: Force-directed birth–death quadrant swarm
+    // ---------------------------------------------------------------------
     const svg2 = d3.select("#plot2").append("svg")
         .attr("width", width)
         .attr("height", height);
 
-    const x2 = d3.scaleLinear()
-        .domain(d3.extent(data, d => d.birth_rate)).nice()
-        .range([margin.left, width - margin.right]);
-    const y2 = d3.scaleLinear()
-        .domain(d3.extent(data, d => d.death_rate)).nice()
-        .range([height - margin.bottom, margin.top]);
-
-    svg2.append("g").attr("transform", `translate(0,${height - margin.bottom})`).call(d3.axisBottom(x2));
-    svg2.append("g").attr("transform", `translate(${margin.left},0)`).call(d3.axisLeft(y2));
-    svg2.append("text").attr("x", width/2).attr("y", height-15).attr("text-anchor","middle").text("Birth Rate");
-    svg2.append("text").attr("x", -height/2).attr("y", 20).attr("transform","rotate(-90)").attr("text-anchor","middle").text("Death Rate");
-
-    const dots2 = svg2.append("g")
-        .selectAll("circle")
-        .data(data.filter(d => d.birth_rate != null && d.death_rate != null))
-        .join("circle")
-        .attr("cx", d => x2(d.birth_rate))
-        .attr("cy", d => y2(d.death_rate))
-        .attr("r", d => r(d.population))
-        .attr("fill", d => color(continentGroup.get(d.country) || "gray"))
-        .attr("opacity", 0.8);
-    
-    // Mean Marker 2 (Demography)
-    const meanMarker2 = svg2.append("polygon")
-        .attr("points", "0,0 0,0 0,0 0,0") // Placeholder for diamond shape
-        .attr("fill", "gold")
-        .attr("stroke", "#333")
-        .attr("stroke-width", 2)
-        .attr("opacity", 0)
-        .style("pointer-events", "none");
-
-
-    // Function to calculate and update visual state
-    function updateBrushedState(selection, isBrush1) {
-        let selected = [];
-        const fullData = data.filter(d => d.life_exp_at_birth != null && d.infant_mortality_rate != null && d.birth_rate != null && d.death_rate != null);
-
-        if (selection) {
-            const [[x0, y0], [x1b, y1b]] = selection;
-            
-            if (isBrush1) {
-                // Brush on Scatter 1 (Health)
-                selected = fullData.filter(d =>
-                    x1(d.life_exp_at_birth) >= x0 && x1(d.life_exp_at_birth) <= x1b &&
-                    y1(d.infant_mortality_rate) >= y0 && y1(d.infant_mortality_rate) <= y1b
-                );
-            } else {
-                // Brush on Scatter 2 (Demography)
-                selected = fullData.filter(d =>
-                    x2(d.birth_rate) >= x0 && x2(d.birth_rate) <= x1b &&
-                    y2(d.death_rate) >= y0 && y2(d.death_rate) <= y1b
-                );
-            }
-        }
-
-        const names = new Set(selected.map(d => d.country));
-
-        // 1. Highlight points
-        dots1.attr("stroke", d => names.has(d.country) ? "#000" : null)
-            .attr("stroke-width", d => names.has(d.country) ? 1.5 : null)
-            .attr("opacity", d => names.has(d.country) ? 0.8 : 0.2); // Also reduce opacity of unselected
-
-        dots2.attr("stroke", d => names.has(d.country) ? "#000" : null)
-            .attr("stroke-width", d => names.has(d.country) ? 1.5 : null)
-            .attr("opacity", d => names.has(d.country) ? 0.8 : 0.2); // Also reduce opacity of unselected
-
-        // 2. Update Mean Markers
-        if (selected.length > 0) {
-            const avgLifeExp = d3.mean(selected, d => d.life_exp_at_birth);
-            const avgInfantMort = d3.mean(selected, d => d.infant_mortality_rate);
-            const avgBirthRate = d3.mean(selected, d => d.birth_rate);
-            const avgDeathRate = d3.mean(selected, d => d.death_rate);
-
-            const markerSize = 8; // Half the diamond width/height
-            
-            const diamondPoints1 = [
-                `${x1(avgLifeExp)},${y1(avgInfantMort) - markerSize}`,
-                `${x1(avgLifeExp) + markerSize},${y1(avgInfantMort)}`,
-                `${x1(avgLifeExp)},${y1(avgInfantMort) + markerSize}`,
-                `${x1(avgLifeExp) - markerSize},${y1(avgInfantMort)}`
-            ].join(" ");
-            
-            const diamondPoints2 = [
-                `${x2(avgBirthRate)},${y2(avgDeathRate) - markerSize}`,
-                `${x2(avgBirthRate) + markerSize},${y2(avgDeathRate)}`,
-                `${x2(avgBirthRate)},${y2(avgDeathRate) + markerSize}`,
-                `${x2(avgBirthRate) - markerSize},${y2(avgDeathRate)}`
-            ].join(" ");
-
-            // Move and show marker 1 (Health Mean)
-            meanMarker1.attr("points", diamondPoints1).attr("opacity", 1);
-            
-            // Move and show marker 2 (Demography Mean)
-            meanMarker2.attr("points", diamondPoints2).attr("opacity", 1);
-        } else {
-            // Hide markers if no selection
-            meanMarker1.attr("opacity", 0);
-            meanMarker2.attr("opacity", 0);
-            // Reset opacity for all dots that match the current filter
-            const currentFilter = d3.select("#filter").property("value");
-            dots1.attr("opacity", d => (currentFilter === "all" || continentGroup.get(d.country) === currentFilter) ? 0.8 : 0.05);
-            dots2.attr("opacity", d => (currentFilter === "all" || continentGroup.get(d.country) === currentFilter) ? 0.8 : 0.05);
-        }
-    }
-
-
-    // Handler for brush on plot 1
-    function brushed1(event) {
-        if (!event.selection) {
-            updateBrushedState(null, true);
-        } else {
-            updateBrushedState(event.selection, true);
-        }
-        // Clear brush on other plot to allow re-brushing
-        svg2.select(".brush").call(brush2.move, null);
-    }
-
-    // Handler for brush on plot 2
-    function brushed2(event) {
-        if (!event.selection) {
-            updateBrushedState(null, false);
-        } else {
-            updateBrushedState(event.selection, false);
-        }
-        // Clear brush on other plot to allow re-brushing
-        svg1.select(".brush").call(brush1.move, null);
-    }
-
-    // Brushing Setup
-    const brush1 = d3.brush()
-        .extent([[margin.left, margin.top],[width - margin.right, height - margin.bottom]])
-        .on("brush end", brushed1);
-
-    svg1.append("g").attr("class", "brush").call(brush1);
-
-    const brush2 = d3.brush()
-        .extent([[margin.left, margin.top],[width - margin.right, height - margin.bottom]])
-        .on("brush end", brushed2);
-
-    svg2.append("g").attr("class", "brush").call(brush2);
-
-    // Filtering by continent (updated to handle opacity logic reset)
-    d3.select("#filter").on("change", e => {
-        const selected = e.target.value;
-        
-        // Clear brush selections and hide mean markers
-        svg1.select(".brush").call(brush1.move, null);
-        svg2.select(".brush").call(brush2.move, null);
-        meanMarker1.attr("opacity", 0);
-        meanMarker2.attr("opacity", 0);
-
-        // Filter points
-        dots1.attr("opacity", d => {
-            const c = continentGroup.get(d.country);
-            return selected === "all" || c === selected ? 0.8 : 0.05;
-        })
-        .attr("stroke", null)
-        .attr("stroke-width", null);
-        
-        dots2.attr("opacity", d => {
-            const c = continentGroup.get(d.country);
-            return selected === "all" || c === selected ? 0.8 : 0.05;
-        })
-        .attr("stroke", null)
-        .attr("stroke-width", null);
-    });
-
-    // Legend for Dashboard (unchanged)
-    const legendSvg = d3.select("#legend-dashboard svg");
-    const continents = color.domain();
-    const legendX = 30, legendY = 20;
-
-    // Continent color legend
-    continents.forEach((c, i) => {
-        legendSvg.append("circle")
-            .attr("cx", legendX)
-            .attr("cy", legendY + i * 18)
-            .attr("r", 6)
-            .attr("fill", color(c));
-
-        legendSvg.append("text")
-            .attr("x", legendX + 14)
-            .attr("y", legendY + i * 18 + 4)
-            .text(c)
-            .style("font-size", "13px")
-            .style("fill", "#333");
-    });
-
-    // Size legend (population)
-    const popLegend = [1e6, 5e7, 2e8, 1e9];
-    const sizeLegendX = 220, sizeLegendY = 45;
-
-    legendSvg.append("text")
-        .attr("x", sizeLegendX)
+    // panel title
+    svg2.append("text")
+        .attr("x", width / 2)
         .attr("y", 20)
         .attr("text-anchor", "middle")
-        .text("Population size")
-        .style("font-size", "13px")
-        .style("fill", "#333");
+        .style("font-weight", 600)
+        .text("Birth–Death Quadrant Swarm");
 
-    popLegend.forEach((p, i) => {
-        legendSvg.append("circle")
-            .attr("cx", sizeLegendX + i * 55)
-            .attr("y", sizeLegendY)
-            .attr("r", r(p))
-            .attr("fill", "none")
-            .attr("stroke", "#555");
+    // faint quadrant grid
+    svg2.append("line")
+        .attr("x1", width / 2)
+        .attr("x2", width / 2)
+        .attr("y1", margin.top + 15)
+        .attr("y2", height - margin.bottom + 10)
+        .attr("stroke", "#e5e7eb")
+        .attr("stroke-width", 1.2);
 
-        legendSvg.append("text")
-            .attr("x", sizeLegendX + i * 55)
-            .attr("y", sizeLegendY + r(p) + 14)
+    svg2.append("line")
+        .attr("x1", margin.left - 10)
+        .attr("x2", width - margin.right + 10)
+        .attr("y1", height / 2)
+        .attr("y2", height / 2)
+        .attr("stroke", "#e5e7eb")
+        .attr("stroke-width", 1.2);
+
+    // quadrant labels
+    const quadEntries = Object.entries(quadrantConfig);
+    const quadLabelGroup = svg2.append("g")
+        .attr("class", "quadrant-labels");
+
+    quadEntries.forEach(([key, cfg]) => {
+        const gx = margin.left + (width - margin.left - margin.right) * cfg.x;
+        const gy = margin.top + (height - margin.top - margin.bottom) * cfg.y;
+
+        const group = quadLabelGroup.append("g")
+            .attr("transform", `translate(${gx},${gy})`)
+            .style("cursor", "pointer")
+            .on("click", () => {
+                activeQuadrant = (activeQuadrant === key) ? null : key;
+                updateStyles();
+                updateSummary();
+            });
+
+        group.append("rect")
+            .attr("x", -70)
+            .attr("y", -22)
+            .attr("width", 140)
+            .attr("height", 36)
+            .attr("rx", 10)
+            .attr("ry", 10)
+            .attr("fill", "#f3f4f6")
+            .attr("stroke", "#d1d5db");
+
+        group.append("text")
+            .attr("y", -4)
             .attr("text-anchor", "middle")
-            .text(d3.format(".2s")(p))
-            .style("font-size", "11px")
-            .style("fill", "#555");
+            .style("font-weight", 600)
+            .style("font-size", 13)
+            .text(cfg.label);
+
+        group.append("text")
+            .attr("y", 10)
+            .attr("text-anchor", "middle")
+            .style("font-size", 11)
+            .style("fill", "#6b7280")
+            .text(cfg.detail);
     });
-    
-    // Mean Marker Legend
-    legendSvg.append("polygon")
-        .attr("points", "300,38 308,46 300,54 292,46")
-        .attr("fill", "gold")
-        .attr("stroke", "#333")
-        .attr("stroke-width", 2);
 
-    legendSvg.append("text")
-        .attr("x", 320)
-        .attr("y", 49)
-        .text("Group Mean (Novelty)")
-        .style("font-size", "13px")
-        .style("fill", "#333");
+    // nodes for swarm layout (copy references so simulation can mutate x,y)
+    const nodes = data.map(d => Object.assign({}, d));
 
+    // initial positions near their quadrant centers (in pixel space)
+    nodes.forEach(n => {
+        const q = quadrantConfig[n.quadrantKey];
+        n.x = margin.left + (width - margin.left - margin.right) * q.x;
+        n.y = margin.top + (height - margin.top - margin.bottom) * q.y;
+    });
 
-}); 
+    dotsSwarm = svg2.append("g")
+        .selectAll("circle")
+        .data(nodes)
+        .join("circle")
+        .attr("r", d => rPop(d.population))
+        .attr("fill", d => color(d.region))
+        .attr("fill-opacity", 0.9)
+        .attr("class", "dot-swarm")
+        .on("mousemove", (event, d) => showTooltip(event, d))
+        .on("mouseleave", () => hideTooltip())
+        .on("click", (event, d) => focusSingleCountry(d.country));
+
+    // force simulation pulls nodes into quadrant clusters
+    const sim = d3.forceSimulation(nodes)
+        .force("x", d3.forceX(d => {
+            const cfg = quadrantConfig[d.quadrantKey];
+            return margin.left + (width - margin.left - margin.right) * cfg.x;
+        }).strength(0.08))
+        .force("y", d3.forceY(d => {
+            const cfg = quadrantConfig[d.quadrantKey];
+            return margin.top + (height - margin.top - margin.bottom) * cfg.y;
+        }).strength(0.08))
+        .force("collide", d3.forceCollide(d => rPop(d.population) + 1.5))
+        .alpha(1)
+        .alphaDecay(0.025)
+        .on("tick", () => {
+            dotsSwarm
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y);
+        });
+
+    // ---------------------------------------------------------------------
+    // Legend (regions + population size)
+    // ---------------------------------------------------------------------
+    const legendSvg = d3.select("#legend-dashboard svg");
+    legendSvg.selectAll("*").remove();
+
+    const legendPadding = 16;
+    const legendRegionX = 20;
+    const legendRegionY = 20;
+
+    const regionLegend = legendSvg.append("g")
+        .attr("transform", `translate(${legendRegionX},${legendRegionY})`);
+
+    regionLegend.append("text")
+        .attr("x", 0)
+        .attr("y", -6)
+        .style("font-size", 12)
+        .style("font-weight", 600)
+        .text("Color: region (CIA Factbook)");
+
+    regions.forEach((region, i) => {
+        const y = 12 + i * 16;
+        regionLegend.append("circle")
+            .attr("cx", 0)
+            .attr("cy", y)
+            .attr("r", 5)
+            .attr("fill", color(region));
+        regionLegend.append("text")
+            .attr("x", 12)
+            .attr("y", y + 4)
+            .style("font-size", 11)
+            .text(region);
+    });
+
+    const sizeLegend = legendSvg.append("g")
+        .attr("transform", "translate(260,30)");
+
+    sizeLegend.append("text")
+        .attr("y", -6)
+        .style("font-size", 12)
+        .style("font-weight", 600)
+        .text("Size: population");
+
+    const popSamples = [5_000_000, 50_000_000, 200_000_000];
+    popSamples.forEach((p, i) => {
+        const x = 15 + i * 55;
+        const r = rPop(p);
+        sizeLegend.append("circle")
+            .attr("cx", x)
+            .attr("cy", 20)
+            .attr("r", r)
+            .attr("fill", "#e5e7eb")
+            .attr("stroke", "#9ca3af");
+        sizeLegend.append("text")
+            .attr("x", x)
+            .attr("y", 42)
+            .attr("text-anchor", "middle")
+            .style("font-size", 10)
+            .text(p >= 100_000_000 ? (p / 1_000_000_000).toFixed(1) + "B"
+                 : (p / 1_000_000).toFixed(0) + "M");
+    });
+
+    // ---------------------------------------------------------------------
+    // Shared helpers
+    // ---------------------------------------------------------------------
+    const fmt1 = d3.format(".1f");
+    const fmtPop = d3.format(",.0f");
+
+    function showTooltip(event, d) {
+        const region = d.region || "Unknown region";
+        const html = `
+            <strong>${d.country}</strong><br/>
+            Region: ${region}<br/>
+            Life expectancy: ${fmt1(d.life_exp_at_birth)} years<br/>
+            Infant mortality: ${fmt1(d.infant_mortality_rate)} / 1,000 births<br/>
+            Birth rate: ${fmt1(d.birth_rate)} / 1,000 people<br/>
+            Death rate: ${fmt1(d.death_rate)} / 1,000 people<br/>
+            Population: ${fmtPop(d.population)}<br/>
+            Quadrant: ${d.quadrantLabel}
+        `;
+        tooltip
+            .style("display", "block")
+            .html(html)
+            .style("left", (event.pageX + 12) + "px")
+            .style("top", (event.pageY - 28) + "px");
+    }
+
+    function hideTooltip() {
+        tooltip.style("display", "none");
+    }
+
+    // Highlight a single country across both views when clicked
+    function focusSingleCountry(countryName) {
+        brushedCountries = new Set([countryName]);
+        activeQuadrant = null; // reset quadrant filter for clarity
+        updateStyles();
+        updateSummary();
+    }
+
+    function updateStyles() {
+        const hasBrush = brushedCountries.size > 0;
+
+        dotsScatter
+            .attr("stroke", d => brushedCountries.has(d.country) ? "#111827" : "none")
+            .attr("stroke-width", d => brushedCountries.has(d.country) ? 1.6 : 0.7)
+            .attr("opacity", d => {
+                const regionOK   = (currentRegion === "all" || d.region === currentRegion);
+                const quadrantOK = (!activeQuadrant || d.quadrantKey === activeQuadrant);
+                let base = (regionOK && quadrantOK) ? 0.9 : 0.08;
+                if (hasBrush) {
+                    if (brushedCountries.has(d.country)) return 1.0;
+                    base *= 0.4;
+                }
+                return base;
+            });
+
+        dotsSwarm
+            .attr("stroke", d => brushedCountries.has(d.country) ? "#111827" : "none")
+            .attr("stroke-width", d => brushedCountries.has(d.country) ? 1.6 : 0.7)
+            .attr("opacity", d => {
+                const regionOK   = (currentRegion === "all" || d.region === currentRegion);
+                const quadrantOK = (!activeQuadrant || d.quadrantKey === activeQuadrant);
+                let base = (regionOK && quadrantOK) ? 0.9 : 0.08;
+                if (hasBrush) {
+                    if (brushedCountries.has(d.country)) return 1.0;
+                    base *= 0.4;
+                }
+                return base;
+            });
+
+        // visual feedback on quadrant labels (bold active one)
+        quadLabelGroup.selectAll("g").select("rect")
+            .attr("stroke", (d, i, nodes) => {
+                const key = quadEntries[i][0];
+                return (key === activeQuadrant) ? "#111827" : "#d1d5db";
+            })
+            .attr("stroke-width", (d, i) => {
+                const key = quadEntries[i][0];
+                return (key === activeQuadrant) ? 2 : 1;
+            });
+    }
+
+    function updateSummary() {
+        const summaryEl = d3.select("#selection-summary");
+
+        const inRegion = d => (currentRegion === "all" || d.region === currentRegion);
+        const inQuad   = d => (!activeQuadrant || d.quadrantKey === activeQuadrant);
+        const inBrush  = d => (brushedCountries.size === 0 || brushedCountries.has(d.country));
+
+        const filtered = data.filter(d => inRegion(d) && inQuad(d) && inBrush(d));
+
+        if (filtered.length === 0) {
+            summaryEl.text("No countries match this combination of filters/selection.");
+            return;
+        }
+
+        const meanLife   = d3.mean(filtered, d => d.life_exp_at_birth);
+        const meanInfant = d3.mean(filtered, d => d.infant_mortality_rate);
+        const meanBirth  = d3.mean(filtered, d => d.birth_rate);
+        const meanDeath  = d3.mean(filtered, d => d.death_rate);
+
+        const regionText = (currentRegion === "all")
+            ? "all regions"
+            : currentRegion;
+
+        let scopeText = "";
+        if (brushedCountries.size > 0) {
+            scopeText = `for the ${filtered.length} highlighted countr${filtered.length === 1 ? "y" : "ies"}`;
+        } else if (activeQuadrant) {
+            scopeText = `for ${filtered.length} countr${filtered.length === 1 ? "y" : "ies"} in the “${quadrantConfig[activeQuadrant].label}” quadrant`;
+        } else {
+            scopeText = `for ${filtered.length} countr${filtered.length === 1 ? "y" : "ies"}`;
+        }
+
+        summaryEl.html(
+            `In <b>${regionText}</b>, ${scopeText}: ` +
+            `average life expectancy is <b>${fmt1(meanLife)} years</b>, ` +
+            `infant mortality is about <b>${fmt1(meanInfant)}</b> per 1,000 births, ` +
+            `birth rates are <b>${fmt1(meanBirth)}</b> and death rates <b>${fmt1(meanDeath)}</b> per 1,000 people.`
+        );
+    }
+
+    // Initial render
+    updateStyles();
+    updateSummary();
+});

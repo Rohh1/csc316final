@@ -4,66 +4,84 @@
     <meta charset="utf-8">
     <title>Population Health Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Shared site styles -->
     <link rel="stylesheet" href="css/style.css">
+    <!-- D3 -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
 
+<!-- Top navigation (same structure as other pages) -->
 <nav class="top-nav">
-    <a href="map.html" class="nav-item"> Map Overview</a>
-    <a href="scatter.html" class="nav-item"> Migration vs Life Expectancy</a>
-    <a href="dashboard.html" class="nav-item active"> Population Health Dashboard</a>
+    <a href="map.html" class="nav-item">Map Overview</a>
+    <a href="scatter.html" class="nav-item">Migration vs Life Expectancy</a>
+    <a href="dashboard.html" class="nav-item">Population Dashboard</a>
+    <a href="forcemap.html" class="nav-item">Animated Migration Map</a>
+    <a href="democracy_orbit.html" class="nav-item">Democracy Orbit</a>
+    <a href="flows.html" class="nav-item">Migration Flows</a>
+    <a href="birth_death_matrix.html" class="nav-item">Force Galaxy</a>
 </nav>
 
 <div class="container">
     <h1>Population Health Dashboard</h1>
-    <p class="subtitle">Explore relationships among life expectancy, infant mortality, birth, and death rates.</p>
+    <p class="subtitle">
+        Explore how <b>life expectancy</b>, <b>infant mortality</b>, <b>birth rates</b>, and <b>death rates</b>
+        work together to shape population health around the world.
+    </p>
 
+    <!-- Controls -->
     <div id="controls">
-
-        <a href="scatter.html" class="back-link">← Previous: Migration vs Life Expectancy</a>
-        <a href="map.html" class="back-link">← Back to Map Overview</a>
-
-        <label for="filter">Filter by:</label>
+        <label for="filter"><b>Region filter:</b></label>
         <select id="filter">
-            <option value="all">All Countries</option>
-            <option value="Asia">Asia</option>
-            <option value="Africa">Africa</option>
-            <option value="Europe">Europe</option>
-            <option value="North America">North America</option>
-            <option value="South America">South America</option>
-            <option value="Australia">Australia</option>
-            <option value="Antarctica">Antarctica</option>
+            <!-- Options will be populated from the data's region values -->
+            <option value="all">All regions</option>
         </select>
     </div>
 
+    <!-- Two coordinated panels: scatter + force "swarm" -->
     <div id="dashboard">
         <div id="plot1" class="plot"></div>
         <div id="plot2" class="plot"></div>
     </div>
 
-    <div class="story-block">
-        <h2>Story: Linking Health and Demographic Balance (with Group Mean Analysis)</h2>
-        <p>
-            Countries with <b>high life expectancy</b> and <b>low infant mortality</b> typically maintain
-            <b>balanced birth and death rates</b> — indicators of stable, developed populations.
-            Meanwhile, nations with high infant mortality often show very high birth rates, reflecting
-            younger demographic structures and faster population growth.
-        </p>
-        <p>
-            **Novelty:** Use the brushing tool on one scatter plot to select a group of countries. The same points will highlight and fade in the other plot. A **gold diamond (the Group Mean)** will appear on *both* plots, showing the average demographic and health profile of the selected group. This quickly reveals how the overall trend of a specific cluster (e.g., high infant mortality nations) compares across both health and demographic variables simultaneously.
-        </p>
-    </div>
-
+    <!-- Legend for colours & population size -->
     <div id="legend-dashboard">
-        <svg width="400" height="100"></svg>
+        <svg width="420" height="120"></svg>
     </div>
 
+    <!-- Story block with dynamic selection summary -->
+    <div class="story-block">
+        <h2>Story: From Survival to Stability</h2>
+        <p id="selection-summary" style="margin-top:0; font-weight:600;">
+            Showing all countries – hover, brush, or filter to see how patterns change.
+        </p>
+        <p>
+            In the left panel, each circle is a country. Moving right means <b>higher life expectancy</b>,
+            while moving up means <b>higher infant mortality</b>. Countries with long lives and low infant
+            deaths cluster in the lower-right – the “health leaders.”
+        </p>
+        <p>
+            On the right, the same countries are pulled into four <b>birth–death quadrants</b> using a
+            force layout:
+        </p>
+        <ul>
+            <li><b>Fast-growing</b> – high birth, low death</li>
+            <li><b>High churn</b> – high birth, high death</li>
+            <li><b>Stable</b> – low birth, low death</li>
+            <li><b>Aging & pressured</b> – low birth, high death</li>
+        </ul>
+        <p>
+            Brush a cluster in the life–infant scatter: the same countries glow inside their quadrant,
+            revealing how <b>survival</b> and <b>demographic momentum</b> interact.
+        </p>
+    </div>
 </div>
 
+<!-- Dashboard logic -->
 <script src="js/dashboard.js"></script>
 
 <script>
+    // Auto-highlight active nav item based on URL
     const path = window.location.pathname;
     document.querySelectorAll('.nav-item').forEach(link => {
         if (path.includes(link.getAttribute('href'))) {
