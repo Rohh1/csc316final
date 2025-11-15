@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<!-- Top navigation (same structure as other pages) -->
+<!-- Top navigation -->
 <nav class="top-nav">
     <a href="map.html" class="nav-item">Map Overview</a>
     <a href="scatter.html" class="nav-item">Migration vs Life Expectancy</a>
@@ -26,43 +26,47 @@
     <h1>Population Health Dashboard</h1>
     <p class="subtitle">
         Explore how <b>life expectancy</b>, <b>infant mortality</b>, <b>birth rates</b>, and <b>death rates</b>
-        work together to shape population health around the world.
+        combine to paint different <b>health profiles</b> around the world.
     </p>
 
     <!-- Controls -->
     <div id="controls">
-        <label for="filter"><b>Region filter:</b></label>
+        <label for="filter"><b>Health profile filter:</b></label>
         <select id="filter">
-            <!-- Options will be populated from the data's region values -->
-            <option value="all">All regions</option>
+            <option value="all">All health profiles</option>
         </select>
     </div>
 
-    <!-- Two coordinated panels: scatter + force "swarm" -->
+    <!-- Two coordinated panels -->
     <div id="dashboard">
         <div id="plot1" class="plot"></div>
         <div id="plot2" class="plot"></div>
     </div>
 
-    <!-- Legend for colours & population size -->
+    <!-- Legend -->
     <div id="legend-dashboard">
         <svg width="420" height="120"></svg>
     </div>
 
-    <!-- Story block with dynamic selection summary -->
+    <!-- Story block -->
     <div class="story-block">
         <h2>Story: From Survival to Stability</h2>
         <p id="selection-summary" style="margin-top:0; font-weight:600;">
-            Showing all countries – hover, brush, or filter to see how patterns change.
+            Showing all countries – hover, brush, or filter to see how health profiles shift.
         </p>
         <p>
-            In the left panel, each circle is a country. Moving right means <b>higher life expectancy</b>,
-            while moving up means <b>higher infant mortality</b>. Countries with long lives and low infant
-            deaths cluster in the lower-right – the “health leaders.”
+            On the left, each <b>medical cross</b> represents a country. Moving right means
+            <b>higher life expectancy</b>, while moving up means <b>higher infant mortality</b>.
+            The color shows a data-driven <b>health profile</b>:
         </p>
+        <ul>
+            <li><b>Health leaders</b> – long lives, low infant mortality</li>
+            <li><b>In transition</b> – improving but mixed outcomes</li>
+            <li><b>High risk</b> – shorter lives and higher infant deaths</li>
+        </ul>
         <p>
-            On the right, the same countries are pulled into four <b>birth–death quadrants</b> using a
-            force layout:
+            On the right, the same countries are pulled into four <b>birth–death quadrants</b>
+            using a force layout:
         </p>
         <ul>
             <li><b>Fast-growing</b> – high birth, low death</li>
@@ -71,8 +75,9 @@
             <li><b>Aging & pressured</b> – low birth, high death</li>
         </ul>
         <p>
-            Brush a cluster in the life–infant scatter: the same countries glow inside their quadrant,
-            revealing how <b>survival</b> and <b>demographic momentum</b> interact.
+            Brush a cluster in the left panel: those countries glow as medical crosses
+            inside their quadrant, revealing how <b>survival</b> and <b>demographic momentum</b>
+            interact for different health profiles.
         </p>
     </div>
 </div>
@@ -81,7 +86,7 @@
 <script src="js/dashboard.js"></script>
 
 <script>
-    // Auto-highlight active nav item based on URL
+    // Highlight active nav
     const path = window.location.pathname;
     document.querySelectorAll('.nav-item').forEach(link => {
         if (path.includes(link.getAttribute('href'))) {

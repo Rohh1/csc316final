@@ -1,11 +1,11 @@
 // Population Health Dashboard
-// Linked scatter + force-directed "quadrant swarm"
+// Linked scatter + birth–death quadrant swarm with medical cross glyphs
 
 const width  = 430;
 const height = 430;
 const margin = { top: 50, right: 30, bottom: 55, left: 65 };
 
-// Shared tooltip (uses .tooltip styles from style.css)
+// Shared tooltip (uses .tooltip class from style.css)
 const tooltip = d3.select("body")
     .append("div")
     .attr("class", "tooltip")
@@ -15,12 +15,11 @@ const tooltip = d3.select("body")
 let data = [];
 let dotsScatter, dotsSwarm;
 let brushedCountries = new Set();
-let currentRegion = "all";
+let currentHealthTier = "all";
 let activeQuadrant = null;
 
-// Load CIA Factbook data
+// Load CIA Factbook data (ONLY using columns that exist in your CSV)
 d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
-    // Basic cleaning: keep rows with all required fields
     data = raw.filter(d =>
         d.country &&
         !isNaN(d.life_exp_at_birth) &&
@@ -30,35 +29,56 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         d.population > 0
     );
 
-    // Region values straight from the dataset (e.g., "Africa", "Europe", etc.)
-    const regions = Array.from(new Set(data.map(d => d.region))).sort();
-    const color = d3.scaleOrdinal()
-        .domain(regions)
-        .range(d3.schemeTableau10.concat(d3.schemeSet3).slice(0, regions.length));
+    // ---------- HEALTH PROFILE CATEGORIES (from your health data only) ----------
+    // Use a simple score = life expectancy - infant mortality, then split into tertiles.
+    const scores = data.map(d => d.life_exp_at_birth - d.infant_mortality_rate).sort(d3.ascending);
+    const h1 = d3.quantile(scores, 0.33);
+    const h2 = d3.quantile(scores, 0.66);
 
+    const healthTiers = ["High risk", "In transition", "Health leaders"];
+
+    data.forEach(d => {
+        const s = d.life_exp_at_birth - d.infant_mortality_rate;
+        if (s <= h1) {
+            d.healthTier = "High risk";
+        } else if (s <= h2) {
+            d.healthTier = "In transition";
+        } else {
+            d.healthTier = "Health leaders";
+        }
+    });
+
+    // Color by health profile (health-ish palette)
+    const color = d3.scaleOrdinal()
+        .domain(healthTiers)
+        .range(["#ef4444", "#f59e0b", "#22c55e"]); // red, amber, green
+
+    // Population → size scale (used to size the medical crosses)
     const rPop = d3.scaleSqrt()
         .domain(d3.extent(data, d => d.population))
         .range([3, 15]);
 
-    // ----- Populate region filter from data -----
+    const symbolSize = d => Math.PI * Math.pow(rPop(d.population), 2);
+
+    // ---------- Populate health profile dropdown ----------
     const filterSelect = d3.select("#filter");
     filterSelect.selectAll("option").remove();
     filterSelect.append("option")
         .attr("value", "all")
-        .text("All regions");
-    regions.forEach(region => {
+        .text("All health profiles");
+    healthTiers.forEach(tier => {
         filterSelect.append("option")
-            .attr("value", region)
-            .text(region);
+            .attr("value", tier)
+            .text(tier);
     });
 
     filterSelect.on("change", e => {
-        currentRegion = e.target.value;
+        currentHealthTier = e.target.value;
         updateStyles();
         updateSummary();
     });
 
-    // ----- Derived thresholds for quadrants -----
+    // ---------- Birth–death quadrants (same idea as before) ----------
     const medianBirth = d3.median(data, d => d.birth_rate);
     const medianDeath = d3.median(data, d => d.death_rate);
 
@@ -102,9 +122,7 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         d.quadrantLabel = quadrantConfig[key].label;
     });
 
-    // ---------------------------------------------------------------------
-    // Panel 1: Life expectancy vs infant mortality scatter
-    // ---------------------------------------------------------------------
+    // ---------- Panel 1: Life vs infant mortality (medical crosses) ----------
     const svg1 = d3.select("#plot1").append("svg")
         .attr("width", width)
         .attr("height", height);
@@ -121,6 +139,7 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
     svg1.append("g")
         .attr("transform", `translate(0,${height - margin.bottom})`)
         .call(d3.axisBottom(x1));
+
     svg1.append("g")
         .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(y1));
@@ -139,16 +158,16 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         .attr("text-anchor", "middle")
         .text("Infant mortality (deaths per 1,000 births)");
 
-    // panel title
+    // title
     svg1.append("text")
         .attr("x", width / 2)
         .attr("y", 20)
         .attr("text-anchor", "middle")
         .style("font-weight", 600)
-        .text("Life vs Infant Survival");
+        .text("Life vs Infant Survival (medical crosses)");
 
-    // median lines for guidance (life & infant)
-    const medianLife = d3.median(data, d => d.life_exp_at_birth);
+    // median guide lines
+    const medianLife   = d3.median(data, d => d.life_exp_at_birth);
     const medianInfant = d3.median(data, d => d.infant_mortality_rate);
 
     svg1.append("line")
@@ -167,22 +186,25 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         .attr("stroke", "#9ca3af")
         .attr("stroke-dasharray", "4,4");
 
-    // dots
+    // medical cross glyphs
+    const crossSymbolScatter = d3.symbol()
+        .type(d3.symbolCross);
+
     dotsScatter = svg1.append("g")
-        .selectAll("circle")
+        .selectAll("path")
         .data(data)
-        .join("circle")
-        .attr("cx", d => x1(d.life_exp_at_birth))
-        .attr("cy", d => y1(d.infant_mortality_rate))
-        .attr("r", d => rPop(d.population))
-        .attr("fill", d => color(d.region))
-        .attr("fill-opacity", 0.9)
+        .join("path")
         .attr("class", "dot-scatter")
+        .attr("d", d => crossSymbolScatter.size(symbolSize(d))())
+        .attr("transform", d => `translate(${x1(d.life_exp_at_birth)},${y1(d.infant_mortality_rate)})`)
+        .attr("fill", "none")
+        .attr("stroke", d => color(d.healthTier))
+        .attr("stroke-width", 1.3)
         .on("mousemove", (event, d) => showTooltip(event, d))
-        .on("mouseleave", () => hideTooltip())
+        .on("mouseleave", hideTooltip)
         .on("click", (event, d) => focusSingleCountry(d.country));
 
-    // brushing on scatter
+    // brushing
     const brush = d3.brush()
         .extent([[margin.left, margin.top], [width - margin.right, height - margin.bottom]])
         .on("brush end", brushed);
@@ -212,14 +234,11 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         updateSummary();
     }
 
-    // ---------------------------------------------------------------------
-    // Panel 2: Force-directed birth–death quadrant swarm
-    // ---------------------------------------------------------------------
+    // ---------- Panel 2: Birth–death quadrant swarm (medical crosses) ----------
     const svg2 = d3.select("#plot2").append("svg")
         .attr("width", width)
         .attr("height", height);
 
-    // panel title
     svg2.append("text")
         .attr("x", width / 2)
         .attr("y", 20)
@@ -227,7 +246,7 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         .style("font-weight", 600)
         .text("Birth–Death Quadrant Swarm");
 
-    // faint quadrant grid
+    // quadrant grid
     svg2.append("line")
         .attr("x1", width / 2)
         .attr("x2", width / 2)
@@ -244,7 +263,6 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         .attr("stroke", "#e5e7eb")
         .attr("stroke-width", 1.2);
 
-    // quadrant labels
     const quadEntries = Object.entries(quadrantConfig);
     const quadLabelGroup = svg2.append("g")
         .attr("class", "quadrant-labels");
@@ -287,29 +305,31 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
             .text(cfg.detail);
     });
 
-    // nodes for swarm layout (copy references so simulation can mutate x,y)
+    // copy data for simulation, carrying healthTier and quadrant info
     const nodes = data.map(d => Object.assign({}, d));
 
-    // initial positions near their quadrant centers (in pixel space)
     nodes.forEach(n => {
         const q = quadrantConfig[n.quadrantKey];
         n.x = margin.left + (width - margin.left - margin.right) * q.x;
         n.y = margin.top + (height - margin.top - margin.bottom) * q.y;
     });
 
+    const crossSymbolSwarm = d3.symbol().type(d3.symbolCross);
+
     dotsSwarm = svg2.append("g")
-        .selectAll("circle")
+        .selectAll("path")
         .data(nodes)
-        .join("circle")
-        .attr("r", d => rPop(d.population))
-        .attr("fill", d => color(d.region))
-        .attr("fill-opacity", 0.9)
+        .join("path")
         .attr("class", "dot-swarm")
+        .attr("d", d => crossSymbolSwarm.size(symbolSize(d))())
+        .attr("transform", d => `translate(${d.x},${d.y})`)
+        .attr("fill", "none")
+        .attr("stroke", d => color(d.healthTier))
+        .attr("stroke-width", 1.3)
         .on("mousemove", (event, d) => showTooltip(event, d))
-        .on("mouseleave", () => hideTooltip())
+        .on("mouseleave", hideTooltip)
         .on("click", (event, d) => focusSingleCountry(d.country));
 
-    // force simulation pulls nodes into quadrant clusters
     const sim = d3.forceSimulation(nodes)
         .force("x", d3.forceX(d => {
             const cfg = quadrantConfig[d.quadrantKey];
@@ -323,43 +343,43 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         .alpha(1)
         .alphaDecay(0.025)
         .on("tick", () => {
-            dotsSwarm
-                .attr("cx", d => d.x)
-                .attr("cy", d => d.y);
+            dotsSwarm.attr("transform", d => `translate(${d.x},${d.y})`);
         });
 
-    // ---------------------------------------------------------------------
-    // Legend (regions + population size)
-    // ---------------------------------------------------------------------
+    // ---------- Legend ----------
     const legendSvg = d3.select("#legend-dashboard svg");
     legendSvg.selectAll("*").remove();
 
-    const legendPadding = 16;
     const legendRegionX = 20;
     const legendRegionY = 20;
 
-    const regionLegend = legendSvg.append("g")
+    const profileLegend = legendSvg.append("g")
         .attr("transform", `translate(${legendRegionX},${legendRegionY})`);
 
-    regionLegend.append("text")
+    profileLegend.append("text")
         .attr("x", 0)
         .attr("y", -6)
         .style("font-size", 12)
         .style("font-weight", 600)
-        .text("Color: region (CIA Factbook)");
+        .text("Color: health profile");
 
-    regions.forEach((region, i) => {
-        const y = 12 + i * 16;
-        regionLegend.append("circle")
-            .attr("cx", 0)
-            .attr("cy", y)
-            .attr("r", 5)
-            .attr("fill", color(region));
-        regionLegend.append("text")
-            .attr("x", 12)
-            .attr("y", y + 4)
+    const crossLegendSymbol = d3.symbol().type(d3.symbolCross).size(80);
+
+    healthTiers.forEach((tier, i) => {
+        const y = 12 + i * 18;
+
+        profileLegend.append("path")
+            .attr("d", crossLegendSymbol())
+            .attr("transform", `translate(0,${y})`)
+            .attr("fill", "none")
+            .attr("stroke", color(tier))
+            .attr("stroke-width", 1.2);
+
+        profileLegend.append("text")
+            .attr("x", 14)
+            .attr("y", y + 3)
             .style("font-size", 11)
-            .text(region);
+            .text(tier);
     });
 
     const sizeLegend = legendSvg.append("g")
@@ -372,41 +392,41 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         .text("Size: population");
 
     const popSamples = [5_000_000, 50_000_000, 200_000_000];
+
     popSamples.forEach((p, i) => {
         const x = 15 + i * 55;
         const r = rPop(p);
+
         sizeLegend.append("circle")
             .attr("cx", x)
             .attr("cy", 20)
             .attr("r", r)
-            .attr("fill", "#e5e7eb")
-            .attr("stroke", "#9ca3af");
+            .attr("fill", "none")
+            .attr("stroke", "#555");
+
         sizeLegend.append("text")
             .attr("x", x)
             .attr("y", 42)
             .attr("text-anchor", "middle")
-            .style("font-size", 10)
-            .text(p >= 100_000_000 ? (p / 1_000_000_000).toFixed(1) + "B"
-                 : (p / 1_000_000).toFixed(0) + "M");
+            .style("font-size", 11)
+            .style("fill", "#555")
+            .text(d3.format(".2s")(p));
     });
 
-    // ---------------------------------------------------------------------
-    // Shared helpers
-    // ---------------------------------------------------------------------
-    const fmt1 = d3.format(".1f");
+    // ---------- Shared helpers ----------
+    const fmt1   = d3.format(".1f");
     const fmtPop = d3.format(",.0f");
 
     function showTooltip(event, d) {
-        const region = d.region || "Unknown region";
         const html = `
             <strong>${d.country}</strong><br/>
-            Region: ${region}<br/>
+            Health profile: ${d.healthTier}<br/>
             Life expectancy: ${fmt1(d.life_exp_at_birth)} years<br/>
             Infant mortality: ${fmt1(d.infant_mortality_rate)} / 1,000 births<br/>
             Birth rate: ${fmt1(d.birth_rate)} / 1,000 people<br/>
             Death rate: ${fmt1(d.death_rate)} / 1,000 people<br/>
             Population: ${fmtPop(d.population)}<br/>
-            Quadrant: ${d.quadrantLabel}
+            Birth–death quadrant: ${d.quadrantLabel}
         `;
         tooltip
             .style("display", "block")
@@ -419,10 +439,9 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         tooltip.style("display", "none");
     }
 
-    // Highlight a single country across both views when clicked
     function focusSingleCountry(countryName) {
         brushedCountries = new Set([countryName]);
-        activeQuadrant = null; // reset quadrant filter for clarity
+        activeQuadrant = null;
         updateStyles();
         updateSummary();
     }
@@ -431,12 +450,11 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         const hasBrush = brushedCountries.size > 0;
 
         dotsScatter
-            .attr("stroke", d => brushedCountries.has(d.country) ? "#111827" : "none")
-            .attr("stroke-width", d => brushedCountries.has(d.country) ? 1.6 : 0.7)
+            .attr("stroke-width", d => brushedCountries.has(d.country) ? 2 : 1.3)
             .attr("opacity", d => {
-                const regionOK   = (currentRegion === "all" || d.region === currentRegion);
+                const profileOK = (currentHealthTier === "all" || d.healthTier === currentHealthTier);
                 const quadrantOK = (!activeQuadrant || d.quadrantKey === activeQuadrant);
-                let base = (regionOK && quadrantOK) ? 0.9 : 0.08;
+                let base = (profileOK && quadrantOK) ? 0.95 : 0.1;
                 if (hasBrush) {
                     if (brushedCountries.has(d.country)) return 1.0;
                     base *= 0.4;
@@ -445,12 +463,11 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
             });
 
         dotsSwarm
-            .attr("stroke", d => brushedCountries.has(d.country) ? "#111827" : "none")
-            .attr("stroke-width", d => brushedCountries.has(d.country) ? 1.6 : 0.7)
+            .attr("stroke-width", d => brushedCountries.has(d.country) ? 2 : 1.3)
             .attr("opacity", d => {
-                const regionOK   = (currentRegion === "all" || d.region === currentRegion);
+                const profileOK = (currentHealthTier === "all" || d.healthTier === currentHealthTier);
                 const quadrantOK = (!activeQuadrant || d.quadrantKey === activeQuadrant);
-                let base = (regionOK && quadrantOK) ? 0.9 : 0.08;
+                let base = (profileOK && quadrantOK) ? 0.95 : 0.1;
                 if (hasBrush) {
                     if (brushedCountries.has(d.country)) return 1.0;
                     base *= 0.4;
@@ -458,9 +475,9 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
                 return base;
             });
 
-        // visual feedback on quadrant labels (bold active one)
+        // highlight active quadrant label border
         quadLabelGroup.selectAll("g").select("rect")
-            .attr("stroke", (d, i, nodes) => {
+            .attr("stroke", (d, i) => {
                 const key = quadEntries[i][0];
                 return (key === activeQuadrant) ? "#111827" : "#d1d5db";
             })
@@ -473,14 +490,14 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
     function updateSummary() {
         const summaryEl = d3.select("#selection-summary");
 
-        const inRegion = d => (currentRegion === "all" || d.region === currentRegion);
-        const inQuad   = d => (!activeQuadrant || d.quadrantKey === activeQuadrant);
-        const inBrush  = d => (brushedCountries.size === 0 || brushedCountries.has(d.country));
+        const profileOK = d => (currentHealthTier === "all" || d.healthTier === currentHealthTier);
+        const quadOK    = d => (!activeQuadrant || d.quadrantKey === activeQuadrant);
+        const brushOK   = d => (brushedCountries.size === 0 || brushedCountries.has(d.country));
 
-        const filtered = data.filter(d => inRegion(d) && inQuad(d) && inBrush(d));
+        const filtered = data.filter(d => profileOK(d) && quadOK(d) && brushOK(d));
 
         if (filtered.length === 0) {
-            summaryEl.text("No countries match this combination of filters/selection.");
+            summaryEl.text("No countries match this combination of health profile, quadrant, and selection.");
             return;
         }
 
@@ -489,9 +506,9 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         const meanBirth  = d3.mean(filtered, d => d.birth_rate);
         const meanDeath  = d3.mean(filtered, d => d.death_rate);
 
-        const regionText = (currentRegion === "all")
-            ? "all regions"
-            : currentRegion;
+        const profileText = (currentHealthTier === "all")
+            ? "all health profiles"
+            : `the “${currentHealthTier}” profile`;
 
         let scopeText = "";
         if (brushedCountries.size > 0) {
@@ -503,14 +520,14 @@ d3.csv("data/cia_factbook.csv", d3.autoType).then(raw => {
         }
 
         summaryEl.html(
-            `In <b>${regionText}</b>, ${scopeText}: ` +
+            `Within <b>${profileText}</b>, ${scopeText}: ` +
             `average life expectancy is <b>${fmt1(meanLife)} years</b>, ` +
             `infant mortality is about <b>${fmt1(meanInfant)}</b> per 1,000 births, ` +
             `birth rates are <b>${fmt1(meanBirth)}</b> and death rates <b>${fmt1(meanDeath)}</b> per 1,000 people.`
         );
     }
 
-    // Initial render
+    // initial render
     updateStyles();
     updateSummary();
 });
