@@ -1,77 +1,501 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Animated Migration Force Map</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8" />
+  <title>Migration Flows • Data Visualization</title>
+
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/topojson@3"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
+
+  <style>
+    :root {
+      --nav-bg: #020617;
+      --nav-text: #e5e7eb;
+      --nav-active: #3b82f6;
+      --page-bg: #f3f4f6;
+      --card-bg: #f9fafb;
+      --card-border: #e5e7eb;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--page-bg);
+      color: #111827;
+    }
+    .top-nav {
+      background: var(--nav-bg);
+      color: var(--nav-text);
+      display: flex;
+      align-items: center;
+      padding: 8px 32px;
+      gap: 12px;
+      font-size: 0.85rem;
+    }
+    .nav-title {
+      font-weight: 600;
+      margin-right: 24px;
+    }
+    .nav-pill {
+      border: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font-size: 0.8rem;
+      opacity: 0.85;
+      transition: background 0.15s, color 0.15s, opacity 0.15s;
+    }
+    .nav-pill:hover {
+      opacity: 1;
+      background: rgba(148, 163, 184, 0.15);
+    }
+    .nav-pill.active {
+      background: var(--nav-active);
+      color: white;
+      opacity: 1;
+    }
+    .page {
+      max-width: 1200px;
+      margin: 28px auto 40px;
+      padding: 0 24px;
+    }
+    .page-header {
+      margin-bottom: 16px;
+    }
+    .page-title {
+      margin: 0 0 4px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #111827;
+    }
+    .page-subtitle {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #4b5563;
+      max-width: 720px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      padding: 18px 18px 20px;
+    }
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111827;
+    }
+    .card-caption {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 0.8rem;
+      color: #4b5563;
+      flex-wrap: wrap;
+    }
+    .pill-button {
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      background: white;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      color: #374151;
+    }
+    .pill-button.active {
+      background: #111827;
+      color: #f9fafb;
+      border-color: #111827;
+    }
+    #container {
+      position: relative;
+      width: 100%;
+      margin-top: 8px;
+      border-radius: 16px;
+      background: #020617;
+      overflow: hidden;
+      padding: 10px;
+    }
+    #map {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .land {
+      fill: #020817;
+      stroke: #1f2937;
+      stroke-width: 0.5;
+    }
+    .graticule {
+      fill: none;
+      stroke: #111827;
+      stroke-width: 0.4;
+      opacity: 0.6;
+    }
+    .route {
+      fill: none;
+      stroke: rgba(148, 163, 184, 0.35);
+      stroke-width: 0.9;
+      stroke-linecap: round;
+      transition: stroke 0.2s, stroke-width 0.2s, opacity 0.2s;
+    }
+    .route.dimmed {
+      opacity: 0.25;
+    }
+    .route.active {
+      stroke: #e5e7eb;
+      stroke-width: 1.8;
+      opacity: 1;
+    }
+    .plane {
+      pointer-events: all;
+      stroke: #020617;
+      stroke-width: 0.6;
+    }
+    .plane.inflow {
+      fill: #22c55e;
+    }
+    .plane.outflow {
+      fill: #ef4444;
+    }
+    .country-dot {
+      fill: #e5e7eb;
+      opacity: 0.8;
+    }
+    .hub-dot {
+      fill: #38bdf8;
+      stroke: #0f172a;
+      stroke-width: 1;
+    }
+    #tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(15, 23, 42, 0.96);
+      color: #f9fafb;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.75);
+      opacity: 0;
+      transform: translate(-50%, -120%);
+      white-space: nowrap;
+      z-index: 10;
+    }
+    #tooltip strong {
+      color: #facc15;
+    }
+    .legend {
+      position: absolute;
+      left: 16px;
+      bottom: 14px;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      max-width: 260px;
+      line-height: 1.4;
+      color: #e5e7eb;
+    }
+    .legend span.dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 2px;
+    }
+  </style>
 </head>
 <body>
+  <nav class="top-nav">
+    <div class="nav-title">Migration Explorer</div>
+    <button class="nav-pill">Map Overview</button>
+    <button class="nav-pill">Migration vs Life Expectancy</button>
+    <button class="nav-pill">Population Dashboard</button>
+    <button class="nav-pill">Animated Migration Map</button>
+    <button class="nav-pill">Democracy Orbit</button>
+    <button class="nav-pill active">Migration Flows</button>
+    <button class="nav-pill">Force Galaxy</button>
+  </nav>
 
-<nav class="top-nav">
-  <a href="map.html" class="nav-item">Map Overview</a>
-  <a href="scatter.html" class="nav-item">Migration vs Life Expectancy</a>
-  <a href="dashboard.html" class="nav-item">Population Health Dashboard</a>
-  <a href="forcemap.html" class="nav-item">Animated Migration Map</a>
-</nav>
+  <main class="page">
+    <header class="page-header">
+      <h1 class="page-title">Global Migration Flows – Net Migration</h1>
+      <p class="page-subtitle">
+        Animated airplanes show net migration between each country and the rest of the world.<br />
+        Green planes indicate net inflows; red planes indicate net outflows. Size encodes magnitude.
+      </p>
+    </header>
 
-<div class="container">
-  <h1>Animated Migration Force Map</h1>
-  <p class="subtitle">
-    Countries drift under a “prosperity gravity” — high life expectancy attracts, low repels.
-  </p>
+    <section class="card">
+      <div class="card-header-row">
+        <div>
+          <div class="card-title">CIA Factbook Subset</div>
+          <div class="card-caption">Visualizing <code>net_migration_rate</code> with supporting population &amp; demographic stats on hover.</div>
+        </div>
+        <div class="control-row">
+          <button class="pill-button active">Net Migration View</button>
+          <button class="pill-button">Raw Demographics</button>
+        </div>
+      </div>
 
-  <div id="controls">
-    <button id="playPauseBtn">⏸ Pause</button>
-    <button id="resetBtn">↺ Reset</button>
-    <div id="legend-forcemap">
-      <svg width="520" height="70"></svg>
-    </div>    
+      <div id="container">
+        <svg id="map"></svg>
+        <div id="tooltip"></div>
+        <div class="legend">
+          <div class="legend-row">
+            <span class="dot" style="background:#22c55e;"></span>
+            <strong>Net inflow</strong> (hub → country)
+          </div>
+          <div class="legend-row">
+            <span class="dot" style="background:#ef4444;"></span>
+            <strong>Net outflow</strong> (country → hub)
+          </div>
+          <div class="legend-row" style="margin-top:4px;">
+            <span class="dot" style="background:#e5e7eb;"></span>
+            Country locations
+          </div>
+          <div class="legend-row">
+            <span class="dot" style="background:#38bdf8;"></span>
+            World hub
+          </div>
+          <div style="margin-top:4px;">Plane size ≈ |net migration rate|.</div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <label for="speed">Speed:</label>
-    <input id="speed" type="range" min="0.2" max="3" step="0.1" value="1" />
-    <span id="speedVal">1.0×</span>
+  <script>
+    const width = 1100;
+    const height = 580;
 
-    <label for="filter">Filter:</label>
-    <select id="filter">
-      <option value="all">All Countries</option>
-      <option value="Africa">Africa</option>
-      <option value="Asia">Asia</option>
-      <option value="Europe">Europe</option>
-      <option value="North America">North America</option>
-      <option value="South America">South America</option>
-      <option value="Australia">Australia</option>
-      <option value="Oceania">Oceania</option>
-      <option value="Antarctica">Antarctica</option>
-      <option disabled>───────────────</option>
-      <option value="Developed">Developed Economies</option>
-      <option value="Developing">Developing Economies</option>
-    </select>
+    const svg = d3.select("#map")
+      .attr("viewBox", `0 0 ${width} ${height}`);
 
-    <small style="opacity:.7">Tip: hover points for details; drag to pan (trackpad/two-finger).</small>
-  </div>
+    const tooltip = d3.select("#tooltip");
 
-  <div id="forcemap"></div>
+    const projection = d3.geoNaturalEarth1()
+      .scale(190)
+      .translate([width / 2, height / 2]);
 
-  <div class="story-block">
-    <h2>Story: Prosperity as Gravity</h2>
-    <p>
-      Circles are countries (size = population). Blue glow indicates net immigration; red glow indicates net emigration.
-      A gentle “pull” toward the global attractor (derived from countries with top life expectancy) visualizes
-      how health and prosperity draw people, while countries with lower life expectancy drift outward.
-    </p>
-  </div>
-</div>
+    const pathGenerator = d3.geoPath().projection(projection);
+    const graticule = d3.geoGraticule();
 
-<script src="js/forcemap.js"></script>
-<script>
-  // highlight active tab
-  const path = window.location.pathname;
-  document.querySelectorAll('.nav-item').forEach(link => {
-    if (path.includes(link.getAttribute('href'))) link.classList.add('active');
-  });
-</script>
+    svg.append("path")
+      .datum(graticule())
+      .attr("class", "graticule")
+      .attr("d", pathGenerator);
+
+    const countryCoords = {
+      "Russia": [37.6173, 55.7558],
+      "Canada": [-75.6972, 45.4215],
+      "United States": [-77.0369, 38.9072],
+      "China": [116.4074, 39.9042],
+      "Brazil": [-47.8825, -15.7942],
+      "Australia": [149.1300, -35.2809],
+      "India": [77.2090, 28.6139],
+      "Argentina": [-58.3816, -34.6037],
+      "Kazakhstan": [71.4304, 51.1280],
+      "Algeria": [3.0588, 36.7538],
+      "Congo, Democratic Republic of the": [15.2663, -4.4419],
+      "Greenland": [-51.7216, 64.1814],
+      "Saudi Arabia": [46.6753, 24.7136],
+      "Mexico": [-99.1332, 19.4326],
+      "Indonesia": [106.8456, -6.2088],
+      "Sudan": [32.5599, 15.5007],
+      "Libya": [13.1913, 32.8872]
+    };
+
+    const worldHub = [0, 15];
+    const planePath = "M10 0 L-6 4 L-4 1 L-10 1 L-10 -1 L-4 -1 L-6 -4 Z";
+
+    Promise.all([
+      d3.json("https://unpkg.com/world-atlas@2/countries-110m.json"),
+      d3.csv("data/cia_factbook.csv")
+    ]).then(([worldData, data]) => {
+      const countries = topojson.feature(worldData, worldData.objects.countries);
+
+      svg.append("g")
+        .selectAll("path")
+        .data(countries.features)
+        .enter()
+        .append("path")
+        .attr("class", "land")
+        .attr("d", pathGenerator);
+
+      const routesGroup = svg.append("g").attr("class", "routes");
+      const planesGroup = svg.append("g").attr("class", "planes");
+      const dotsGroup   = svg.append("g").attr("class", "country-dots");
+
+      const hubScreen = projection(worldHub);
+      svg.append("circle")
+        .attr("class", "hub-dot")
+        .attr("cx", hubScreen[0])
+        .attr("cy", hubScreen[1])
+        .attr("r", 4);
+
+      const flows = data
+        .map(d => {
+          const country = d.country.replace(/^"|"$/g, "");
+          const net = +d.net_migration_rate;
+          const pop = +d.population;
+          const coords = countryCoords[country];
+          return {
+            ...d,
+            country,
+            net,
+            population: pop,
+            coords
+          };
+        })
+        .filter(d => d.coords && !isNaN(d.net) && d.net !== 0)
+        .sort((a, b) => Math.abs(a.net) - Math.abs(b.net));
+
+      dotsGroup.selectAll("circle")
+        .data(flows)
+        .enter()
+        .append("circle")
+        .attr("class", "country-dot")
+        .attr("r", 2.3)
+        .attr("cx", d => projection(d.coords)[0])
+        .attr("cy", d => projection(d.coords)[1]);
+
+      const absRates = flows.map(d => Math.abs(d.net));
+      const radiusScale = d3.scaleSqrt()
+        .domain(d3.extent(absRates))
+        .range([2.2, 10]);
+
+      function dimOthers(activeRoute) {
+        routesGroup.selectAll(".route").classed("dimmed", d => d !== activeRoute);
+      }
+      function resetDimming() {
+        routesGroup.selectAll(".route").classed("dimmed", false);
+      }
+
+      flows.forEach(d => {
+        const netMig = d.net;
+        const coords = d.coords;
+        const name = d.country;
+
+        const originLonLat = netMig >= 0 ? worldHub : coords;
+        const destLonLat   = netMig >= 0 ? coords   : worldHub;
+
+        const midLonLat = [
+          (originLonLat[0] + destLonLat[0]) / 2,
+          (originLonLat[1] + destLonLat[1]) / 2 + 10
+        ];
+
+        const arc = {
+          type: "LineString",
+          coordinates: [originLonLat, midLonLat, destLonLat]
+        };
+
+        const routePath = routesGroup
+          .append("path")
+          .datum(arc)
+          .attr("class", "route")
+          .attr("d", pathGenerator);
+
+        const totalLength = routePath.node().getTotalLength();
+        const r = radiusScale(Math.abs(netMig));
+        const flowClass = netMig >= 0 ? "inflow" : "outflow";
+        const startPoint = routePath.node().getPointAtLength(0);
+
+        const plane = planesGroup
+          .append("path")
+          .attr("class", `plane ${flowClass}`)
+          .attr("d", planePath)
+          .attr("transform", `translate(${startPoint.x},${startPoint.y}) scale(${r * 0.35})`);
+
+        plane
+          .on("mouseover", () => {
+            routesGroup.selectAll(".route").classed("active", false);
+            routePath.classed("active", true);
+            dimOthers(arc);
+            const pop = d.population;
+            const internet = d.internet_users;
+            tooltip
+              .style("opacity", 1)
+              .html(`
+                <div><strong>${name}</strong></div>
+                <div>Net migration rate: <strong>${netMig}</strong></div>
+                <div>Population: <strong>${isNaN(pop) ? "N/A" : pop.toLocaleString()}</strong></div>
+                <hr style="border:none;border-top:1px solid #374151;margin:4px 0;" />
+                <div>Birth rate: <strong>${d.birth_rate}</strong>, Death rate: <strong>${d.death_rate}</strong></div>
+                <div>Infant mortality: <strong>${d.infant_mortality_rate}</strong></div>
+                <div>Life expectancy: <strong>${d.life_exp_at_birth}</strong></div>
+                <div>Internet users: <strong>${
+                  (internet === "NA" || internet === "" || internet == null)
+                    ? "N/A"
+                    : Number(internet).toLocaleString()
+                }</strong></div>
+                <div>Maternal mortality: <strong>${d.maternal_mortality_rate}</strong></div>
+                <div>Population growth rate: <strong>${d.population_growth_rate}</strong></div>
+              `);
+          })
+          .on("mousemove", (event) => {
+            const container = document.getElementById("container");
+            const [x, y] = d3.pointer(event, container);
+            tooltip
+              .style("left", x + "px")
+              .style("top", y + "px");
+          })
+          .on("mouseout", () => {
+            tooltip.style("opacity", 0);
+            routePath.classed("active", false);
+            resetDimming();
+          });
+
+        function animatePlane() {
+          plane
+            .transition()
+            .duration(4500 + Math.random() * 1500)
+            .ease(d3.easeLinear)
+            .attrTween("transform", () => {
+              const pathNode = routePath.node();
+              return (t) => {
+                const currentLength = t * totalLength;
+                const point = pathNode.getPointAtLength(currentLength);
+                const nextPoint = pathNode.getPointAtLength(
+                  Math.min(totalLength, currentLength + 1)
+                );
+                const dx = nextPoint.x - point.x;
+                const dy = nextPoint.y - point.y;
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                return `translate(${point.x},${point.y}) rotate(${angle}) scale(${r * 0.35})`;
+              };
+            })
+            .on("end", () => {
+              setTimeout(animatePlane, 600 + Math.random() * 1200);
+            });
+        }
+        animatePlane();
+      });
+    });
+  </script>
 </body>
 </html>
