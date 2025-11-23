@@ -202,6 +202,177 @@
             font-weight: 600;
             color: #6c757d;
         }
+
+        /* Tracking Panel */
+        .tracking-panel {
+            position: fixed;
+            right: 20px;
+            top: 100px;
+            background: linear-gradient(135deg, #0077cc 0%, #005fa3 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,119,204,0.4);
+            max-width: 280px;
+            display: none;
+            border: 2px solid rgba(255,255,255,0.3);
+            z-index: 1000;
+        }
+
+        .tracking-panel.active {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .tracking-panel h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tracking-panel .tracking-icon {
+            font-size: 20px;
+        }
+
+        .tracking-panel .stat {
+            margin: 10px 0;
+            font-size: 14px;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .tracking-panel .stat-label {
+            font-weight: 600;
+            opacity: 0.9;
+            display: block;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .tracking-panel .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .tracking-panel .clear-track {
+            margin-top: 15px;
+            width: 100%;
+            background: rgba(255,255,255,0.2);
+            padding: 8px;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .tracking-panel .clear-track:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Search box container */
+        .search-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        #trackingSearch {
+            width: 200px;
+            padding: 8px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        #trackingSearch:focus {
+            outline: none;
+            border-color: #0077cc;
+            box-shadow: 0 0 0 3px rgba(0,119,204,0.1);
+        }
+
+        /* Tracked entity highlight */
+        .planet.tracked, .cluster.tracked {
+            stroke: #ff6b35 !important;
+            stroke-width: 4 !important;
+            filter: drop-shadow(0 0 12px #ff6b35) drop-shadow(0 0 4px #ff6b35);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                stroke-width: 4;
+                opacity: 1;
+            }
+            50% {
+                stroke-width: 5;
+                opacity: 0.9;
+            }
+        }
+
+        .trail.tracked {
+            stroke-width: 3 !important;
+            opacity: 0.8 !important;
+            stroke: #ff6b35 !important;
+        }
+
+        /* Autocomplete suggestions */
+        .autocomplete-suggestions {
+            position: absolute;
+            background: white;
+            border: 2px solid #0077cc;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            width: 224px;
+            display: none;
+        }
+
+        .autocomplete-suggestions.active {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .suggestion-item:hover {
+            background: #f0f8ff;
+        }
+
+        .suggestion-item .name {
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .suggestion-item .type {
+            font-size: 12px;
+            color: #6c757d;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
@@ -217,8 +388,8 @@
 </nav>
 
 <div class="container">
-    <h1>Democracy Orbit - Enhanced</h1>
-    <div class="subtitle">Click regions to explore countries • Hover for details • Use trails to see democratic evolution (1950-2020)</div>
+    <h1>Democracy Orbit</h1>
+    <div class="subtitle">Click regions to explore • Search or click countries/regions to track through time • Hover for details (1950-2020)</div>
 
     <div class="orbit-controls">
         <div class="control-group">
@@ -237,9 +408,40 @@
             <button id="clusterView" class="active">Regional View</button>
             <button id="detailView">All Countries</button>
         </div>
+        <div class="control-group search-container">
+            <label for="trackingSearch">🎯 Track:</label>
+            <input type="text" id="trackingSearch" placeholder="Search country or region...">
+            <div class="autocomplete-suggestions" id="suggestions"></div>
+        </div>
     </div>
 
     <div id="orbit-vis"></div>
+
+    <!-- Tracking Panel -->
+    <div class="tracking-panel" id="trackingPanel">
+        <h3><span class="tracking-icon">🎯</span> <span id="trackedName">Tracking</span></h3>
+        <div class="stat">
+            <span class="stat-label">Type</span>
+            <span class="stat-value" id="trackedType">-</span>
+        </div>
+        <div class="stat" id="trackedRegionStat" style="display: none;">
+            <span class="stat-label">Region</span>
+            <span class="stat-value" id="trackedRegion">-</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Year</span>
+            <span class="stat-value" id="trackedYear">-</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Electoral Democracy</span>
+            <span class="stat-value" id="trackedElectoral">-</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Liberal Democracy</span>
+            <span class="stat-value" id="trackedDemocracy">-</span>
+        </div>
+        <div class="clear-track" id="clearTracking">✕ Clear Tracking</div>
+    </div>
 
     <div class="orbit-legend">
         <div class="legend-title">🌍 Regions (Click to explore)</div>
@@ -290,7 +492,7 @@
         'Unknown': '#bdc3c7'           // Light gray
     };
 
-    // Region mapping based on country names
+    // Region mapping based on country names - COMPREHENSIVE
     const countryToRegion = {
         // Europe
         'Albania': 'Europe', 'Austria': 'Europe', 'Belgium': 'Europe', 'Bulgaria': 'Europe',
@@ -303,15 +505,17 @@
         'Switzerland': 'Europe', 'United Kingdom': 'Europe', 'Ukraine': 'Europe', 'Belarus': 'Europe',
         'Moldova': 'Europe', 'Serbia': 'Europe', 'Bosnia and Herzegovina': 'Europe', 'Montenegro': 'Europe',
         'North Macedonia': 'Europe', 'Kosovo': 'Europe',
+        'Cyprus': 'Europe', 'Malta': 'Europe', 'Monaco': 'Europe', 'Gibraltar': 'Europe',
+        'Slovak Republic': 'Europe', // Alternative name for Slovakia
 
         // Asia
-        'China': 'Asia', 'India': 'Asia', 'Japan': 'Asia', 'South Korea': 'Asia',
+        'China': 'Asia', 'India': 'Asia', 'Japan': 'Asia', 'South Korea': 'Asia', 'Korea': 'Asia',
         'North Korea': 'Asia', 'Indonesia': 'Asia', 'Thailand': 'Asia', 'Vietnam': 'Asia',
         'Philippines': 'Asia', 'Myanmar': 'Asia', 'Malaysia': 'Asia', 'Singapore': 'Asia',
         'Bangladesh': 'Asia', 'Pakistan': 'Asia', 'Sri Lanka': 'Asia', 'Nepal': 'Asia',
         'Cambodia': 'Asia', 'Laos': 'Asia', 'Mongolia': 'Asia', 'Bhutan': 'Asia',
         'Brunei': 'Asia', 'Timor-Leste': 'Asia', 'Taiwan': 'Asia', 'Hong Kong': 'Asia',
-        'Macao': 'Asia',
+        'Macao': 'Asia', 'Maldives': 'Asia',
 
         // Africa
         'Nigeria': 'Africa', 'Ethiopia': 'Africa', 'Egypt': 'Africa', 'South Africa': 'Africa',
@@ -327,9 +531,13 @@
         'Congo': 'Africa', 'Gabon': 'Africa', 'Guinea-Bissau': 'Africa', 'Equatorial Guinea': 'Africa',
         'Mauritius': 'Africa', 'Eswatini': 'Africa', 'Djibouti': 'Africa', 'Comoros': 'Africa',
         'Cape Verde': 'Africa', 'Sao Tome and Principe': 'Africa', 'Seychelles': 'Africa',
+        'Côte d`Ivoire': 'Africa', 'Gambia': 'Africa', 'South Sudan': 'Africa', 'Swaziland': 'Africa',
 
-        // North America
+        // North America (including Central America)
         'United States': 'North America', 'Canada': 'North America', 'Mexico': 'North America',
+        'Guatemala': 'North America', 'Honduras': 'North America', 'El Salvador': 'North America',
+        'Nicaragua': 'North America', 'Costa Rica': 'North America', 'Panama': 'North America',
+        'Belize': 'North America',
 
         // South America
         'Brazil': 'South America', 'Argentina': 'South America', 'Colombia': 'South America',
@@ -355,6 +563,7 @@
         'Fiji': 'Oceania', 'Solomon Islands': 'Oceania', 'Vanuatu': 'Oceania',
         'Samoa': 'Oceania', 'Kiribati': 'Oceania', 'Tonga': 'Oceania', 'Micronesia': 'Oceania',
         'Palau': 'Oceania', 'Marshall Islands': 'Oceania', 'Nauru': 'Oceania', 'Tuvalu': 'Oceania',
+        'Cook Islands': 'Oceania', 'Guam': 'Oceania', 'Northern Mariana Islands': 'Oceania',
 
         // Caribbean
         'Cuba': 'Caribbean', 'Haiti': 'Caribbean', 'Dominican Republic': 'Caribbean',
@@ -362,6 +571,13 @@
         'Barbados': 'Caribbean', 'Saint Lucia': 'Caribbean', 'Grenada': 'Caribbean',
         'Saint Vincent and the Grenadines': 'Caribbean', 'Antigua and Barbuda': 'Caribbean',
         'Dominica': 'Caribbean', 'Saint Kitts and Nevis': 'Caribbean',
+        'Puerto Rico': 'Caribbean', 'Aruba': 'Caribbean', 'Curacao': 'Caribbean',
+        'Anguilla': 'Caribbean', 'Bermuda': 'Caribbean', 'British Virgin Islands': 'Caribbean',
+        'Cayman Islands': 'Caribbean', 'Sint Maarten': 'Caribbean', 'Turks and Caicos': 'Caribbean',
+        'US Virgin Islands': 'Caribbean',
+        // Alternative names
+        'Trinidad &Tobago': 'Caribbean', 'St. Kitts & Nevis': 'Caribbean',
+        'St. Lucia': 'Caribbean', 'St.Vincent & Grenadines': 'Caribbean',
     };
 
     // Load and visualize data
@@ -460,6 +676,11 @@
         let playInterval = null;
         let viewMode = 'cluster'; // 'cluster' or 'detail'
         let expandedRegion = null;
+        let trackedEntity = null; // {type: 'country'/'region', name: 'CountryName'/'RegionName'}
+
+        // Build search index
+        const allCountries = [...new Set(data.map(d => d.country))].sort();
+        const allRegions = [...new Set(data.map(d => d.region))].filter(r => r !== 'Unknown').sort();
 
         // Create legend
         const legendItems = d3.select('#legendItems');
@@ -478,6 +699,145 @@
                     updateVisualization(currentYear);
                 });
         });
+
+        // Search and tracking functions
+        function updateSuggestions(searchTerm) {
+            const suggestions = document.getElementById('suggestions');
+            if (!searchTerm.trim()) {
+                suggestions.classList.remove('active');
+                return;
+            }
+
+            const term = searchTerm.toLowerCase();
+            const matches = [];
+
+            // Search countries
+            allCountries.forEach(country => {
+                if (country.toLowerCase().includes(term)) {
+                    matches.push({ name: country, type: 'Country' });
+                }
+            });
+
+            // Search regions
+            allRegions.forEach(region => {
+                if (region.toLowerCase().includes(term)) {
+                    matches.push({ name: region, type: 'Region' });
+                }
+            });
+
+            if (matches.length === 0) {
+                suggestions.classList.remove('active');
+                return;
+            }
+
+            suggestions.innerHTML = matches.slice(0, 10).map(match => `
+                <div class="suggestion-item" data-name="${match.name}" data-type="${match.type}">
+                    <span class="name">${match.name}</span>
+                    <span class="type">${match.type}</span>
+                </div>
+            `).join('');
+
+            suggestions.classList.add('active');
+
+            // Add click handlers
+            suggestions.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const name = item.getAttribute('data-name');
+                    const type = item.getAttribute('data-type');
+                    setTracking(name, type);
+                    document.getElementById('trackingSearch').value = name;
+                    suggestions.classList.remove('active');
+                });
+            });
+        }
+
+        function setTracking(name, type) {
+            trackedEntity = { name, type: type.toLowerCase() };
+
+            // If tracking a country AND currently in cluster view, automatically expand into its region
+            if (trackedEntity.type === 'country' && viewMode === 'cluster') {
+                // Find the region this country belongs to
+                const countryData = data.find(d => d.country === name);
+                if (countryData) {
+                    expandedRegion = countryData.region;
+                    // Keep viewMode as 'cluster' - don't switch to 'detail'
+                    // The expandedRegion being set will show individual countries in that region
+                }
+            }
+            // If already in detail view, just track without changing expandedRegion
+
+            updateTrackingPanel();
+            updateVisualization(currentYear);
+        }
+
+        function clearTracking() {
+            trackedEntity = null;
+            document.getElementById('trackingSearch').value = '';
+            document.getElementById('trackingPanel').classList.remove('active');
+            updateVisualization(currentYear);
+        }
+
+        function updateTrackingPanel() {
+            const panel = document.getElementById('trackingPanel');
+            if (!trackedEntity) {
+                panel.classList.remove('active');
+                return;
+            }
+
+            panel.classList.add('active');
+            document.getElementById('trackedName').textContent = trackedEntity.name;
+            document.getElementById('trackedType').textContent = trackedEntity.type === 'country' ? 'Country' : 'Region';
+
+            // Get current year data for the tracked entity
+            const yearData = data.filter(d => d.year === currentYear);
+            if (trackedEntity.type === 'country') {
+                const countryData = yearData.find(d => d.country === trackedEntity.name);
+                if (countryData) {
+                    // Show region info
+                    document.getElementById('trackedRegionStat').style.display = 'block';
+                    document.getElementById('trackedRegion').textContent = countryData.region;
+
+                    document.getElementById('trackedYear').textContent = currentYear;
+                    document.getElementById('trackedElectoral').textContent = countryData.spatialElectoral.toFixed(2);
+                    document.getElementById('trackedDemocracy').textContent = countryData.spatialDemocracy.toFixed(2);
+                } else {
+                    document.getElementById('trackedRegionStat').style.display = 'none';
+                    document.getElementById('trackedYear').textContent = currentYear;
+                    document.getElementById('trackedElectoral').textContent = 'N/A';
+                    document.getElementById('trackedDemocracy').textContent = 'N/A';
+                }
+            } else {
+                // Region tracking - hide region stat
+                document.getElementById('trackedRegionStat').style.display = 'none';
+
+                const regionData = yearData.filter(d => d.region === trackedEntity.name);
+                if (regionData.length > 0) {
+                    const avgElectoral = d3.mean(regionData, d => d.spatialElectoral);
+                    const avgDemocracy = d3.mean(regionData, d => d.spatialDemocracy);
+                    document.getElementById('trackedYear').textContent = currentYear;
+                    document.getElementById('trackedElectoral').textContent = avgElectoral.toFixed(2);
+                    document.getElementById('trackedDemocracy').textContent = avgDemocracy.toFixed(2);
+                } else {
+                    document.getElementById('trackedYear').textContent = currentYear;
+                    document.getElementById('trackedElectoral').textContent = 'N/A';
+                    document.getElementById('trackedDemocracy').textContent = 'N/A';
+                }
+            }
+        }
+
+        // Event listeners for search
+        document.getElementById('trackingSearch').addEventListener('input', (e) => {
+            updateSuggestions(e.target.value);
+        });
+
+        document.getElementById('trackingSearch').addEventListener('blur', () => {
+            // Delay to allow click on suggestions
+            setTimeout(() => {
+                document.getElementById('suggestions').classList.remove('active');
+            }, 200);
+        });
+
+        document.getElementById('clearTracking').addEventListener('click', clearTracking);
 
         // Calculate regional clusters
         function calculateClusters(yearData) {
@@ -501,6 +861,11 @@
             currentYear = year;
             d3.select('#yearDisplay').text(year);
             d3.select('#yearSlider').property('value', year);
+
+            // Update tracking panel if active
+            if (trackedEntity) {
+                updateTrackingPanel();
+            }
 
             const showTrails = d3.select('#showTrails').property('checked');
             const yearData = data.filter(d => d.year === year);
@@ -526,7 +891,8 @@
                             .defined(p => !isNaN(xScale(p.spatialElectoral)) && !isNaN(yScale(p.spatialDemocracy)))
                             .curve(d3.curveCardinal.tension(0.5))(points);
                     })
-                    .attr('stroke', d => regionColors[d[1][0].region] || '#bdbdbd');
+                    .attr('stroke', d => regionColors[d[1][0].region] || '#bdbdbd')
+                    .classed('tracked', d => trackedEntity && trackedEntity.type === 'country' && trackedEntity.name === d[0]);
 
                 trails.exit().remove();
             } else {
@@ -548,6 +914,7 @@
                     .attr('cy', d => yScale(d.avgDemocracy))
                     .attr('r', 0)
                     .merge(clusterElements)
+                    .classed('tracked', d => trackedEntity && trackedEntity.type === 'region' && trackedEntity.name === d.region)
                     .transition()
                     .duration(300)
                     .attr('cx', d => xScale(d.avgElectoral))
@@ -567,8 +934,15 @@
                 // Add interactions
                 clustersGroup.selectAll('.cluster')
                     .on('click', function(event, d) {
-                        expandedRegion = d.region;
-                        updateVisualization(currentYear);
+                        if (event.shiftKey) {
+                            // Shift+click to track region
+                            setTracking(d.region, 'Region');
+                            document.getElementById('trackingSearch').value = d.region;
+                        } else {
+                            // Regular click to expand
+                            expandedRegion = d.region;
+                            updateVisualization(currentYear);
+                        }
                     })
                     .on('mouseover', function(event, d) {
                         d3.select(this).attr('opacity', 1);
@@ -578,7 +952,7 @@
                             Countries: ${d.count}<br/>
                             Avg Electoral: ${d.avgElectoral.toFixed(2)}<br/>
                             Avg Democracy: ${d.avgDemocracy.toFixed(2)}<br/>
-                            <em>Click to explore</em>
+                            <em>Click to explore • Shift+Click to track</em>
                         `)
                             .style('left', (event.pageX + 15) + 'px')
                             .style('top', (event.pageY - 15) + 'px');
@@ -607,6 +981,7 @@
                     .attr('cy', d => yScale(d.spatialDemocracy))
                     .attr('r', 0)
                     .merge(planets)
+                    .classed('tracked', d => trackedEntity && trackedEntity.type === 'country' && trackedEntity.name === d.country)
                     .transition()
                     .duration(300)
                     .attr('cx', d => xScale(d.spatialElectoral))
@@ -631,13 +1006,15 @@
                     .on('mouseover', function(event, d) {
                         d3.select(this).attr('opacity', 1).attr('stroke-width', 3);
                         tooltip.transition().duration(100).style('opacity', 1);
+                        const clickHint = expandedRegion ? '<em>Click to return to regions</em>' : '<em>Click to track</em>';
                         tooltip.html(`
                             <strong>${d.country}</strong> (${d.year})<br/>
                             Region: ${d.region}<br/>
                             Regime: ${d.regimeCategory || 'Unknown'}<br/>
                             Electoral: ${d.spatialElectoral.toFixed(2)}<br/>
                             Democracy: ${d.spatialDemocracy.toFixed(2)}<br/>
-                            Parliament: ${d.lowerHouseMembers + d.upperHouseMembers} members
+                            Parliament: ${d.lowerHouseMembers + d.upperHouseMembers} members<br/>
+                            ${clickHint}
                         `)
                             .style('left', (event.pageX + 15) + 'px')
                             .style('top', (event.pageY - 15) + 'px');
@@ -649,11 +1026,15 @@
                         tooltip.transition().duration(200).style('opacity', 0);
                     })
                     .on('click', function(event, d) {
-                        // Double-click to return to clusters
                         if (expandedRegion) {
+                            // If in expanded region, click returns to clusters
                             expandedRegion = null;
                             viewMode = 'cluster';
                             updateVisualization(currentYear);
+                        } else {
+                            // Otherwise, click to track
+                            setTracking(d.country, 'Country');
+                            document.getElementById('trackingSearch').value = d.country;
                         }
                     });
             }
