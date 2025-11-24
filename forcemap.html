@@ -501,8 +501,11 @@
 </body>
 <script>
     const path = window.location.pathname;
+    const currentFile = path.substring(path.lastIndexOf('/') + 1); 
+
     document.querySelectorAll('.nav-item').forEach(link => {
-        if (path.includes(link.getAttribute('href'))) {
+        const linkHref = link.getAttribute('href');
+        if (currentFile === linkHref) { 
             link.classList.add('active');
         }
     });
