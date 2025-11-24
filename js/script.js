@@ -98,7 +98,7 @@ function checkAnswer(id, selected) {
         feedbackBox.innerHTML = '<strong>✅ GOOD WORK, AGENT.</strong> Access Granted. Scroll down for the analysis.';
         feedbackBox.classList.add('feedback-correct');
     } else {
-        feedbackBox.innerHTML = `<strong>❌ NICE TRY.</strong> The correct answer is **Option ${section.correct}**. Access Granted for Remedial Study.`;
+        feedbackBox.innerHTML = `<strong>❌ NICE TRY.</strong> The correct answer is Option ${section.correct}. Access Granted for Remedial Study.`;
         feedbackBox.classList.add('feedback-incorrect');
     }
 
