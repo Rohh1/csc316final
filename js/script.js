@@ -1,4 +1,11 @@
 // --- GLOBAL GAME & FLOW CONTROL ---
+
+// Shared D3 Tooltip for all visualizations
+const tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("display", "none");
+
 const sections = [
     { id: 'map', correct: 'B', init: initMapVis, next: 'flows' },
     { id: 'flows', correct: 'B', init: initFlowsVis, next: 'dashboard' },
@@ -135,16 +142,15 @@ function initMapVis() {
 
     const path = d3.geoPath().projection(projection);
 
-    const panel = d3.select("#map-info-panel");
     const regionFilter = d3.select("#regionFilter");
 
     const regionColors = {
-        "Europe": "#2F5FA8",
-        "North America": "#F28C28",
-        "Asia": "#4CAF50",
-        "South America": "#C0392B",
-        "Oceania": "#9B59B6",
-        "Africa": "#8D5A4A",
+        "Europe": "#3498db",
+        "North America": "#f39c12",
+        "Asia": "#2ecc71",
+        "South America": "#e74c3c",
+        "Oceania": "#9b59b6",
+        "Africa": "#f1c40f",
         "Other": "#7E7E7E"
     };
 
@@ -232,6 +238,7 @@ function initMapVis() {
             .attr("stroke", d => {
                 const m = d.properties.metrics;
                 if (!m) return "#ccc";
+                // Use migration color scale for stroke
                 return migrationColor(m.net_migration_rate);
             })
             .attr("stroke-width", 1.4)
@@ -249,20 +256,22 @@ function initMapVis() {
                     .attr("stroke-width", 3)
                     .attr("filter", "drop-shadow(0px 0px 4px #333)");
                 
-                // Show info panel
-                const panelHtml = metrics ? `
-                    <h3>${d.properties.name}</h3>
-                    <div><strong>Region:</strong> ${d.properties.region}</div>
-                    <div><strong>Net migration:</strong> ${metrics.net_migration_rate} per 1,000</div>
-                    <div><strong>Birth rate:</strong> ${metrics.birth_rate}</div>
-                    <div><strong>Death rate:</strong> ${metrics.death_rate}</div>
-                    <div><strong>Life expectancy:</strong> ${metrics.life_exp_at_birth}</div>
-                    <div><strong>Population:</strong> ${d3.format(",")(metrics.population)}</div>
-                ` : `
-                    <h3>${d.properties.name}</h3>
-                    <div style="color:${d3.select("#map-info-panel").style("color")};">No data available</div>
-                `;
-                panel.style("display", "block").html(panelHtml);
+                let tooltipHtml = `<strong>${d.properties.name}</strong><br/>
+                                   <div style="color: #aaa;">No data available</div>`;
+
+                if (metrics) {
+                    tooltipHtml = `
+                        <strong>${d.properties.name}</strong> (${d.properties.region})<br/>
+                        Net Migration: ${metrics.net_migration_rate} / 1,000<br/>
+                        Population: ${d3.format(",")(metrics.population)}
+                    `;
+                }
+
+                tooltip.style("display", "block")
+                    .html(tooltipHtml)
+                    .style("left", (event.pageX + 15) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+
             })
             .on("mouseout", function () {
                 d3.select(this)
@@ -272,7 +281,7 @@ function initMapVis() {
                     .attr("stroke-width", 1.4)
                     .attr("filter", null);
                 
-                panel.style("display", "none");
+                tooltip.style("display", "none");
             })
 
             .on("click", function (event, d) {
@@ -372,9 +381,6 @@ function initFlowsVis() {
         }
     }
 
-    const tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip").style("opacity", 0);
-
     function drawChord(matrix) {
         svg.selectAll("*").remove();
         const chord = d3.chord().padAngle(0.05).sortSubgroups(d3.descending)(matrix);
@@ -449,7 +455,7 @@ function initFlowsVis() {
             .on("mouseover", (event, d) => {
                 updateBars(d.source.index, d.target.index);
                 highlightConnection(d.source.index, d.target.index);
-                tooltip.transition().duration(50).style("opacity", 1);
+                tooltip.style("display", "block").transition().duration(50).style("opacity", 1);
 
                 let fromContinent, toContinent;
                 if (flowMode === "outbound") {
@@ -468,7 +474,7 @@ function initFlowsVis() {
                 .style("top", (event.pageY - 15) + "px");
             })
             .on("mouseout", () => {
-                tooltip.transition().duration(100).style("opacity", 0);
+                tooltip.style("display", "none").transition().duration(100).style("opacity", 0);
                 clearHighlight();
             });
     }
@@ -633,9 +639,6 @@ function initDashboardVis() {
     const width  = 500;
     const height = 400;
     const margin = { top: 50, right: 50, bottom: 65, left: 80 }; // Increased margins
-
-    // Shared tooltip (must be globally defined or fetched)
-    const tooltip = d3.select("body").select(".tooltip");
 
     // Global state
     let data = [];
@@ -1224,9 +1227,6 @@ function initOrbitVis() {
             .append('g')
             .attr('transform', `translate(${margin.left},${margin.top})`);
 
-        const tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip").style("opacity", 0);
-
         // Scales
         const xExtent = d3.extent(data, d => d.spatialElectoral);
         const yExtent = d3.extent(data, d => d.spatialDemocracy);
@@ -1360,13 +1360,13 @@ function initOrbitVis() {
                     })
                     .on('mouseover', function(event, d) {
                         d3.select(this).attr('opacity', 1);
-                        tooltip.transition().duration(100).style('opacity', 1);
+                        tooltip.style("display", "block").transition().duration(100).style('opacity', 1);
                         tooltip.html(`<strong>${d.region}</strong><br/>Countries: ${d.count}<br/>Avg Electoral: ${d.avgElectoral.toFixed(2)}`)
                             .style('left', (event.pageX + 15) + 'px').style('top', (event.pageY - 15) + 'px');
                     })
                     .on('mouseout', function() {
                         d3.select(this).attr('opacity', 0.75);
-                        tooltip.transition().duration(200).style('opacity', 0);
+                        tooltip.style("display", "none").transition().duration(200).style('opacity', 0);
                     });
 
             } else {
@@ -1400,14 +1400,14 @@ function initOrbitVis() {
                 planetsGroup.selectAll('.planet')
                     .on('mouseover', function(event, d) {
                         d3.select(this).attr('opacity', 1).attr('stroke-width', 3);
-                        tooltip.transition().duration(100).style('opacity', 1);
+                        tooltip.style("display", "block").transition().duration(100).style('opacity', 1);
                         tooltip.html(`<strong>${d.country}</strong> (${d.year})<br/>Region: ${d.region}<br/>Electoral: ${d.spatialElectoral.toFixed(2)}`)
                             .style('left', (event.pageX + 15) + 'px').style('top', (event.pageY - 15) + 'px');
                     })
                     .on('mouseout', function(event, d) {
                         d3.select(this)
                             .attr('opacity', 0.85).attr('stroke-width', d => d.hasProportionalVoting ? 2.5 : 1.5);
-                        tooltip.transition().duration(200).style('opacity', 0);
+                        tooltip.style("display", "none").transition().duration(200).style('opacity', 0);
                     })
                     .on('click', function(event, d) {
                         if (window.expandedRegion) {
