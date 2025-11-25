@@ -374,7 +374,8 @@
             margin-left: 8px;
         }
     </style>
-</head>
+
+
 <body>
 
 <nav class="top-nav">
@@ -382,9 +383,10 @@
     <a href="scatter.html" class="nav-item">Migration vs Life Expectancy</a>
     <a href="dashboard.html" class="nav-item">Population Dashboard</a>
     <a href="forcemap.html" class="nav-item">Animated Migration Map</a>
-    <a href="democracy_orbit.html" class="nav-item">Democracy Orbit</a>
+    <a href="democracy_orbit.html" class="nav-item active">Democracy Orbit</a>
+    <a href="gdp_democracy.html" class="nav-item">GDP vs Democracy</a>
     <a href="flows.html" class="nav-item">Migration Flows</a>
-    <a href="birth_death_matrix.html" class="nav-item active">Force Galaxy</a>
+    <a href="birth_death_matrix.html" class="nav-item">Force Galaxy</a>
 </nav>
 
 <div class="container">
@@ -443,6 +445,12 @@
         <div class="clear-track" id="clearTracking">✕ Clear Tracking</div>
     </div>
 
+
+    <!-- GDP Over Time Chart Panel -->
+    <div class="gdp-democracy-panel" id="gdpDemocracyPanel">
+        <h3>📊 <span id="gdpChartCountryName"></span>: GDP Over Time</h3>
+        <div id="gdpDemocracyChart"></div>
+    </div>
     <div class="orbit-legend">
         <div class="legend-title">🌍 Regions (Click to explore)</div>
         <div class="legend-items" id="legendItems"></div>
@@ -1112,6 +1120,216 @@
                 <p style="font-size: 12px; color: #666;">Error: ${error.message}</p>
             `);
     });
+
+    // ========== GDP OVER TIME BAR CHART (SEPARATE COMPONENT) ==========
+    // This section is completely independent and doesn't modify the main visualization
+
+    let gdpData = null;
+
+    // Load GDP data separately
+    d3.csv('data/gdp_country.csv').then(data => {
+        // Process GDP data into lookup by country
+        gdpData = {};
+        data.forEach(row => {
+            const country = row['Country Name'];
+            gdpData[country] = {};
+            for (let year = 1960; year <= 2024; year++) {
+                const gdpValue = row[year.toString()];
+                if (gdpValue && gdpValue !== '' && !isNaN(+gdpValue)) {
+                    gdpData[country][year] = +gdpValue;
+                }
+            }
+        });
+        console.log('GDP data loaded successfully');
+    }).catch(error => {
+        console.error('Error loading GDP data:', error);
+    });
+
+    // Function to update GDP chart when tracking a country
+    function updateGDPChart(countryName) {
+        // Clear previous chart
+        d3.select('#gdpDemocracyChart').html('');
+
+        // Remove any stray tooltips from previous renders
+        d3.selectAll('.gdp-tooltip').remove();
+
+        // Check if data is loaded
+        if (!gdpData) {
+            console.log('Waiting for GDP data to load...');
+            d3.select('#gdpDemocracyPanel').classed('active', false);
+            return;
+        }
+
+        // Get country GDP data
+        const countryGDPData = gdpData[countryName];
+
+        if (!countryGDPData || Object.keys(countryGDPData).length === 0) {
+            console.log('No GDP data for', countryName);
+            d3.select('#gdpDemocracyPanel').classed('active', false);
+            d3.selectAll('.gdp-tooltip').remove();
+            return;
+        }
+
+        // Convert to array format for bar chart
+        const gdpArray = Object.entries(countryGDPData)
+            .map(([year, gdp]) => ({
+                year: +year,
+                gdp: gdp
+            }))
+            .sort((a, b) => a.year - b.year);
+
+        if (gdpArray.length === 0) {
+            d3.select('#gdpDemocracyPanel').classed('active', false);
+            d3.selectAll('.gdp-tooltip').remove();
+            return;
+        }
+
+        // Show panel
+        d3.select('#gdpDemocracyPanel').classed('active', true);
+        d3.select('#gdpChartCountryName').text(countryName);
+
+        // Chart dimensions
+        const chartMargin = {top: 20, right: 60, bottom: 60, left: 100};
+        const chartWidth = 900 - chartMargin.left - chartMargin.right;
+        const chartHeight = 400 - chartMargin.top - chartMargin.bottom;
+
+        // Create SVG
+        const chartSvg = d3.select('#gdpDemocracyChart')
+            .append('svg')
+            .attr('width', chartWidth + chartMargin.left + chartMargin.right)
+            .attr('height', chartHeight + chartMargin.top + chartMargin.bottom)
+            .append('g')
+            .attr('transform', `translate(${chartMargin.left},${chartMargin.top})`);
+
+        // Scales
+        const xScale = d3.scaleBand()
+            .domain(gdpArray.map(d => d.year))
+            .range([0, chartWidth])
+            .padding(0.1);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(gdpArray, d => d.gdp) * 1.1])
+            .range([chartHeight, 0]);
+
+        // Create fresh tooltip for GDP chart (after cleanup)
+        const gdpTooltip = d3.select('body').append('div')
+            .attr('class', 'gdp-tooltip')
+            .style('opacity', 0)
+            .style('position', 'absolute')
+            .style('background', 'rgba(0, 0, 0, 0.8)')
+            .style('color', '#fff')
+            .style('padding', '8px 12px')
+            .style('border-radius', '6px')
+            .style('pointer-events', 'none')
+            .style('font-size', '13px')
+            .style('z-index', '10000');
+
+        // Axes
+        const xAxis = d3.axisBottom(xScale)
+            .tickValues(gdpArray.filter((d, i) => i % 5 === 0).map(d => d.year));
+        const yAxis = d3.axisLeft(yScale).ticks(8).tickFormat(d3.format("$.2s"));
+
+        chartSvg.append('g')
+            .attr('class', 'x-axis')
+            .attr('transform', `translate(0,${chartHeight})`)
+            .call(xAxis)
+            .style('font-size', '12px')
+            .selectAll('text')
+            .attr('transform', 'rotate(-45)')
+            .style('text-anchor', 'end');
+
+        chartSvg.append('g')
+            .attr('class', 'y-axis')
+            .call(yAxis)
+            .style('font-size', '12px');
+
+        // Axis labels
+        chartSvg.append('text')
+            .attr('x', chartWidth / 2)
+            .attr('y', chartHeight + 55)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '14px')
+            .style('fill', '#495057')
+            .style('font-weight', '600')
+            .text('Year →');
+
+        chartSvg.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('x', -chartHeight / 2)
+            .attr('y', -75)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '14px')
+            .style('fill', '#495057')
+            .style('font-weight', '600')
+            .text('← GDP (Current US$)');
+
+        // Add bars
+        chartSvg.selectAll('.bar')
+            .data(gdpArray)
+            .enter()
+            .append('rect')
+            .attr('class', 'bar')
+            .attr('x', d => xScale(d.year))
+            .attr('y', d => yScale(d.gdp))
+            .attr('width', xScale.bandwidth())
+            .attr('height', d => chartHeight - yScale(d.gdp))
+            .attr('fill', '#0077cc')
+            .attr('opacity', 0.8)
+            .on('mouseover', function(event, d) {
+                d3.select(this)
+                    .transition()
+                    .duration(100)
+                    .attr('opacity', 1)
+                    .attr('fill', '#005fa3');
+
+                gdpTooltip.transition().duration(100).style('opacity', 1);
+                gdpTooltip.html(`
+                    <strong>Year: ${d.year}</strong><br/>
+                    GDP: $${d3.format(',.0f')(d.gdp)}
+                `)
+                    .style('left', (event.pageX + 15) + 'px')
+                    .style('top', (event.pageY - 15) + 'px');
+            })
+            .on('mouseout', function() {
+                d3.select(this)
+                    .transition()
+                    .duration(100)
+                    .attr('opacity', 0.8)
+                    .attr('fill', '#0077cc');
+
+                gdpTooltip.transition().duration(200).style('opacity', 0);
+            });
+    }
+
+    // Listen for tracking changes (hook into existing tracking functionality)
+    // We'll use a MutationObserver to detect when tracking panel becomes active
+    const trackingPanel = document.getElementById('trackingPanel');
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                const isActive = trackingPanel.classList.contains('active');
+                if (isActive) {
+                    const trackedName = document.getElementById('trackedName').textContent;
+                    const trackedType = document.getElementById('trackedType').textContent;
+
+                    // Only show GDP chart for countries
+                    if (trackedType.toLowerCase() === 'country') {
+                        setTimeout(() => updateGDPChart(trackedName), 100);
+                    } else {
+                        d3.select('#gdpDemocracyPanel').classed('active', false);
+                        d3.selectAll('.gdp-tooltip').remove();
+                    }
+                } else {
+                    // Hide GDP panel when tracking is cleared
+                    d3.select('#gdpDemocracyPanel').classed('active', false);
+                    d3.selectAll('.gdp-tooltip').remove();
+                }
+            }
+        });
+    });
+
+    observer.observe(trackingPanel, { attributes: true });
+
 </script>
 
 </body>
