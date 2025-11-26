@@ -240,3 +240,141 @@ h2 {
     box-shadow: 0 2px 6px rgba(0,0,0,0.5);
     z-index: 1000; /* Ensure tooltip is above all else */
 }
+
+
+
+
+/* Map */
+
+.map-ui-top {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding: 10px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.map-title {
+    font-size: 26px;
+    color: #e7fbb7;
+    font-weight: 700;
+    margin: 0;
+    padding-left: 4px;
+    letter-spacing: 0.5px;
+}
+
+.map-filter-box {
+    background: rgba(0, 0, 0, 0.55);
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+
+.map-filter-box label {
+    font-size: 14px;
+    color: #e2e2e2;
+}
+
+.map-filter-box select {
+    background: #0f172a;
+    color: #e2e2e2;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 4px 6px;
+    margin-top: 5px;
+}
+
+
+#map-fullscreen {
+    position: relative;
+    width: 100%;
+    height: 520px;
+    margin: 20px auto 10px auto;
+    overflow: hidden;
+    background: #10161d;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+}
+
+#map svg {
+    width: 100%;
+    height: 100%;
+    background: #16202a;
+}
+
+
+#map-info-panel,
+#legend-section,
+#growth-bloom-container {
+    position: absolute;
+    z-index: 15;
+    backdrop-filter: blur(4px);
+}
+
+#map-info-panel {
+    top: 15px;
+    left: 15px;
+    right: auto;
+    width: 220px;
+    background: rgba(0,0,0,0.60);
+    padding: 12px;
+    border-radius: 10px;
+    color: #fafafa;
+    font-size: 14px;
+    line-height: 1.4;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+
+
+#legend-section {
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.50);
+    padding: 10px 14px;
+    border-radius: 10px;
+    color: #e2e2e2;
+    text-align: center;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+
+#legend-canvas {
+    border-radius: 4px;
+}
+
+#growth-bloom-container {
+    bottom: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.55);
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    color: #e2e2e2;
+}
+
+#growth-bloom-container h3 {
+    font-size: 14px;
+    color: #f0f0f0;
+}
+
+#bloom-tooltip {
+    position: absolute;
+    padding: 6px 10px;
+    background: rgba(0,0,0,0.65);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 13px;
+    pointer-events: none;
+    z-index: 999;
+    display: none;
+}
+
+
+#floating-title,
+#floating-filter {
+    display: none !important;
+}
+
+

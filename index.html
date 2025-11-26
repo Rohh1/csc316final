@@ -29,13 +29,13 @@
         <button class="continue-btn" onclick="scrollToSection('#section-map')">Begin Investigation</button>
     </section>
 
-    
+
     <div class="vis-section" id="section-map">
         <h2>TASK 1: Quantifying the Shift (Migration Rate)</h2>
         <div class="quiz-block" id="quiz-map">
             <div class="quiz-title">Initial Assessment: The Net Migration Rate</div>
             <p style="margin-bottom: 20px;">Based on the visual design language for migration maps, which type of country is typically colored blue?</p>
-            
+
             <label class="mcq-option" data-quiz="map" data-answer="A">A) Countries with low overall population.</label>
             <label class="mcq-option" data-quiz="map" data-answer="B">B) Countries that are net immigration magnets (attract more people than they lose).</label>
             <label class="mcq-option" data-quiz="map" data-answer="C">C) Countries with more people leaving than arriving (net emigration).</label>
@@ -43,58 +43,65 @@
             <div id="feedback-map" class="hidden"></div>
             <button class="continue-btn hidden" id="continue-map">Continue to Data Analysis</button>
         </div>
-        
+
         <div class="vis-content hidden" id="vis-map">
-            <div class="map-header">
-                <h1>Global Net Migration Rate Map</h1>
-                <p class="subtitle">
-                    Blue countries attract more people than they lose; red countries are losing population through migration.
-                    Hover, zoom, and filter to explore global migration patterns.
-                </p>
+
+            <!-- Title and Region Filter now inside TASK 1 section -->
+            <div class="map-ui-top">
+                <h2 class="map-title">Global Net Migration Rate Map</h2>
+
+                <div class="map-filter-box">
+                    <label><strong>Region Filter</strong></label><br>
+                    <select id="regionFilter">
+                        <option value="All">All regions</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="map-layout" id="map-vis">
-                <div id="map">
+            <!-- 3D Earth Map -->
+            <div id="map-fullscreen">
+                <div id="map"></div>
+                <div id="map-info-panel"></div>
+
+                <div id="legend-section">
+                    <h4>Population (Red Gradient)</h4>
+                    <canvas id="legend-canvas" width="260" height="25"></canvas>
+                    <div id="legend-scale">
+                        <span id="legend-min"></span>
+                        <span id="legend-max"></span>
                     </div>
                 </div>
 
-            <div class="map-controls">
-                <p></p>
-                <div class="map-controls-left">
-                    <label for="regionFilter"><strong>Region filter:</strong></label>
-                    <select id="regionFilter">
-                        <option value="All">All regions</option>
-                        </select>
-                    <span style="opacity:0.75;">
-                        Tip: scroll to zoom, drag to pan, click a country to focus.
-                    </span>
-                </div>
-                <div class="metric-pill">
-                    <span>Color:</span> Net migration rate (per 1,000) &nbsp; | &nbsp; <span>Size:</span> Population
-                    <p></p>
+                <div id="growth-bloom-container">
+                    <h3>Growth Bloom</h3>
+                    <svg id="growth-bloom" width="420" height="420"></svg>
                 </div>
             </div>
 
-            <div class="story-block">
+
+            <div class="story-block" style="margin-top: 40px;">
                 <h2>Story: Who is Gaining and Losing People?</h2>
                 <p>
-                    This choropleth uses a diverging blue–red color scale to show which countries
-                    are net <b>immigration magnets</b> (deep blue) and which are experiencing net
-                    <b>emigration</b> (deep red). Larger countries appear slightly thicker because
-                    their borders are drawn with a heavier outline.
+                    This 3D Earth visualization shows regions by color and outlines migration intensity
+                    through border stroke color. Click to zoom into a country; filter regions to explore
+                    the bloom chart on the right.
                 </p>
                 <p>
-                    Try filtering by region and zooming into clusters (for example, Western Europe
-                    or the Middle East) to see how neighboring countries can have very different
-                    migration profiles despite sharing geography.
+                    The “Growth Bloom” reacts dynamically to your region filter, showing population
+                    growth patterns as petals radiating from the center.
                 </p>
             </div>
-            
-            <button class="continue-btn" onclick="scrollToSection('#section-flows')">NEXT TASK: Analyze Global Flows</button>
+
+            <button class="continue-btn" onclick="scrollToSection('#section-flows')" style="margin-top:25px;">
+                NEXT TASK: Analyze Global Flows
+            </button>
+            <script src="js/map.js"></script>
+
         </div>
+
     </div>
-    
-    
+
+
     <div class="vis-section hidden" id="section-flows">
         <h2>TASK 2: Mapping Continental Connections</h2>
         <div class="quiz-block" id="quiz-flows">
