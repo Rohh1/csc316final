@@ -7,6 +7,21 @@ const svg = d3.select("#map")
     .attr("width", width)
     .attr("height", height);
 
+const zoom = d3.zoom()
+    .scaleExtent([0.5, 6])
+    .on("zoom", (event) => {
+
+        const k = event.transform.k;
+
+        projection.scale(baseProjectionScale * k);
+
+        mapLayer.selectAll("path").attr("d", path);
+    });
+
+svg.call(zoom);
+
+
+
 
 const mapLayer = svg.append("g").attr("class", "map-layer");
 
@@ -14,7 +29,10 @@ const mapLayer = svg.append("g").attr("class", "map-layer");
 const projection = d3.geoOrthographic()
     .scale(height / 2 - 20)
     .translate([width / 2, height / 2])
-    .clipAngle(90);   // 只显示前半球
+    .clipAngle(90);
+
+const baseProjectionScale = projection.scale();
+
 
 
 const path = d3.geoPath().projection(projection);
@@ -43,6 +61,7 @@ regionLegend.html(
            align-items:center;
            margin-right:18px;
            font-size:14px;
+           color:#222;
        ">
            <span style="
                width:15px;
@@ -58,14 +77,7 @@ regionLegend.html(
 );
 
 
-const zoom = d3.zoom()
-    .scaleExtent([1, 7])
-    .on("zoom", (event) => {
-        mapLayer.attr("transform", event.transform);
-    });
 
-
-// svg.call(zoom);
 
 
 let rotation = [0, 0];
@@ -422,7 +434,7 @@ Promise.all([
         const radius = Math.min(width, height) / 2 - 20;
 
 
-        svg.selectAll("*").remove();  // 清空旧图
+        svg.selectAll("*").remove();
 
 
         const g = svg.append("g")
@@ -731,6 +743,12 @@ Promise.all([
                             .scale(scaleInterp(t));
                         mapLayer.selectAll("path").attr("d", path);
                     };
+                })
+                .on("end", () => {
+                    svg.call(
+                        zoom.transform,
+                        d3.zoomIdentity.scale(projection.scale() / baseProjectionScale)
+                    );
                 });
 
         });

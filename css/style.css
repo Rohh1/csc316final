@@ -328,17 +328,16 @@ h2 {
 
 
 #legend-section {
-    bottom: 80px;
+    position: absolute;
+    bottom: 25px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0,0,0,0.50);
-    padding: 10px 14px;
-    border-radius: 10px;
-    color: #e2e2e2;
-    text-align: center;
-    font-size: 14px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    background: rgba(0,0,0,0.55);
+    padding: 12px 18px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
 }
+
 
 #legend-canvas {
     border-radius: 4px;
@@ -376,5 +375,20 @@ h2 {
 #floating-filter {
     display: none !important;
 }
+#region-legend {
+    background: rgba(255,255,255,0.88);
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    max-width: 360px;
+    margin-left: 25px;
+    font-size: 13px;
+    color: #222;
+    font-weight: 500;
+}
+
 
 
