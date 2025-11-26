@@ -519,16 +519,29 @@ Promise.all([
                     const centroid = d3.geoCentroid(d);
 
                     const baseScale = height / 2 - 20;
+                    const zoomMultiplier = 1.05;
+                    const targetScale = baseScale * zoomMultiplier;
 
-                    const zoomMultiplier = 1.35;
-                    projection
-                        .scale(baseScale * zoomMultiplier)
-                        .rotate([-centroid[0], -centroid[1]]);
+                    const startRotate = projection.rotate();
+                    const endRotate = [-centroid[0], -centroid[1]];
+                    const rotateInterp = d3.interpolate(startRotate, endRotate);
 
-                    mapLayer.selectAll("path")
-                        .transition()
-                        .duration(900)
-                        .attr("d", path);
+                    const startScale = projection.scale();
+                    const scaleInterp = d3.interpolate(startScale, targetScale);
+
+                    d3.transition()
+                        .duration(1300)
+                        .ease(d3.easeCubicOut)
+                        .tween("rotate", () => {
+                            return function(t) {
+                                projection
+                                    .rotate(rotateInterp(t))
+                                    .scale(scaleInterp(t));
+
+                                mapLayer.selectAll("path").attr("d", path);
+                            };
+                        });
+
 
                 })
 
@@ -694,19 +707,31 @@ Promise.all([
 
 
         .on("click", function (event, d) {
+
             const centroid = d3.geoCentroid(d);
 
             const baseScale = height / 2 - 20;
-            const zoomMultiplier = 1.35;
+            const zoomMultiplier = 1.05;
+            const targetScale = baseScale * zoomMultiplier;
 
-            projection
-                .scale(baseScale * zoomMultiplier)
-                .rotate([-centroid[0], -centroid[1]]);
+            const startRotate = projection.rotate();
+            const endRotate = [-centroid[0], -centroid[1]];
+            const rotateInterp = d3.interpolate(startRotate, endRotate);
 
-            mapLayer.selectAll("path")
-                .transition()
-                .duration(900)
-                .attr("d", path);
+            const startScale = projection.scale();
+            const scaleInterp = d3.interpolate(startScale, targetScale);
+
+            d3.transition()
+                .duration(1300)
+                .ease(d3.easeCubicOut)
+                .tween("rotate", () => {
+                    return function (t) {
+                        projection
+                            .rotate(rotateInterp(t))
+                            .scale(scaleInterp(t));
+                        mapLayer.selectAll("path").attr("d", path);
+                    };
+                });
 
         });
 
