@@ -1050,7 +1050,7 @@
             // Update legend title
             d3.select('.legend-title').html(
                 expandedRegion
-                    ? `🌍 ${expandedRegion} <button onclick="expandedRegion=null; updateVisualization(${currentYear}); return false;" style="font-size:12px; padding:2px 8px;">← Back to All Regions</button>`
+                    ? `🌍 ${expandedRegion} <button onclick="expandedRegion=null; updateVisualization(${currentYear}); return false;" style="font-size:0px; padding:0px 0px;"></button>`
                     : '🌍 Regions (Click to explore)'
             );
         }
