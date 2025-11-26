@@ -1,304 +1,242 @@
+/* Base styles for Dark Command Center / Blueprint theme */
 :root {
-    --primary-color: #0077cc;
-    --accent-color: #fbc02d;
-    --background-color: #f2f6fa;
-    --text-color: #243040;
-    --card-bg: #ffffff;
-    --shadow: 0 3px 8px rgba(0,0,0,0.08);
+    --primary-color: #4CAF50; /* Green for success/CIA */
+    --accent-color: #FF9800;  /* Orange/Gold for focus/warning */
+    --background-color: #121212; /* Deep Black/Gray */
+    --vis-bg-color: #1e1e1e; /* Darker background for vis blocks */
+    --text-color: #f0f0f0; /* Light text for readability */
+    --sub-text-color: #aaaaaa;
+    --card-bg: #222222; /* Darker card background */
+    --shadow: 0 5px 20px rgba(0,0,0,0.4);
 }
 
 body {
-    font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-family: 'Consolas', 'Courier New', monospace; /* Monospace font for theme */
     background-color: var(--background-color);
     color: var(--text-color);
     margin: 0;
     padding: 0;
+    scroll-behavior: smooth;
 }
 
 .container {
-    max-width: 960px;
-    margin: 30px auto;
+    max-width: 1400px; /* Increased width */
+    margin: 0 auto;
+    padding: 20px 20px;
     text-align: center;
 }
 
 h1 {
-    font-size: 26px;
+    font-size: 36px;
     margin-bottom: 8px;
+    color: var(--primary-color);
+    font-weight: 800;
+}
+
+h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 10px;
+    display: inline-block;
+    font-weight: 400;
 }
 
 .subtitle {
-    color: #666;
-    margin-bottom: 15px;
+    color: var(--sub-text-color);
+    margin-bottom: 30px;
+    font-size: 1.1em;
 }
 
-#controls {
-    margin-bottom: 15px;
+.vis-section {
+    background: var(--vis-bg-color);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 40px;
+    margin-bottom: 80px;
+    text-align: left;
+    border: 1px solid #333; /* Subtle border */
 }
 
-select {
-    font-size: 15px;
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    background: #fff;
+/* --- Quiz Block Styles --- */
+.quiz-block {
+    text-align: center;
+    padding: 30px;
+    background: #333333; /* Darker quiz background */
+    border-radius: 12px;
+    border: 2px solid var(--accent-color);
+    box-shadow: 0 0 15px rgba(255, 152, 0, 0.4);
+}
+
+.quiz-title {
+    font-size: 1.6em;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 25px;
+}
+
+.mcq-option {
+    display: block;
+    background: #444444;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 12px auto;
+    cursor: pointer;
+    transition: all 0.2s;
+    max-width: 700px;
+    text-align: left;
+    font-size: 1em;
+    color: var(--text-color);
+}
+
+.mcq-option:hover {
+    background: #555555;
+    border-color: var(--primary-color);
+}
+
+.mcq-option.selected {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+    background: #403010; /* Dark gold tint */
+}
+
+#feedback-box {
+    margin-top: 25px;
+    padding: 15px;
+    border-radius: 8px;
+    display: none;
+    font-weight: 600;
+}
+
+.feedback-correct {
+    background: #103010;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.feedback-incorrect {
+    background: #401010;
+    color: #f44336;
+    border: 1px solid #f44336;
+}
+
+.continue-btn {
+    padding: 12px 25px;
+    background: var(--primary-color);
+    color: var(--background-color);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background 0.3s, transform 0.2s;
+    margin-top: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.continue-btn:hover {
+    background: #388e3c;
+    transform: translateY(-1px);
+}
+
+.hidden {
+    display: none;
+}
+
+/* --- Visualization Block Styles --- */
+#map-vis, #dashboard-vis, #flows-vis, #orbit-vis {
+    margin-top: 30px;
+    text-align: center;
+}
+
+#map svg, .plot svg, #chord svg, #bar svg, #orbit-chart {
+    /* Blueprint/grid background for data */
+    background: #282c34; 
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    border: 1px solid #555;
 }
 
 #map {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
+    /* Setting a consistent size for the large map */
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
-.country {
-    stroke: #fff;
-    stroke-width: 0.5px;
+/* Dashboard Styles */
+#dashboard-vis {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 35px; margin-bottom: 25px;
+}
+.plot svg { width: 500px; height: 400px; } /* Increased size for dashboard plots */
+
+/* Flows Styles */
+#flows-viz-container {
+    display: flex; align-items: center; justify-content: center; gap: 40px; min-height: 750px;
+    flex-wrap: wrap;
+    margin: 0 auto;
 }
 
-.tooltip {
-    position: absolute;
-    padding: 6px 10px;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    pointer-events: none;
-    font-size: 13px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+/* Orbit Styles */
+#orbit-vis svg {
+    max-width: 100%;
+    height: 700px;
+    box-shadow: none;
 }
+.orbit-controls {
+    background: #333333;
+    color: var(--text-color);
+    border: 1px solid #555;
+}
+.view-toggle button { background: #555; color: var(--text-color); border: 1px solid #666; }
+.view-toggle button.active { background: var(--primary-color); color: var(--background-color); border-color: var(--primary-color); }
 
+/* Story Block */
 .story-block {
-    text-align: left;
-    background: #f2f6fa;
-    padding: 18px 22px;
-    border-radius: 10px;
-    line-height: 1.6;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background: #181818;
+    color: var(--sub-text-color);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    border-left: 5px solid var(--accent-color);
 }
 
 .story-block h2 {
-    font-size: 18px;
-    margin-bottom: 8px;
+    color: var(--accent-color);
+    border-bottom: none;
 }
 
-/* UPDATED: Added #demographics-plot svg for consistent border/background */
-#scatter svg, #demographics-plot svg {
-    background: #fafafa;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+/* Intro/Detective Theme */
+#intro-page {
+    background: linear-gradient(135deg, #0f172a 0%, #0c1521 100%);
+    color: #e5edf7;
+    border: 1px solid #333;
 }
 
-.back-link {
-    margin-left: 10px;
-    font-size: 14px;
-    text-decoration: none;
-    color: #0077cc;
+#intro-page h1 {
+    color: var(--accent-color);
+    text-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
 }
 
-.back-link:hover {
-    text-decoration: underline;
+.typewriter-box {
+    border: 2px solid var(--primary-color);
+    background: #1f2a3a;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
 }
 
-/* UPDATED: Added #legend-demographics to the list */
-#legend-map, #legend-scatter, #legend-dashboard, #legend-demographics {
-    display: flex;
-    justify-content: center;
-    margin: 15px 0 25px;
+.typewriter-text {
+    border-right: 2px solid var(--accent-color);
+    color: #e5edf7;
 }
 
-
-#dashboard {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 25px;
-    margin-bottom: 25px;
-}
-.plot svg {
-    background: #fafafa;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-.brush .selection {
-    fill: #1f77b4;
-    fill-opacity: 0.15;
-    stroke: #1f77b4;
-}
-
-#legend-dashboard {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
-}
-
-.back-link {
-    margin-left: 10px;
-    font-size: 14px;
-    text-decoration: none;
-    color: #0077cc;
-}
-
-.back-link:hover {
-    text-decoration: underline;
-}
-
-
-/* Top Navigation Bar */
-.top-nav {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    background: #0b0f14;
-    padding: 12px 0;
-    border-bottom: 2px solid #243040;
-    margin-bottom: 25px;
-}
-
-.nav-item {
-    color: #e8eef7;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 15px;
+.tooltip { /* General tooltip style */
+    position: absolute;
     padding: 6px 10px;
-    border-radius: 6px;
-    transition: background 0.3s;
-}
-
-.nav-item:hover {
-    background: #243040;
-}
-
-.nav-item.active {
-    background: #0077cc;
-    color: white;
-}
-#forcemap svg { background:#f7fafc; border:1px solid #cbd5e1; }
-.basemap .country { fill:#cbd5e1; stroke:#475569; stroke-width:0.5px; }
-.basemap .graticule { stroke:#94a3b8; stroke-opacity:.3; fill:none; }
-.nodes .country { stroke:#fff; stroke-width:.8px; }
-.loading, .error-banner {
-  font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  background: #111827; color: #fff; padding: 6px 10px; border-radius: 8px;
-  position: absolute; z-index: 10; pointer-events: none; opacity: .9;
-}
-.error-banner { background:#b91c1c; }
-#legend-forcemap svg { display:block; margin:10px 0 6px; }
-.legend-row { font-size:12px; fill:#374151; }
-.legend-swatch { stroke:#0f172a; stroke-opacity:.15; }
-.legend-pill { rx:9; ry:9; }
-
-/* Additional styles for Democracy Orbit */
-.orbit-controls {
-    background: #f2f6fa;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.control-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-#yearSlider {
-    width: 300px;
-}
-
-#yearDisplay {
-    font-size: 1.3em;
-    font-weight: bold;
-    color: #0077cc;
-    min-width: 60px;
-}
-
-button {
-    padding: 8px 16px;
-    background: #0077cc;
-    color: white;
-    border: none;
+    background: #282c34; /* Dark tooltip background */
+    color: #f0f0f0; /* Light text */
+    border: 1px solid #555;
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-button:hover {
-    background: #005fa3;
-}
-
-button.active {
-    background: #2e7d32;
-}
-
-#orbit-chart {
-    background: #fafafa;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-
-.axis-label {
-    fill: #555;
-    font-size: 14px;
-}
-
-.trail {
-    fill: none;
-    stroke-width: 1.5;
-    opacity: 0.5;
-}
-
-.planet {
-    cursor: pointer;
-}
-
-.planet:hover {
-    stroke-width: 3;
-}
-
-.orbit-legend {
-    background: #f2f6fa;
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 20px;
-}
-
-.legend-title {
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.legend-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.legend-color {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-}
-
-
-#toggleFlow {
-    display: inline-block;
-    background-color: #1565c0;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    margin: 8px 0 0 0;
-}
-.country {
-    pointer-events: fill;
+    pointer-events: none;
+    font-size: 13px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    z-index: 1000; /* Ensure tooltip is above all else */
 }
