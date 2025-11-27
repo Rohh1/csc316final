@@ -161,15 +161,50 @@ function startForceGalaxy() {
         colorFG.domain().forEach(reg => {
             regionSelector.append("option")
                 .attr("value", reg)
-                .text(reg);
+                .text(`● ${reg}`)
+                .style("color", colorFG(reg))
+                .style("font-weight", "600");
         });
 
-        const legendFG = d3.select(".controls").append("div").attr("class", "legend");
-        legendFG.selectAll(".legend-item")
-            .data(colorFG.domain())
-            .join("div")
-            .attr("class", "legend-item")
-            .html(d => `<span class="legend-swatch" style="background:${colorFG(d)};"></span>${d}`);
+        const galaxyLegend = d3.select("#galaxy")
+            .append("div")
+            .attr("class", "galaxy-legend")
+            .style("display", "flex")
+            .style("gap", "20px")
+            .style("flex-wrap", "wrap")
+            .style("margin", "10px 0 20px 0")
+            .style("font-size", "18px")
+            .style("color", "#fff");
+
+        colorFG.domain().forEach(reg => {
+            galaxyLegend.append("div")
+                .style("display", "flex")
+                .style("align-items", "center")
+                .style("gap", "6px")
+                .html(`
+            <span style="
+                width:14px;
+                height:14px;
+                border-radius:50%;
+                background:${colorFG(reg)};
+                display:inline-block;
+            "></span>
+            ${reg}
+        `);
+        });
+
+
+        const hoverLegend = d3.select(".controls")
+            .append("div")
+            .attr("id", "hover-legend")
+            .style("margin-top", "12px")
+            .style("padding", "8px 12px")
+            .style("border-radius", "8px")
+            .style("background", "rgba(255,255,255,0.08)")
+            .style("backdrop-filter", "blur(4px)")
+            .style("font-size", "14px")
+            .style("color", "#fff");
+
 
         const nodesFG = svgFG.selectAll(".node")
             .data(dataFG, d => d.country)
@@ -210,6 +245,20 @@ function startForceGalaxy() {
         `)
                     .style("left", event.pageX + 12 + "px")
                     .style("top", event.pageY - 18 + "px");
+
+                hoverLegend.html(`
+    <div style="display:flex;align-items:center;gap:8px;">
+        <span style="
+            width:14px;
+            height:14px;
+            border-radius:50%;
+            display:inline-block;
+            background:${colorFG(d.region)};
+        "></span>
+        <strong>${d.country}</strong> (${d.region})
+    </div>
+`);
+
             })
             .on("mousemove", event => {
                 tipFG.style("left", event.pageX + 12 + "px")
@@ -221,6 +270,8 @@ function startForceGalaxy() {
                     .attr("stroke", "#fff");
 
                 tipFG.style("opacity", 0);
+                hoverLegend.html("");
+
             });
 
 
@@ -276,12 +327,42 @@ function startForceGalaxy() {
             const regionData = dataFG.filter(d => d.region === selected);
 
             regionPlotWrap.style("display", "block");
+
             d3.select("#region-plot-title").text(`Death–Birth Map for ${selected}`);
             d3.select("#region-plot-subtitle").text(
                 `Within ${selected}, birth rate (x) vs death rate (y), size ∝ population.`
             );
 
             regionPlotDiv.selectAll("*").remove();
+
+            const legendContainer = regionPlotDiv.append("div")
+                .attr("class", "region-color-legend")
+                .style("display", "flex")
+                .style("gap", "18px")
+                .style("margin", "12px 0 18px 0")
+                .style("flex-wrap", "wrap")
+                .style("font-size", "16px")
+                .style("color", "#fff");
+
+            colorFG.domain().forEach(reg => {
+                legendContainer.append("div")
+                    .style("display", "flex")
+                    .style("align-items", "center")
+                    .style("gap", "6px")
+                    .html(`
+            <span style="
+                width:14px;
+                height:14px;
+                border-radius:50%;
+                background:${colorFG(reg)};
+                display:inline-block;
+            "></span>
+            ${reg}
+        `);
+            });
+
+
+
 
             const m = {top: 20, right: 20, bottom: 50, left: 60};
             const containerWidthR = document.getElementById("region-plot-wrapper").clientWidth;
