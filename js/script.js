@@ -668,24 +668,32 @@ function initDashboardVis() {
         detail: "High birth, low death",
         x: 0.25,
         y: 0.3,
+        labelX: 0.08,
+        labelY: 0.02,
       },
       highBirth_highDeath: {
         label: "High churn",
         detail: "High birth, high death",
         x: 0.75,
         y: 0.3,
+        labelX: 0.85,
+        labelY: 0.02,
       },
       lowBirth_lowDeath: {
         label: "Stable",
         detail: "Low birth, low death",
         x: 0.25,
         y: 0.75,
+        labelX: 0.08,
+        labelY: 1.05,
       },
       lowBirth_highDeath: {
         label: "Aging & pressured",
         detail: "Low birth, high death",
         x: 0.75,
         y: 0.75,
+        labelX: 0.85,
+        labelY: 1.05,
       },
     };
 
@@ -870,8 +878,10 @@ function initDashboardVis() {
     quadLabelGroup = svg2.append("g").attr("class", "quadrant-labels");
 
     quadEntries.forEach(([key, cfg]) => {
-      const gx = margin.left + (width - margin.left - margin.right) * cfg.x;
-      const gy = margin.top + (height - margin.top - margin.bottom) * cfg.y;
+      const gx =
+        margin.left + (width - margin.left - margin.right) * cfg.labelX;
+      const gy =
+        margin.top + (height - margin.top - margin.bottom) * cfg.labelY;
 
       const group = quadLabelGroup
         .append("g")
@@ -885,10 +895,10 @@ function initDashboardVis() {
 
       group
         .append("rect")
-        .attr("x", -70)
+        .attr("x", -85)
         .attr("y", -22)
-        .attr("width", 140)
-        .attr("height", 36)
+        .attr("width", 170)
+        .attr("height", 44)
         .attr("rx", 10)
         .attr("ry", 10)
         .attr("fill", "#333") // Dark background for label
