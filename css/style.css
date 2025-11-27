@@ -210,22 +210,66 @@ h2 {
     background: linear-gradient(135deg, #0f172a 0%, #0c1521 100%);
     color: #e5edf7;
     border: 1px solid #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+#final-page {
+    background: linear-gradient(135deg, #0f172a 0%, #0c1521 100%);
+    color: #e5edf7;
+    border: 1px solid #333;
+    min-height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+#final-page.hidden {
+    display: none !important;
 }
 
 #intro-page h1 {
     color: var(--accent-color);
     text-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+    margin-bottom: 15px;
+}
+
+#final-page h1 {
+    color: var(--primary-color);
+    text-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+    margin-bottom: 15px;
+    font-size: 42px;
 }
 
 .typewriter-box {
     border: 2px solid var(--primary-color);
     background: #1f2a3a;
     box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 800px;
+    margin: 30px auto;
 }
 
 .typewriter-text {
     border-right: 2px solid var(--accent-color);
     color: #e5edf7;
+    display: inline-block;
+    font-size: 1.1em;
+    line-height: 1.8;
+}
+
+#final-message p {
+    margin: 15px 0;
 }
 
 .tooltip { /* General tooltip style */
@@ -390,5 +434,53 @@ h2 {
     font-weight: 500;
 }
 
+/* --- Mission Briefing Styles --- */
+.mission-briefing {
+    background: linear-gradient(135deg, #1a2332 0%, #0f172a 100%);
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 25px 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+}
 
+.mission-briefing p {
+    color: var(--text-color);
+    font-size: 1.05em;
+    line-height: 1.7;
+    margin: 10px 0;
+}
 
+.mission-briefing strong {
+    color: var(--accent-color);
+    font-size: 1.1em;
+}
+
+/* --- Submit Report Button Styles --- */
+.submit-report-btn {
+    padding: 15px 35px;
+    background: linear-gradient(135deg, var(--accent-color) 0%, #e68900 100%);
+    color: var(--background-color);
+    border: 2px solid var(--accent-color);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    margin-top: 25px;
+    box-shadow: 0 6px 12px rgba(255, 152, 0, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.submit-report-btn:hover {
+    background: linear-gradient(135deg, #e68900 0%, #cc7a00 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(255, 152, 0, 0.6);
+}
+
+.submit-report-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.4);
+}

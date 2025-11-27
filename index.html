@@ -18,37 +18,32 @@
     <section id="intro-page">
         <h1>🔍 The Global Migration Mystery</h1>
         <p class="subtitle" style="color: #bbb;">A CIA Special Report — CSC316 Interactive Data Visualization</p>
-        
+
         <div class="typewriter-box">
             <p><strong>MISSION BRIEFING:</strong></p>
             <span class="typewriter-text" id="mission-text">
-            Welcome, Agent. Global demographics are shifting rapidly, and we need to understand the underlying forces. Your task is to analyze key datasets on migration, health, and governance. Answer the questions correctly to unlock each visualization. Scroll down to begin your first investigation.
+            Welcome, Agent. Global demographics are shifting rapidly, and we need to understand the underlying forces. Your task is to analyze key datasets on population, migration, health, and governance. Each mission will present evidence for you to examine, followed by an analytical report to test your findings. Your journey begins with understanding global population dynamics. Good luck, Agent.
             </span>
         </div>
-        
-        <button class="continue-btn" onclick="scrollToSection('#section-map')">Begin Investigation</button>
+
+        <button class="continue-btn" id="begin-investigation-btn">Begin Investigation</button>
     </section>
 
 
-    <div class="vis-section" id="section-map">
-        <h2>TASK 1: Quantifying the Shift (Migration Rate)</h2>
-        <div class="quiz-block" id="quiz-map">
-            <div class="quiz-title">Initial Assessment: The Net Migration Rate</div>
-            <p style="margin-bottom: 20px;">Based on the visual design language for migration maps, which type of country is typically colored blue?</p>
+    <div class="vis-section hidden" id="section-map">
+        <h2>TASK 1: Global Population Dynamics — Growth & Distribution</h2>
 
-            <label class="mcq-option" data-quiz="map" data-answer="A">A) Countries with low overall population.</label>
-            <label class="mcq-option" data-quiz="map" data-answer="B">B) Countries that are net immigration magnets (attract more people than they lose).</label>
-            <label class="mcq-option" data-quiz="map" data-answer="C">C) Countries with more people leaving than arriving (net emigration).</label>
-
-            <div id="feedback-map" class="hidden"></div>
-            <button class="continue-btn hidden" id="continue-map">Continue to Data Analysis</button>
+        <div class="mission-briefing">
+            <p><strong>📋 MISSION BRIEFING:</strong></p>
+            <p>Agent, analyze global population distribution and growth rates. Rotate the 3D globe, filter by region to see population density (darker red = higher population), and examine the Growth Bloom chart where each petal shows a country's growth rate.</p>
+            <p><strong>🎯 Your Task:</strong> Identify population hotspots and growth patterns, then submit your findings.</p>
         </div>
 
-        <div class="vis-content hidden" id="vis-map">
+        <div class="vis-content" id="vis-map">
 
             <!-- Title and Region Filter now inside TASK 1 section -->
             <div class="map-ui-top">
-                <h2 class="map-title">Global Net Migration Rate Map</h2>
+                <h2 class="map-title">Global Population & Growth Analysis</h2>
 
                 <div class="map-filter-box">
                     <label><strong>Region Filter</strong></label><br>
@@ -83,23 +78,32 @@
 
 
             <div class="story-block" style="margin-top: 40px;">
-                <h2>Story: Who is Gaining and Losing People?</h2>
+                <h2>Insights: Population Concentration & Expansion</h2>
                 <p>
-                    This 3D Earth visualization shows regions by color and outlines migration intensity
-                    through border stroke color. Click to zoom into a country; filter regions to explore
-                    the bloom chart on the right.
+                    This 3D Earth visualization reveals where the world's people live and how rapidly populations are changing. By default, countries are colored by geographic region. When you filter to a specific continent, countries shift to a population heat map (yellow to deep red gradient), revealing which nations dominate in sheer population size.
                 </p>
                 <p>
-                    The “Growth Bloom” reacts dynamically to your region filter, showing population
-                    growth patterns as petals radiating from the center.
+                    The <strong>Growth Bloom</strong> chart dynamically responds to your regional filter, displaying each country as a radial petal. Longer petals indicate faster population growth rates, while shorter petals show slower or negative growth. This visualization helps identify which nations are experiencing demographic booms versus those facing population decline.
                 </p>
             </div>
 
-            <button class="continue-btn" onclick="scrollToSection('#section-flows')" style="margin-top:25px;">
-                NEXT TASK: Analyze Global Flows
+            <button class="submit-report-btn" id="submit-report-map" style="margin-top:25px;">
+                📝 Submit Your Findings
             </button>
             <script src="js/map.js"></script>
 
+        </div>
+
+        <div class="quiz-block hidden" id="quiz-map">
+            <div class="quiz-title">🔍 Agent Report: Population Dynamics Analysis</div>
+            <p style="margin-bottom: 20px;">Based on your exploration of the 3D map and Growth Bloom chart, what do the PETALS in the Growth Bloom visualization represent?</p>
+
+            <label class="mcq-option" data-quiz="map" data-answer="A">A) The total population size of each country.</label>
+            <label class="mcq-option" data-quiz="map" data-answer="B">B) The population growth rate of each country (longer petals = faster growth).</label>
+            <label class="mcq-option" data-quiz="map" data-answer="C">C) The geographic land area of each country.</label>
+
+            <div id="feedback-map" class="hidden"></div>
+            <button class="continue-btn hidden" id="continue-map">NEXT TASK: Analyze Global Flows</button>
         </div>
 
     </div>
@@ -107,19 +111,14 @@
 
     <div class="vis-section hidden" id="section-flows">
         <h2>TASK 2: Mapping Continental Connections</h2>
-        <div class="quiz-block" id="quiz-flows">
-            <div class="quiz-title">Flow Assessment: Measuring the Links</div>
-            <p style="margin-bottom: 20px;">In a Chord Diagram used to map movement, what visual element is used to show the strength of the migration links between continents?</p>
-            
-            <label class="mcq-option" data-quiz="flows" data-answer="A">A) The color of the bar chart axis.</label>
-            <label class="mcq-option" data-quiz="flows" data-answer="B">B) The thickness of the ribbons connecting the continental arcs.</label>
-            <label class="mcq-option" data-quiz="flows" data-answer="C">C) The size of the text labels on the outer ring.</label>
 
-            <div id="feedback-flows" class="hidden"></div>
-            <button class="continue-btn hidden" id="continue-flows">Continue to Data Analysis</button>
+        <div class="mission-briefing">
+            <p><strong>📋 MISSION BRIEFING:</strong></p>
+            <p>Agent, analyze migration flows between continents. Hover over the chord diagram to see connections, toggle between inbound/outbound flows, and observe how ribbon thickness shows migration strength.</p>
+            <p><strong>🎯 Your Task:</strong> Identify the strongest migration corridors, then submit your findings.</p>
         </div>
-        
-        <div class="vis-content hidden" id="vis-flows">
+
+        <div class="vis-content" id="vis-flows">
             <h1 style="margin-bottom: 5px;">Migration Flows: Chord + Active Transport Bar</h1>
             <p class="subtitle">
                 Hover over continents or ribbons to reveal detailed migration flow bars.
@@ -146,27 +145,34 @@
                     Hover over a region to discover its dominant migration relationships. Use the toggle button to switch between Outbound (migrations *from* a continent) and Inbound (migrations *to* a continent).
                 </p>
             </div>
-            
-            <button class="continue-btn" onclick="scrollToSection('#section-dashboard')">NEXT TASK: Assess Population Health</button>
+
+            <button class="submit-report-btn" id="submit-report-flows">📝 Submit Your Findings</button>
+        </div>
+
+        <div class="quiz-block hidden" id="quiz-flows">
+            <div class="quiz-title">🔍 Agent Report: Migration Flow Analysis</div>
+            <p style="margin-bottom: 20px;">Based on your exploration of the chord diagram, what visual element shows the strength of migration links between continents?</p>
+
+            <label class="mcq-option" data-quiz="flows" data-answer="A">A) The color of the bar chart axis.</label>
+            <label class="mcq-option" data-quiz="flows" data-answer="B">B) The thickness of the ribbons connecting the continental arcs.</label>
+            <label class="mcq-option" data-quiz="flows" data-answer="C">C) The size of the text labels on the outer ring.</label>
+
+            <div id="feedback-flows" class="hidden"></div>
+            <button class="continue-btn hidden" id="continue-flows">NEXT TASK: Assess Population Health</button>
         </div>
     </div>
     
     
     <div class="vis-section hidden" id="section-dashboard">
         <h2>TASK 3: Analyzing Health and Demographic Momentum</h2>
-        <div class="quiz-block" id="quiz-dashboard">
-            <div class="quiz-title">Health Assessment: The 'Aging & Pressured' Profile</div>
-            <p style="margin-bottom: 20px;">The right panel uses a force layout to pull countries into four birth–death quadrants. Which two demographic measures define the 'Aging & pressured' quadrant?</p>
-            
-            <label class="mcq-option" data-quiz="dashboard" data-answer="A">A) High Birth Rate and Low Death Rate.</label>
-            <label class="mcq-option" data-quiz="dashboard" data-answer="B">B) High Life Expectancy and Low Infant Mortality.</label>
-            <label class="mcq-option" data-quiz="dashboard" data-answer="C">C) Low Birth Rate and High Death Rate.</label>
 
-            <div id="feedback-dashboard" class="hidden"></div>
-            <button class="continue-btn hidden" id="continue-dashboard">Continue to Data Analysis</button>
+        <div class="mission-briefing">
+            <p><strong>📋 MISSION BRIEFING:</strong></p>
+            <p>Agent, examine population health metrics across nations. Brush the left scatter plot to highlight countries, click quadrant labels on the right to filter by birth/death profiles, and observe how health indicators reveal development patterns.</p>
+            <p><strong>🎯 Your Task:</strong> Identify health profiles and demographic quadrants, then submit your findings.</p>
         </div>
-        
-        <div class="vis-content hidden" id="vis-dashboard">
+
+        <div class="vis-content" id="vis-dashboard">
             <h1 style="margin-bottom: 5px;">Population Health Dashboard</h1>
             <p class="subtitle">
                 Explore how <b>life expectancy</b>, <b>infant mortality</b>, <b>birth rates</b>, and <b>death rates</b>
@@ -206,27 +212,34 @@
                     using a force layout.
                 </p>
             </div>
-            
-            <button class="continue-btn" onclick="scrollToSection('#section-force-galaxy')">NEXT TASK: Investigate Population Forces</button>
+
+            <button class="submit-report-btn" id="submit-report-dashboard">📝 Submit Your Findings</button>
+        </div>
+
+        <div class="quiz-block hidden" id="quiz-dashboard">
+            <div class="quiz-title">🔍 Agent Report: Health Quadrant Analysis</div>
+            <p style="margin-bottom: 20px;">Based on your exploration of the right panel's force layout, which two demographic measures define the 'Aging & pressured' quadrant?</p>
+
+            <label class="mcq-option" data-quiz="dashboard" data-answer="A">A) High Birth Rate and Low Death Rate.</label>
+            <label class="mcq-option" data-quiz="dashboard" data-answer="B">B) High Life Expectancy and Low Infant Mortality.</label>
+            <label class="mcq-option" data-quiz="dashboard" data-answer="C">C) Low Birth Rate and High Death Rate.</label>
+
+            <div id="feedback-dashboard" class="hidden"></div>
+            <button class="continue-btn hidden" id="continue-dashboard">NEXT TASK: Investigate Population Forces</button>
         </div>
     </div>
     
     
     <div class="vis-section hidden" id="section-force-galaxy">
         <h2>TASK 4: Modeling Population Growth (Force Galaxy)</h2>
-        <div class="quiz-block" id="quiz-force-galaxy">
-            <div class="quiz-title">Standby: Data Retrieval in Progress</div>
-            <p style="margin-bottom: 20px;">The "Force Galaxy" visualization models population dynamics using a custom force layout, similar to the dashboard but focusing on birth/death rate magnitudes. Which of the following is *not* a factor in demographic change?</p>
-            
-            <label class="mcq-option" data-quiz="force-galaxy" data-answer="A">A) Net Migration Rate.</label>
-            <label class="mcq-option" data-quiz="force-galaxy" data-answer="B">B) Birth Rate.</label>
-            <label class="mcq-option" data-quiz="force-galaxy" data-answer="C">C) The number of active volcanoes.</label>
 
-            <div id="feedback-force-galaxy" class="hidden"></div>
-            <button class="continue-btn hidden" id="continue-force-galaxy">Continue to Data Analysis</button>
+        <div class="mission-briefing">
+            <p><strong>📋 MISSION BRIEFING:</strong></p>
+            <p>Agent, demographic change results from birth rates, death rates, and migration combined. Review the conceptual framework below (visualization unavailable).</p>
+            <p><strong>🎯 Your Task:</strong> Consider which factors drive population change, then submit your assessment.</p>
         </div>
-        
-        <div class="vis-content hidden" id="vis-force-galaxy">
+
+        <div class="vis-content" id="vis-force-galaxy">
             <h1 style="margin-bottom: 5px;">Force Galaxy: Birth-Death-Migration Matrix</h1>
             <p class="subtitle" style="color: #ff9800; font-weight: 600;">
                 <span style="border: 2px solid #ff9800; padding: 5px 10px; border-radius: 5px; display: inline-block;">
@@ -244,27 +257,34 @@
                     This visualization (which would have been based on `birth_death_matrix.html`) uses a force-directed graph to show countries clustered by their combined birth rates, death rates, and net migration rate.
                 </p>
             </div>
-            
-            <button class="continue-btn" onclick="scrollToSection('#section-orbit')">NEXT TASK: Assess Governance and Democracy</button>
+
+            <button class="submit-report-btn" id="submit-report-force-galaxy">📝 Submit Your Assessment</button>
+        </div>
+
+        <div class="quiz-block hidden" id="quiz-force-galaxy">
+            <div class="quiz-title">🔍 Agent Report: Demographic Factors</div>
+            <p style="margin-bottom: 20px;">Based on your understanding of demographic change, which of the following is *not* a factor in population dynamics?</p>
+
+            <label class="mcq-option" data-quiz="force-galaxy" data-answer="A">A) Net Migration Rate.</label>
+            <label class="mcq-option" data-quiz="force-galaxy" data-answer="B">B) Birth Rate.</label>
+            <label class="mcq-option" data-quiz="force-galaxy" data-answer="C">C) The number of active volcanoes.</label>
+
+            <div id="feedback-force-galaxy" class="hidden"></div>
+            <button class="continue-btn hidden" id="continue-force-galaxy">NEXT TASK: Assess Governance and Democracy</button>
         </div>
     </div>
     
     
     <div class="vis-section hidden" id="section-orbit">
         <h2>TASK 5: Analyzing Democratic Gravity</h2>
-        <div class="quiz-block" id="quiz-orbit">
-            <div class="quiz-title">Governance Assessment: The Power of Representation</div>
-            <p style="margin-bottom: 20px;">In the Democracy Orbit visualization, what does the size of a regional cluster or individual country 'planet' primarily represent?</p>
-            
-            <label class="mcq-option" data-quiz="orbit" data-answer="A">A) The country's GDP or wealth.</label>
-            <label class="mcq-option" data-quiz="orbit" data-answer="B">B) The total number of members in the region’s parliaments.</label>
-            <label class="mcq-option" data-quiz="orbit" data-answer="C">C) The country's overall land area.</label>
 
-            <div id="feedback-orbit" class="hidden"></div>
-            <button class="continue-btn hidden" id="continue-orbit">Continue to Data Analysis</button>
+        <div class="mission-briefing">
+            <p><strong>📋 MISSION BRIEFING:</strong></p>
+            <p>Agent, track the evolution of democratic institutions from 1950 to 2020. Use timeline controls to animate through decades, click regions to view individual countries, and observe how circle size represents parliamentary membership.</p>
+            <p><strong>🎯 Your Task:</strong> Analyze democratic trends over time, then submit your findings.</p>
         </div>
-        
-        <div class="vis-content hidden" id="vis-orbit">
+
+        <div class="vis-content" id="vis-orbit">
             <h1 style="margin-bottom: 5px;">Democracy Orbit - Enhanced</h1>
             <div class="subtitle">Click regions to explore countries • Hover for details • Use trails to see democratic evolution (1950-2020)</div>
 
@@ -298,17 +318,48 @@
             <div class="story-block">
                 <h2>Democratic Gravity Through Regions</h2>
                 <p>
-                    This view shows how democracy clusters and shifts over time. Each colored circle is a regional “orbit,” summarizing the countries within that region.
-                    The X-axis shows neighbors’ electoral democracy and the Y-axis shows neighbors’ overall democracy level. Circle size represents the total number of members in the region’s parliaments, hinting at the scale of its representative institutions.
+                    This view shows how democracy clusters and shifts over time. Each colored circle is a regional "orbit," summarizing the countries within that region.
+                    The X-axis shows neighbors' electoral democracy and the Y-axis shows neighbors' overall democracy level. Circle size represents the total number of members in the region's parliaments, hinting at the scale of its representative institutions.
                 </p>
                 <p>
-                    You can click a region to drill down and see individual countries as separate “planets.” Use the year slider or Play button to move from 1950–2020. Faint trails trace each region’s or country’s historical path.
+                    You can click a region to drill down and see individual countries as separate "planets." Use the year slider or Play button to move from 1950–2020. Faint trails trace each region's or country's historical path.
                 </p>
             </div>
-            
-            <button class="continue-btn" onclick="scrollToSection('#intro-page')">MISSION COMPLETE: Return to Briefing</button>
+
+            <button class="submit-report-btn" id="submit-report-orbit">📝 Submit Your Findings</button>
+        </div>
+
+        <div class="quiz-block hidden" id="quiz-orbit">
+            <div class="quiz-title">🔍 Agent Report: Democracy Visualization Analysis</div>
+            <p style="margin-bottom: 20px;">Based on your exploration of the Democracy Orbit visualization, what does the size of a regional cluster or individual country 'planet' primarily represent?</p>
+
+            <label class="mcq-option" data-quiz="orbit" data-answer="A">A) The country's GDP or wealth.</label>
+            <label class="mcq-option" data-quiz="orbit" data-answer="B">B) The total number of members in the region's parliaments.</label>
+            <label class="mcq-option" data-quiz="orbit" data-answer="C">C) The country's overall land area.</label>
+
+            <div id="feedback-orbit" class="hidden"></div>
+            <button class="continue-btn hidden" id="continue-orbit">📨 Your Boss Has a Message for You</button>
         </div>
     </div>
+
+    <section id="final-page" class="hidden">
+        <h1>🎖️ MISSION ACCOMPLISHED</h1>
+        <p class="subtitle" style="color: #bbb;">Classified Message from Command</p>
+
+        <div class="typewriter-box">
+            <p><strong>MESSAGE FROM YOUR DIRECTOR:</strong></p>
+            <div id="final-message" style="color: #e5edf7; font-size: 1.1em; line-height: 1.8;">
+                <p>Outstanding work, Agent.</p>
+                <p>You've successfully analyzed global population dynamics, migration flows, health indicators, demographic forces, and democratic evolution across 70 years of data. That was a tough first mission, but you nailed it.</p>
+                <p>Your analytical skills are exactly what we need in the field. The patterns you've uncovered will inform critical policy decisions at the highest levels.</p>
+                <p>Take a well-deserved break. More missions await.</p>
+                <p style="margin-top: 30px; color: #4CAF50; font-weight: 600;">— Director, Global Intelligence Division</p>
+            </div>
+        </div>
+
+        <button class="continue-btn" onclick="location.reload()" style="margin-top: 30px;">Return to Mission Briefing</button>
+    </section>
+
 </div>
 
 </body>
