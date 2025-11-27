@@ -135,10 +135,10 @@
                 Hover over continents or ribbons to reveal detailed migration flow bars.
             </p>
             <div id="flows-viz-container">
-                <div style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center;">
+                <div class="flow-vis-item">
                     <div id="chord"></div>
                 </div>
-                <div style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div class="flow-vis-item">
                     <h3 id="barTitle" style="margin: 0 0 20px 0; color: var(--text-color); font-size: 18px; min-height: 25px;"></h3>
                     <div id="bar"></div>
                 </div>
@@ -405,11 +405,11 @@
 
         <div class="quiz-block hidden" id="quiz-orbit">
             <div class="quiz-title">🔍 Agent Report: Democracy Visualization Analysis</div>
-            <p style="margin-bottom: 20px;">Based on your exploration of the Democracy Orbit visualization, what does the relationship between the X-axis (neighbors' electoral democracy) and Y-axis (neighbors' democracy level) reveal?</p>
+            <p style="margin-bottom: 20px;">In the <strong>Democracy Orbit</strong> visualization, what is the data variable encoded by the <strong>size</strong> (radius) of the colored circle (the "planet" or "cluster")?</p>
 
-            <label class="mcq-option" data-quiz="orbit" data-answer="A">A) Higher electoral democracy in neighboring countries always guarantees higher democracy levels. </label>
-            <label class="mcq-option" data-quiz="orbit" data-answer="B">B) Neighboring countries' electoral democracy generally increases democracy levels, but the relationship isn't perfectly linear. </label>
-            <label class="mcq-option" data-quiz="orbit" data-answer="C">C) There is no relationship between neighboring countries' electoral democracy and a country's democracy level.</label>
+            <label class="mcq-option" data-quiz="orbit" data-answer="A">A) The country's population size.</label>
+            <label class="mcq-option" data-quiz="orbit" data-answer="B">B) The total number of parliamentary members (lower + upper house).</label>
+            <label class="mcq-option" data-quiz="orbit" data-answer="C">C) The country's electoral democracy score.</label>
 
             <div id="feedback-orbit" class="hidden"></div>
             <button class="continue-btn hidden" id="continue-orbit">📨 Your Boss Has a Message for You</button>

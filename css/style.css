@@ -171,21 +171,24 @@ h2 {
 }
 .plot svg { width: 500px; height: 400px; } /* Increased size for dashboard plots */
 
-/* Flows Styles (Restored for Chord/Bar) */
+/* Flows Styles (Restored and Adjusted for Side-by-Side) */
 #flows-viz-container {
     display: flex; 
     align-items: center; 
     justify-content: center; 
     gap: 40px; 
-    /* Adjusting height/margin for multi-vis task */
     min-height: 500px; 
     flex-wrap: wrap;
     margin: 40px auto 0 auto; 
     max-width: 1200px;
 }
-/* Styles for the inner components of the old flow viz */
-#flows-viz-container #chord, #flows-viz-container #bar {
-    /* Note: The SVG styles are covered by the general #map svg, .plot svg, etc. selector */
+.flow-vis-item { 
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically (useful if elements have different heights) */
+    flex: 1 1 45%; /* Allow it to grow/shrink, aiming for 45% of the width */
+    min-width: 300px; 
 }
 
 
@@ -578,17 +581,24 @@ h2 {
   font-size: 13px;
 }
 
-/* Flows Styles (Restored for Chord/Bar) */
+/* Flows Styles (Restored and Adjusted for Side-by-Side) */
 #flows-viz-container {
     display: flex; 
     align-items: center; 
     justify-content: center; 
     gap: 40px; 
-    /* Adjusting height/margin for multi-vis task */
     min-height: 500px; 
     flex-wrap: wrap;
     margin: 40px auto 0 auto; 
     max-width: 1200px;
+}
+.flow-vis-item { 
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically (useful if elements have different heights) */
+    flex: 1 1 45%; /* Allow it to grow/shrink, aiming for 45% of the width */
+    min-width: 300px; 
 }
 
 
