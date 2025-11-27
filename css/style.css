@@ -171,8 +171,22 @@ h2 {
 }
 .plot svg { width: 500px; height: 400px; } /* Increased size for dashboard plots */
 
-/* Flows Styles - REPLACED WITH FLIGHT MAP */
-/* No specific styles needed for the old chord/bar containers */
+/* Flows Styles (Restored for Chord/Bar) */
+#flows-viz-container {
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 40px; 
+    /* Adjusting height/margin for multi-vis task */
+    min-height: 500px; 
+    flex-wrap: wrap;
+    margin: 40px auto 0 auto; 
+    max-width: 1200px;
+}
+/* Styles for the inner components of the old flow viz */
+#flows-viz-container #chord, #flows-viz-container #bar {
+    /* Note: The SVG styles are covered by the general #map svg, .plot svg, etc. selector */
+}
 
 
 /* Orbit Styles */
@@ -564,8 +578,26 @@ h2 {
   font-size: 13px;
 }
 
+/* Flows Styles (Restored for Chord/Bar) */
+#flows-viz-container {
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 40px; 
+    /* Adjusting height/margin for multi-vis task */
+    min-height: 500px; 
+    flex-wrap: wrap;
+    margin: 40px auto 0 auto; 
+    max-width: 1200px;
+}
+
 
 /* Orbit Styles */
+#orbit-vis svg {
+    max-width: 100%;
+    height: 700px;
+    box-shadow: none;
+}
 .orbit-controls {
     background: #282c34; /* Match vis background */
     padding: 15px;
@@ -575,7 +607,6 @@ h2 {
     align-items: center;
     gap: 15px;
     flex-wrap: wrap;
-    border: 1px solid #444;
 }
 
 .control-group {

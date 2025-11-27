@@ -117,7 +117,8 @@
         </div>
 
         <div class="vis-content" id="vis-flows">
-            <h1 style="margin-bottom: 5px;">Migration Flight Paths: Animated Global Flows</h1>
+            
+            <h1 style="margin-bottom: 5px;">TASK 2A: Migration Flight Paths (Animated Global Flows)</h1>
             <p class="subtitle">
                 Click a flow arc to view detailed route information.
             </p>
@@ -126,6 +127,23 @@
             </div>
             <div id="flightmap" style="position: relative; width: 1100px; height: 600px; margin: 0 auto;">
                 </div>
+
+            <hr style="margin: 50px auto; width: 50%; border-color: var(--sub-text-color);">
+
+            <h1 style="margin-bottom: 5px;">TASK 2B: Continental Flow Matrix (Chord & Bar Detail)</h1>
+            <p class="subtitle">
+                Hover over continents or ribbons to reveal detailed migration flow bars.
+            </p>
+            <div id="flows-viz-container">
+                <div style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center;">
+                    <div id="chord"></div>
+                </div>
+                <div style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <h3 id="barTitle" style="margin: 0 0 20px 0; color: var(--text-color); font-size: 18px; min-height: 25px;"></h3>
+                    <div id="bar"></div>
+                </div>
+            </div>
+
 
             <div class="story-block">
                 <h2>Story: Linking Global and Regional Views</h2>
@@ -420,6 +438,5 @@
 
 <script src="js/orbit.js"></script> 
 <script src="js/migration_flights.js"></script>
-
 </body>
 </html>
