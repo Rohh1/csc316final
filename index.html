@@ -112,35 +112,25 @@
 
         <div class="mission-briefing">
             <p><strong>📋 MISSION BRIEFING:</strong></p>
-            <p>Agent, map the flow of human capital between continents. Use the <strong>Chord Diagram</strong> to identify migration corridors and the <strong>Toggle</strong> to switch between <strong>Outbound</strong> (emigration) and <strong>Inbound</strong> (immigration) flows. Ribbon thickness shows migration strength.</p>
+            <p>Agent, map the flow of human capital between continents. Use the <strong>Animated Map</strong> to see migration paths (arcs). Toggle the view to switch between <strong>Outbound</strong> and <strong>Inbound</strong> flows. The arc thickness represents migration strength, and planes animate the flow direction.</p>
             <p><strong>🎯 Your Task:</strong> Identify the strongest migration corridors, then submit your findings.</p>
         </div>
 
         <div class="vis-content" id="vis-flows">
-            <h1 style="margin-bottom: 5px;">Migration Flows: Chord + Active Transport Bar</h1>
+            <h1 style="margin-bottom: 5px;">Migration Flight Paths: Animated Global Flows</h1>
             <p class="subtitle">
-                Hover over continents or ribbons to reveal detailed migration flow bars.
+                Click a flow arc to view detailed route information.
             </p>
-
             <div style="text-align: center; margin: 20px 0;">
-                <button id="toggleFlow" class="continue-btn">Show Inbound</button>
+                <button id="toggleFlowBtn" class="continue-btn">Switch to Inbound</button>
             </div>
-
-            <div id="flows-viz-container">
-                <div style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center;">
-                    <div id="chord"></div>
+            <div id="flightmap" style="position: relative; width: 1100px; height: 600px; margin: 0 auto;">
                 </div>
-                <div style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <h3 id="barTitle" style="margin: 0 0 20px 0; color: var(--text-color); font-size: 18px; min-height: 25px;"></h3>
-                    <div id="bar"></div>
-                </div>
-            </div>
 
             <div class="story-block">
                 <h2>Story: Linking Global and Regional Views</h2>
                 <p>
-                    The chord diagram shows migration between continents, while the bar chart reveals how strongly each region connects with others.
-                    Hover over a region to discover its dominant migration relationships. Use the toggle button to switch between Outbound (migrations *from* a continent) and Inbound (migrations *to* a continent).
+                    The animated map shows arcs representing migration between continents. Arc thickness visualizes the volume of migrants, with planes animating the movement. Use the switch to analyze total flow *from* (Outbound) or *to* (Inbound) each continent. Clicking an arc displays detailed information about that specific route in the info panel.
                 </p>
             </div>
 
@@ -149,11 +139,11 @@
 
         <div class="quiz-block hidden" id="quiz-flows">
             <div class="quiz-title">🔍 Agent Report: Migration Flow Analysis</div>
-            <p style="margin-bottom: 20px;">The Chord Diagram uses a specific visual cue to represent the total <strong>volume</strong> of migrants moving between two continents. What is this element?</p>
+            <p style="margin-bottom: 20px;">In the <strong>Migration Flight Paths Map</strong>, what feature of the visualization dynamically represents the <strong>direction</strong> of the flow (e.g., from Africa to Europe)?</p>
 
-            <label class="mcq-option" data-quiz="flows" data-answer="A">A) The color of the bar chart axis.</label>
-            <label class="mcq-option" data-quiz="flows" data-answer="B">B) The width/thickness of the ribbons.</label>
-            <label class="mcq-option" data-quiz="flows" data-answer="C">C) The size of the text labels on the outer ring.</label>
+            <label class="mcq-option" data-quiz="flows" data-answer="A">A) The color of the continents.</label>
+            <label class="mcq-option" data-quiz="flows" data-answer="B">B) The animation of small planes along the arc path.</label>
+            <label class="mcq-option" data-quiz="flows" data-answer="C">C) The width of the arc.</label>
 
             <div id="feedback-flows" class="hidden"></div>
             <button class="continue-btn hidden" id="continue-flows">NEXT TASK: Assess Population Health</button>
@@ -429,6 +419,7 @@
 </div>
 
 <script src="js/orbit.js"></script> 
+<script src="js/migration_flights.js"></script>
 
 </body>
 </html>

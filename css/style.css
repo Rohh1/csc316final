@@ -171,12 +171,9 @@ h2 {
 }
 .plot svg { width: 500px; height: 400px; } /* Increased size for dashboard plots */
 
-/* Flows Styles */
-#flows-viz-container {
-    display: flex; align-items: center; justify-content: center; gap: 40px; min-height: 750px;
-    flex-wrap: wrap;
-    margin: 0 auto;
-}
+/* Flows Styles - REPLACED WITH FLIGHT MAP */
+/* No specific styles needed for the old chord/bar containers */
+
 
 /* Orbit Styles */
 #orbit-vis svg {
@@ -528,6 +525,47 @@ h2 {
     z-index: 9999;
 }
 
+/* --- NEW MIGRATION FLIGHTS MAP STYLES --- */
+#flightmap svg {
+  /* This style overrides the generic map svg style to set a specific dark map bg for contrast */
+  border-radius: 12px;
+  background: #1e293b; /* Dark map background */
+  box-shadow: 0 0 12px rgba(0,0,0,0.3);
+}
+
+.arc {
+  fill: none;
+  stroke-linecap: round;
+  stroke-opacity: 0.55;
+  filter: drop-shadow(0 0 2px rgba(255,255,255,0.2));
+}
+
+.plane {
+  fill: #ffffff;
+  opacity: 0.9;
+}
+
+#flight-info {
+  /* Position and display controlled by JS, only colors/borders/fonts here */
+  background: rgba(15,23,42,0.9);
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+}
+#flight-info h3 {
+    color: #93c5fd;
+    border-bottom: none; 
+    padding-bottom: 0;
+    margin-bottom: 10px;
+}
+.legend text {
+  fill: #e2e8f0;
+  font-size: 13px;
+}
+
+
+/* Orbit Styles */
 .orbit-controls {
     background: #282c34; /* Match vis background */
     padding: 15px;
@@ -764,8 +802,6 @@ h2 {
     overflow-y: auto;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     z-index: 1000;
-    width: 224px;
-    display: none;
 }
 
 .suggestion-item {
