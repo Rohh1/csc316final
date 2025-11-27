@@ -41,7 +41,6 @@
 
         <div class="vis-content" id="vis-map">
 
-            <!-- Title and Region Filter now inside TASK 1 section -->
             <div class="map-ui-top">
                 <h2 class="map-title">Global Population & Growth Analysis</h2>
 
@@ -56,7 +55,6 @@
 
             </div>
 
-            <!-- 3D Earth Map -->
             <div id="map-fullscreen">
                 <div id="map"></div>
                 <div id="map-info-panel"></div>
@@ -246,7 +244,6 @@
                 Size ∝ population, glow ∝ life expectancy, color ∝ region.
             </p>
 
-            <!-- ▼▼ Force Galaxy container ▼▼ -->
             <div id="galaxy-container" style="margin: 0 auto; max-width:1000px;">
                 <div id="galaxy"></div>
             </div>
@@ -313,7 +310,7 @@
 
         <div class="vis-content" id="vis-orbit">
             <h1 style="margin-bottom: 5px;">Democracy Orbit - Enhanced</h1>
-            <div class="subtitle">Click regions to explore countries • Hover for details • Use trails to see democratic evolution (1950-2020)</div>
+            <div class="subtitle">Click regions to explore • Search or click countries/regions to track through time • Hover for details (1950-2020)</div>
 
             <div class="orbit-controls">
                 <div class="control-group">
@@ -332,27 +329,69 @@
                     <button id="clusterView" class="active">Regional View</button>
                     <button id="detailView">All Countries</button>
                 </div>
+                <div class="control-group search-container">
+                    <label for="trackingSearch">🎯 Track:</label>
+                    <input type="text" id="trackingSearch" placeholder="Search country or region...">
+                    <div class="autocomplete-suggestions" id="suggestions"></div>
+                </div>
             </div>
 
-            <div id="orbit-vis">
-                </div>
+            <div id="orbit-vis"></div>
 
+            <div class="tracking-panel" id="trackingPanel">
+                <h3><span class="tracking-icon">🎯</span> <span id="trackedName">Tracking</span></h3>
+                <div class="stat">
+                    <span class="stat-label">Type</span>
+                    <span class="stat-value" id="trackedType">-</span>
+                </div>
+                <div class="stat" id="trackedRegionStat" style="display: none;">
+                    <span class="stat-label">Region</span>
+                    <span class="stat-value" id="trackedRegion">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Year</span>
+                    <span class="stat-value" id="trackedYear">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Electoral Democracy</span>
+                    <span class="stat-value" id="trackedElectoral">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Liberal Democracy</span>
+                    <span class="stat-value" id="trackedDemocracy">-</span>
+                </div>
+                <div class="clear-track" id="clearTracking">✕ Clear Tracking</div>
+            </div>
+
+
+            <div class="gdp-democracy-panel" id="gdpDemocracyPanel">
+                <h3>📊 <span id="gdpChartCountryName"></span>: GDP Over Time</h3>
+                <div id="gdpDemocracyChart"></div>
+            </div>
             <div class="orbit-legend">
-                <div class="legend-title">Regions (Click to explore)</div>
+                <div class="legend-title">🌍 Regions (Click to explore)</div>
                 <div class="legend-items" id="legendItems"></div>
             </div>
 
             <div class="story-block">
                 <h2>Democratic Gravity Through Regions</h2>
                 <p>
-                    This view shows how democracy clusters and shifts over time. Each colored circle is a regional "orbit," summarizing the countries within that region.
-                    The X-axis shows neighbors' electoral democracy and the Y-axis shows neighbors' overall democracy level. Circle size represents the total number of members in the region's parliaments, hinting at the scale of its representative institutions.
+                    This view shows how democracy clusters and shifts over time. Each colored circle is a regional “orbit,” summarizing the countries within that region.
+                    In the regional view, the X-axis shows neighbors’ electoral democracy (further right = more democratic elections) and the Y-axis shows neighbors’ overall
+                    democracy level (higher up = more democratic systems overall). Circle size represents the total number of members in the region’s parliaments, hinting at the scale
+                    of its representative institutions.
                 </p>
                 <p>
-                    You can click a region to drill down and see individual countries as separate "planets." Use the year slider or Play button to move from 1950–2020. Faint trails trace each region's or country's historical path.
+                    You can click a region to drill down and see individual countries as separate “planets,” still positioned by their democratic context and sized by their parliamentary seats.
+                    Use the year slider or Play button to move from 1950–2020. Faint trails trace each region’s or country’s historical path, revealing how they drift toward or away from their neighbors’ democratic
+                    norms over time—whether clustering into stable democratic neighborhoods or sliding into more authoritarian gravitational fields.
                 </p>
             </div>
 
+            <div class="info-panel" id="infoPanel">
+                <h3 id="infoTitle">Region Info</h3>
+                <div id="infoContent"></div>
+            </div>
             <button class="submit-report-btn" id="submit-report-orbit">📝 Submit Your Findings</button>
         </div>
 
@@ -388,6 +427,8 @@
     </section>
 
 </div>
+
+<script src="js/orbit.js"></script> 
 
 </body>
 </html>
