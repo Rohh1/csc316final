@@ -1,6 +1,22 @@
-// D3.js script for the Democracy Orbit visualization (Task 5)
-// This script contains the logic for rendering the scatter plot,
-// handling year animation, region clustering, tracking, and the GDP chart.
+// Democracy Orbit Visualization Script
+(function() {
+    'use strict';
+
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    function init() {
+        console.log('Democracy Orbit: Initializing...');
+        console.log('Democracy Orbit: DOM elements check:', {
+            trackingSearch: !!document.getElementById('trackingSearch'),
+            suggestions: !!document.getElementById('suggestions'),
+            trackingPanel: !!document.getElementById('trackingPanel'),
+            orbitVis: !!document.getElementById('orbit-vis')
+        });
 
 // Enhanced color scheme - distinct and purposeful
 const regionColors = {
@@ -127,7 +143,7 @@ d3.csv('data/democracy_data_clean.csv').then(data => {
         !isNaN(d.spatialDemocracy)
     );
 
-    console.log('Democracy Data loaded:', data.length, 'rows');
+    console.log('Data loaded:', data.length, 'rows');
 
     // Set up dimensions
     const margin = {top: 20, right: 80, bottom: 80, left: 100};
@@ -284,9 +300,12 @@ d3.csv('data/democracy_data_clean.csv').then(data => {
             const countryData = data.find(d => d.country === name);
             if (countryData) {
                 expandedRegion = countryData.region;
+                // Keep viewMode as 'cluster' - don't switch to 'detail'
+                // The expandedRegion being set will show individual countries in that region
             }
         }
-        
+        // If already in detail view, just track without changing expandedRegion
+
         updateTrackingPanel();
         updateVisualization(currentYear);
     }
@@ -622,7 +641,7 @@ d3.csv('data/democracy_data_clean.csv').then(data => {
     updateVisualization(1950);
 
 }).catch(error => {
-    console.error('Error loading data (democracy_data_clean.csv):', error);
+    console.error('Error loading data:', error);
     d3.select('#orbit-vis').append('div')
         .style('padding', '40px')
         .style('text-align', 'center')
@@ -635,6 +654,7 @@ d3.csv('data/democracy_data_clean.csv').then(data => {
 });
 
 // ========== GDP OVER TIME BAR CHART (SEPARATE COMPONENT) ==========
+// This section is completely independent and doesn't modify the main visualization
 
 let gdpData = null;
 
@@ -654,7 +674,7 @@ d3.csv('data/gdp_country.csv').then(data => {
     });
     console.log('GDP data loaded successfully');
 }).catch(error => {
-    console.error('Error loading GDP data (gdp_country.csv):', error);
+    console.error('Error loading GDP data:', error);
 });
 
 // Function to update GDP chart when tracking a country
@@ -814,33 +834,33 @@ function updateGDPChart(countryName) {
 }
 
 // Listen for tracking changes (hook into existing tracking functionality)
+// We'll use a MutationObserver to detect when tracking panel becomes active
 const trackingPanel = document.getElementById('trackingPanel');
-if (trackingPanel) {
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.attributeName === 'class') {
-                const isActive = trackingPanel.classList.contains('active');
-                if (isActive) {
-                    const trackedName = document.getElementById('trackedName').textContent;
-                    const trackedType = document.getElementById('trackedType').textContent;
+const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+            const isActive = trackingPanel.classList.contains('active');
+            if (isActive) {
+                const trackedName = document.getElementById('trackedName').textContent;
+                const trackedType = document.getElementById('trackedType').textContent;
 
-                    // Only show GDP chart for countries
-                    if (trackedType.toLowerCase() === 'country') {
-                        setTimeout(() => updateGDPChart(trackedName), 100);
-                    } else {
-                        d3.select('#gdpDemocracyPanel').classed('active', false);
-                        d3.selectAll('.gdp-tooltip').remove();
-                    }
+                // Only show GDP chart for countries
+                if (trackedType.toLowerCase() === 'country') {
+                    setTimeout(() => updateGDPChart(trackedName), 100);
                 } else {
-                    // Hide GDP panel when tracking is cleared
                     d3.select('#gdpDemocracyPanel').classed('active', false);
                     d3.selectAll('.gdp-tooltip').remove();
                 }
+            } else {
+                // Hide GDP panel when tracking is cleared
+                d3.select('#gdpDemocracyPanel').classed('active', false);
+                d3.selectAll('.gdp-tooltip').remove();
             }
-        });
+        }
     });
+});
 
-    observer.observe(trackingPanel, { attributes: true });
-} else {
-    console.error("Tracking Panel element not found. GDP chart functionality disabled.");
-}
+observer.observe(trackingPanel, { attributes: true });
+
+    } // end init()
+})();
