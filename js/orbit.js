@@ -1,4 +1,4 @@
-// D3.js script for the Democracy Orbit visualization
+// D3.js script for the Democracy Orbit visualization (Task 5)
 // This script contains the logic for rendering the scatter plot,
 // handling year animation, region clustering, tracking, and the GDP chart.
 
