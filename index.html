@@ -228,8 +228,8 @@
             <button class="continue-btn hidden" id="continue-dashboard">NEXT TASK: Investigate Population Forces</button>
         </div>
     </div>
-    
-    
+
+
     <div class="vis-section hidden" id="section-force-galaxy">
         <h2>TASK 4: Modeling Population Growth (Force Galaxy)</h2>
 
@@ -240,17 +240,44 @@
         </div>
 
         <div class="vis-content" id="vis-force-galaxy">
-            <h1 style="margin-bottom: 5px;">Force Galaxy: Birth-Death-Migration Matrix</h1>
-            <p class="subtitle" style="color: #ff9800; font-weight: 600;">
-                <span style="border: 2px solid #ff9800; padding: 5px 10px; border-radius: 5px; display: inline-block;">
-                    WARNING: Force Galaxy Visualization Code Unavailable. Proceeding to final task.
-                </span>
+            <h1 style="margin-bottom: 5px;">Force Galaxy: Birth–Death–Life Matrix</h1>
+            <p class="subtitle">
+                Each country is a star in a demographic galaxy — pulled horizontally by birth rate and vertically by death rate.
+                Size ∝ population, glow ∝ life expectancy, color ∝ region.
             </p>
-            
-            <div style="height: 300px; background: #333; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #999;">
-                [ Force Galaxy Placeholder ]
+
+            <!-- ▼▼ Force Galaxy container ▼▼ -->
+            <div id="galaxy-container" style="margin: 0 auto; max-width:1000px;">
+                <div id="galaxy"></div>
             </div>
-            <p></p>
+
+            <div class="controls" style="margin-top:20px; margin-bottom:10px;">
+                <div class="controls-left">
+                    <label for="regionSel"><strong>Region:</strong></label>
+                    <select id="regionSel">
+                        <option value="All">All regions</option>
+                    </select>
+                </div>
+                <button id="clusterToggle" class="continue-btn" style="padding:8px 18px;">Cluster by Region</button>
+            </div>
+
+            <div class="force-row">
+                <div class="force-col" id="region-plot-wrapper">
+                    <h2 id="region-plot-title"></h2>
+                    <p class="subtitle" id="region-plot-subtitle"></p>
+                    <div id="region-plot"></div>
+                </div>
+
+                <div class="force-col" id="mortality-plot-wrapper">
+                    <h2 id="mortality-plot-title"></h2>
+                    <p class="subtitle" id="mortality-plot-subtitle"></p>
+                    <div id="mortality-plot"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <p></p>
             <div class="story-block">
                 <h2>Story: Gravitational Pull of Demographics</h2>
                 <p>

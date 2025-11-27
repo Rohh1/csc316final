@@ -484,3 +484,39 @@ h2 {
     transform: translateY(0);
     box-shadow: 0 4px 8px rgba(255, 152, 0, 0.4);
 }
+
+
+/* force galaxy */
+.force-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+    margin-top: 40px;
+}
+
+.force-col {
+    width: 50%;
+}
+
+@media (max-width: 1200px) {
+    .force-row {
+        flex-direction: column;
+    }
+    .force-col {
+        width: 100%;
+    }
+}
+.tip, .force-tooltip {
+    position: absolute;
+    background: rgba(0,0,0,0.78);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.4;
+    pointer-events: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+}

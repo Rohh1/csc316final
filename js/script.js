@@ -1203,7 +1203,28 @@ function initDashboardVis() {
 
 // 4. Force Galaxy (Placeholder - Actual implementation not possible without code)
 function initForceGalaxyVis() {
-  console.log("Force Galaxy Placeholder Loaded.");
+    console.log("Initializing Force Galaxy...");
+
+    if (window.forceGalaxyLoaded) {
+        console.log("Force Galaxy already loaded, skipping re-load.");
+        return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "js/force-galaxy.js";
+    script.onload = () => {
+        console.log("Force Galaxy script loaded successfully.");
+
+        if (typeof startForceGalaxy === "function") {
+            startForceGalaxy();
+        }
+    };
+
+    script.onerror = () =>
+        console.error("Failed to load js/force-galaxy.js. Check file path.");
+
+    document.body.appendChild(script);
+    window.forceGalaxyLoaded = true;
 }
 
 // 5. Democracy Orbit (Logic included)
