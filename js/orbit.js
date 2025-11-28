@@ -28,8 +28,8 @@ const regionColors = {
     'Oceania': '#16a085',          // Dark teal - isolated
     'Middle East': '#e67e22',      // Burnt orange - conflict
     'Caribbean': '#2ecc71',        // Green - small states
-    'Central Asia': '#95a5a6',     // Gray - transition
-    'Unknown': '#bdc3c7'           // Light gray
+    'Central Asia': '#00d4ff',     // Bright cyan - transition
+    'Unknown': '#7f8c8d'           // Dark gray
 };
 
 // Region mapping based on country names - COMPREHENSIVE
