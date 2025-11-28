@@ -23,7 +23,11 @@
         <div class="typewriter-box">
             <p><strong>MISSION BRIEFING:</strong></p>
             <span class="typewriter-text" id="mission-text">
-            Welcome, Agent. Global demographics are shifting rapidly, and we need to understand the underlying forces. Your task is to analyze key datasets on population, migration, health, and governance. Each mission will present evidence for you to examine, followed by an analytical report to test your findings. Your journey begins with understanding global population dynamics. Good luck, Agent.
+            Welcome to the CIA. The global demographic landscape is undergoing a transformation more rapid and profound than at any point in human history. These shifts are not merely statistical; they are tectonic forces that will redefine global power, stability, and security for decades to come.
+
+Your assignment is to analyze raw intelligence—datasets on population, migration patterns, public health, and governance. You will assess the data, identify the underlying patterns, and project the second-and-third order effects. Each dossier you receive will contain the evidence. Your analysis will form the basis of our strategic assessment.
+
+We begin with the foundational layer: global population dynamics. The clock is ticking. Let's get to work.
             </span>
         </div>
 
@@ -36,8 +40,9 @@
 
         <div class="mission-briefing">
             <p><strong>📋 MISSION BRIEFING:</strong></p>
-            <p>Agent, analyze global population. Use the <strong>3D Globe</strong> to identify population density (darker red = higher population) across continents. Examine the <strong>Growth Bloom</strong> to see current demographic momentum, where countries are represented by radial petals.</p>
-            <p><strong>🎯 Your Task:</strong> Identify population hotspots and growth patterns, then submit your findings.</p>
+            <p>Survey the planet from orbit. Use the <strong>3D Globe</strong> to pinpoint population hotspots—the darker the red, the denser the population. Sweep across continents, flagging regions with intense clustering and any surprising low-density gaps.</p>
+            <p>Next, switch to the <strong>Growth Bloom</strong>. Here, each country appears as a radial petal, encoding its current demographic momentum.</p>
+            <p><strong>🎯 Your Task:</strong> Identify major population hotspots across the globe. Detect key growth patterns and demographic trends and answer correctly</p>
         </div>
 
         <div class="vis-content" id="vis-map">
@@ -95,11 +100,11 @@
 
         <div class="quiz-block hidden" id="quiz-map">
             <div class="quiz-title">🔍 Agent Report: Population Dynamics Analysis</div>
-            <p style="margin-bottom: 20px;">When filtering to a region on the globe, which feature of the <strong>Growth Bloom</strong> chart visually encodes the <strong>rate of population growth</strong> for a country?</p>
+            <p style="margin-bottom: 20px;">When you apply a continent filter (e.g., only Asia) in the 3D Earth visualization, what visual change occurs on the globe for the countries in that region?</p>
 
-            <label class="mcq-option" data-quiz="map" data-answer="A">A) The color gradient of the petals.</label>
-            <label class="mcq-option" data-quiz="map" data-answer="B">B) The length of the petals (longer = faster growth).</label>
-            <label class="mcq-option" data-quiz="map" data-answer="C">C) The distance of the petals from the center.</label>
+            <label class="mcq-option" data-quiz="map" data-answer="A">A) Countries in the selected continent are colored only by population growth rate, while population size is hidden.</label>
+            <label class="mcq-option" data-quiz="map" data-answer="B">B) Countries in the selected continent switch to a population heat map, where a yellow to deep red gradient encodes population size..</label>
+            <label class="mcq-option" data-quiz="map" data-answer="C">C) Countries in that continent become gray, and only the Growth Bloom shows population and growth.</label>
 
             <div id="feedback-map" class="hidden"></div>
             <button class="continue-btn hidden" id="continue-map">NEXT TASK: Analyze Global Flows</button>
