@@ -348,6 +348,12 @@ We begin with the foundational layer: global population dynamics. The clock is t
                 <input type="text" id="trackingSearch" placeholder="Search country or region...">
                 <div class="autocomplete-suggestions" id="suggestions"></div>
             </div>
+            
+            <!-- Legend now inside controls -->
+            <div class="orbit-legend-inline">
+                <div class="legend-title">🌍 Regions (Click to explore)</div>
+                <div class="legend-items" id="legendItems"></div>
+            </div>
         </div>
 
         <div id="orbit-vis"></div>
@@ -382,11 +388,6 @@ We begin with the foundational layer: global population dynamics. The clock is t
         <div class="gdp-democracy-panel" id="gdpDemocracyPanel">
             <h3><span id="gdpChartCountryName"></span>: GDP Over Time</h3>
             <div id="gdpDemocracyChart"></div>
-        </div>
-
-        <div class="orbit-legend">
-            <div class="legend-title">🌍 Regions (Click to explore)</div>
-            <div class="legend-items" id="legendItems"></div>
         </div>
 
 
