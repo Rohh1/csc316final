@@ -10,6 +10,7 @@
 
     <link rel="stylesheet" href="css/style.css">
     <script src="js/script.js" defer></script>
+
 </head>
 <body>
 
@@ -286,7 +287,7 @@
             <div class="story-block">
                 <h2>Story: Gravitational Pull of Demographics</h2>
                 <p>
-                    This visualization uses a force-directed graph to show countries clustered by their combined birth rates, death rates, and net migration rate.
+                    This visualization (which would have been based on `birth_death_matrix.html`) uses a force-directed graph to show countries clustered by their combined birth rates, death rates, and net migration rate.
                 </p>
             </div>
 
@@ -305,83 +306,87 @@
             <button class="continue-btn hidden" id="continue-force-galaxy">NEXT TASK: Assess Governance and Democracy</button>
         </div>
     </div>
-    
-    
-    <div class="vis-section hidden" id="section-orbit">
-        <h2>TASK 5: Analyzing Democratic Gravity</h2>
 
-        <div class="mission-briefing">
-            <p><strong>📋 MISSION BRIEFING:</strong></p>
-            <p>Agent, track the evolution of global governance across 70 years. Use the <strong>Year Slider/Play Button</strong> to animate changes. <strong>Track</strong> a specific country/region to plot its history and view its key metrics and correlated <strong>GDP Over Time</strong>.</p>
-            <p><strong>🎯 Your Task:</strong> Analyze democratic trends over time, then submit your findings.</p>
+
+<div class="vis-section hidden" id="section-orbit">
+    <h2>TASK 5: Analyzing Democratic Gravity</h2>
+
+    <div class="mission-briefing">
+        <p><strong>📋 MISSION BRIEFING:</strong></p>
+        <p>Agent, track the evolution of democratic institutions from 1950 to 2020. Use timeline controls to animate through decades, click regions to view individual countries, and observe how circle size represents parliamentary membership.</p>
+        <p><strong>🎯 Your Task:</strong> Analyze democratic trends over time, then submit your findings.</p>
+    </div>
+
+    <div class="vis-content" id="vis-orbit">
+        <h1 style="margin-bottom: 5px;">Democracy Orbit</h1>
+        <div class="subtitle">Click regions to explore • Search or click countries/regions to track through time • Hover for details</div>
+
+        <div class="orbit-controls">
+            <div class="control-group">
+                <label for="yearSlider">Year:</label>
+                <span id="yearDisplay">1950</span>
+                <input type="range" id="yearSlider" min="1950" max="2020" value="1950" step="1">
+            </div>
+            <div class="control-group">
+                <button id="playButton">▶ Play</button>
+                <button id="resetButton">↺ Reset</button>
+            </div>
+            <div class="control-group">
+                <label><input type="checkbox" id="showTrails" checked> Show trails</label>
+            </div>
+            <div class="control-group view-toggle">
+                <button id="clusterView" class="active">Regional View</button>
+                <button id="detailView">All Countries</button>
+            </div>
+            <div class="control-group search-container">
+                <label for="trackingSearch">🎯 Track:</label>
+                <input type="text" id="trackingSearch" placeholder="Search country or region...">
+                <div class="autocomplete-suggestions" id="suggestions"></div>
+            </div>
         </div>
 
-        <div class="vis-content" id="vis-orbit">
-            <h1 style="margin-bottom: 5px;">Democracy Orbit - Enhanced</h1>
-            <div class="subtitle">Click regions to explore • Search or click countries/regions to track through time • Hover for details (1950-2020)</div>
+        <div id="orbit-vis"></div>
 
-            <div class="orbit-controls">
-                <div class="control-group">
-                    <label for="yearSlider">Year:</label>
-                    <span id="yearDisplay">1950</span>
-                    <input type="range" id="yearSlider" min="1950" max="2020" value="1950" step="1">
-                </div>
-                <div class="control-group">
-                    <button id="playButton">▶ Play</button>
-                    <button id="resetButton">↺ Reset</button>
-                </div>
-                <div class="control-group">
-                    <label><input type="checkbox" id="showTrails" checked> Show trails</label>
-                </div>
-                <div class="control-group view-toggle">
-                    <button id="clusterView" class="active">Regional View</button>
-                    <button id="detailView">All Countries</button>
-                </div>
-                <div class="control-group search-container">
-                    <label for="trackingSearch">🎯 Track:</label>
-                    <input type="text" id="trackingSearch" placeholder="Search country or region...">
-                    <div class="autocomplete-suggestions" id="suggestions"></div>
-                </div>
+        <!-- Tracking Panel -->
+        <div class="tracking-panel" id="trackingPanel">
+            <h3><span class="tracking-icon">🎯</span> <span id="trackedName">Tracking</span></h3>
+            <div class="stat">
+                <span class="stat-label">Type</span>
+                <span class="stat-value" id="trackedType">-</span>
             </div>
-
-            <div id="orbit-vis"></div>
-
-            <div class="tracking-panel" id="trackingPanel">
-                <h3><span class="tracking-icon">🎯</span> <span id="trackedName">Tracking</span></h3>
-                <div class="stat">
-                    <span class="stat-label">Type</span>
-                    <span class="stat-value" id="trackedType">-</span>
-                </div>
-                <div class="stat" id="trackedRegionStat" style="display: none;">
-                    <span class="stat-label">Region</span>
-                    <span class="stat-value" id="trackedRegion">-</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">Year</span>
-                    <span class="stat-value" id="trackedYear">-</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">Electoral Democracy</span>
-                    <span class="stat-value" id="trackedElectoral">-</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">Liberal Democracy</span>
-                    <span class="stat-value" id="trackedDemocracy">-</span>
-                </div>
-                <div class="clear-track" id="clearTracking">✕ Clear Tracking</div>
+            <div class="stat" id="trackedRegionStat" style="display: none;">
+                <span class="stat-label">Region</span>
+                <span class="stat-value" id="trackedRegion">-</span>
             </div>
-
-
-            <div class="gdp-democracy-panel" id="gdpDemocracyPanel">
-                <h3>📊 <span id="gdpChartCountryName"></span>: GDP Over Time</h3>
-                <div id="gdpDemocracyChart"></div>
+            <div class="stat">
+                <span class="stat-label">Year</span>
+                <span class="stat-value" id="trackedYear">-</span>
             </div>
-            <div class="orbit-legend">
-                <div class="legend-title">🌍 Regions (Click to explore)</div>
-                <div class="legend-items" id="legendItems"></div>
+            <div class="stat">
+                <span class="stat-label">Electoral Democracy</span>
+                <span class="stat-value" id="trackedElectoral">-</span>
             </div>
+            <div class="stat">
+                <span class="stat-label">Liberal Democracy</span>
+                <span class="stat-value" id="trackedDemocracy">-</span>
+            </div>
+            <div class="clear-track" id="clearTracking">✕ Clear Tracking</div>
+        </div>
 
-            <div class="story-block">
+        <!-- GDP Over Time Chart Panel -->
+        <div class="gdp-democracy-panel" id="gdpDemocracyPanel">
+            <h3><span id="gdpChartCountryName"></span>: GDP Over Time</h3>
+            <div id="gdpDemocracyChart"></div>
+        </div>
+
+        <div class="orbit-legend">
+            <div class="legend-title">🌍 Regions (Click to explore)</div>
+            <div class="legend-items" id="legendItems"></div>
+        </div>
+
+
+
+        <div class="story-block">
                 <h2>Democratic Gravity Through Regions</h2>
                 <p>
                     This view shows how democracy clusters and shifts over time. Each colored circle is a regional “orbit,” summarizing the countries within that region.
@@ -427,7 +432,7 @@
                 <p>You've successfully analyzed global population dynamics, migration flows, health indicators, demographic forces, and democratic evolution across 70 years of data. That was a tough first mission, but you nailed it.</p>
                 <p>Your analytical skills are exactly what we need in the field. The patterns you've uncovered will inform critical policy decisions at the highest levels.</p>
                 <p>Take a well-deserved break. More missions await.</p>
-                <p style="margin-top: 30px; color: #4CAF50; font-weight: 600;">— The MIRRY Group</p>
+                <p style="margin-top: 30px; color: #4CAF50; font-weight: 600;">— Director, Global Intelligence Division</p>
             </div>
         </div>
 

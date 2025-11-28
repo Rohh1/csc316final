@@ -54,9 +54,10 @@ h2 {
     border-radius: 16px;
     box-shadow: var(--shadow);
     padding: 40px;
-    margin-bottom: 80px;
+    margin: 0 auto 80px;  /* center */
     text-align: left;
     border: 1px solid #333; /* Subtle border */
+    max-width: 1200px;
 }
 
 /* --- Quiz Block Styles --- */
@@ -192,19 +193,7 @@ h2 {
 }
 
 
-/* Orbit Styles */
-#orbit-vis svg {
-    max-width: 100%;
-    height: 700px;
-    box-shadow: none;
-}
-.orbit-controls {
-    background: #333333;
-    color: var(--text-color);
-    border: 1px solid #555;
-}
-.view-toggle button { background: #555; color: var(--text-color); border: 1px solid #666; }
-.view-toggle button.active { background: var(--primary-color); color: var(--background-color); border-color: var(--primary-color); }
+
 
 /* Story Block */
 .story-block {
@@ -602,6 +591,27 @@ h2 {
 }
 
 
+
+     /* Enhanced styles for Democracy Orbit visualization - Dark Spy/CIA Theme */
+/* --- Visualization Block Styles --- */
+#map-vis, #dashboard-vis, #flows-vis, #orbit-vis {
+    margin-top: 30px;
+    text-align: center;
+}
+
+#map svg, .plot svg, #chord svg, #bar svg, #orbit-chart {
+    /* Blueprint/grid background for data */
+    background: #282c34;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    border: 1px solid #555;
+}
+
+#map {
+    /* Setting a consistent size for the large map */
+    max-width: 1000px;
+    margin: 0 auto;
+}
 /* Orbit Styles */
 #orbit-vis svg {
     max-width: 100%;
@@ -609,14 +619,49 @@ h2 {
     box-shadow: none;
 }
 .orbit-controls {
-    background: #282c34; /* Match vis background */
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
+    background: #333333;
+    color: var(--text-color);
+    border: 1px solid #555;
+}
+.view-toggle button { background: #555; color: var(--text-color); border: 1px solid #666; }
+.view-toggle button.active { background: var(--primary-color); color: var(--background-color); border-color: var(--primary-color); }
+
+/* Story Block */
+.story-block {
+    background: #181818;
+    color: var(--sub-text-color);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    border-left: 5px solid var(--accent-color);
+}
+
+.story-block h2 {
+    color: var(--accent-color);
+    border-bottom: none;
+}
+
+#orbit-chart {
+    /* Blueprint/grid background for data */
+    background: #282c34;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    border: 1px solid #555;
+}
+
+ .orbit-controls {
+     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+     padding: 15px;
+     border-radius: 8px;
+     margin-bottom: 20px;
+     display: flex;
+     align-items: center;
+     gap: 15px;
+     flex-wrap: wrap;
+     border: 1px solid rgba(255,255,255,0.1);
+     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+ }
+
+.orbit-controls label {
+    color: #e5edf7;
 }
 
 .control-group {
@@ -627,51 +672,33 @@ h2 {
 
 #yearSlider {
     width: 300px;
+    accent-color: #ff9800;
 }
 
 #yearDisplay {
     font-size: 1.3em;
     font-weight: bold;
-    color: #0077cc;
+    color: #ff9800;
     min-width: 60px;
-}
-
-/* Base button style is already in style.css, but I'll add the specific one for the orbit controls to override */
-.orbit-controls button {
-    padding: 8px 16px;
-    background: #0077cc;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s;
-}
-
-.orbit-controls button:hover {
-    background: #005fa3;
-    transform: translateY(-1px);
-}
-
-.orbit-controls button.active {
-    background: #2e7d32;
+    text-shadow: 0 0 10px rgba(255,152,0,0.5);
 }
 
 #orbit-chart {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border: 2px solid #dee2e6;
+    background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+    border: 2px solid rgba(255,152,0,0.3);
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(255,152,0,0.1);
 }
 
 #orbit-vis {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    margin: 0 auto 20px;
+    max-width: 1000px;   /* same as #map */
 }
 
 .axis-label {
-    fill: #495057;
+    fill: #e5edf7;
     font-size: 13px;
     font-weight: 600;
 }
@@ -683,15 +710,14 @@ h2 {
     stroke-linecap: round;
 }
 
-/* Cluster styles */
 .cluster {
     cursor: pointer;
     transition: all 0.3s;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 2px 8px rgba(255,152,0,0.3));
 }
 
 .cluster:hover {
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    filter: drop-shadow(0 4px 12px rgba(255,152,0,0.6));
     stroke-width: 3 !important;
 }
 
@@ -699,31 +725,33 @@ h2 {
     opacity: 0.3;
 }
 
-/* Individual planet styles */
 .planet {
     cursor: pointer;
     transition: all 0.2s;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 1px 4px rgba(255,152,0,0.3));
 }
 
 .planet:hover {
-    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
+    filter: drop-shadow(0 3px 10px rgba(255,152,0,0.6));
     stroke-width: 3 !important;
 }
 
 .orbit-legend {
-    background: var(--vis-bg-color);
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     padding: 20px;
     border-radius: 12px;
     margin-top: 20px;
-    border: 2px solid #333;
+    border: 1px solid rgba(255,152,0,0.3);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
 .legend-title {
     font-weight: bold;
     margin-bottom: 15px;
     font-size: 16px;
-    color: var(--text-color);
+    color: #ff9800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .legend-items {
@@ -737,71 +765,158 @@ h2 {
     align-items: center;
     gap: 8px;
     padding: 5px 10px;
-    background: #333;
+    background: rgba(255,255,255,0.05);
     border-radius: 6px;
-    border: 1px solid #444;
+    border: 1px solid rgba(255,152,0,0.3);
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #e5edf7;
+}
+
+.legend-item:hover {
+    background: rgba(255,152,0,0.1);
+    border-color: #ff9800;
+    transform: translateY(-2px);
 }
 
 .legend-color {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    border: 2px solid rgba(0,0,0,0.1);
+    border: 2px solid rgba(255,152,0,0.5);
+    box-shadow: 0 0 8px rgba(255,152,0,0.3);
 }
 
-/* View mode toggle */
 .view-toggle {
-    background: #3a4049; /* Darker background for toggle group */
+    background: rgba(0,0,0,0.3);
     padding: 8px;
     border-radius: 8px;
     display: flex;
     gap: 5px;
+    border: 1px solid rgba(255,152,0,0.2);
 }
 
 .view-toggle button {
     padding: 6px 12px;
-    background: #444; 
-    color: var(--text-color); 
-    border: 1px solid #666; 
+    background: rgba(255,255,255,0.05);
+    color: #e5edf7;
+    border: 1px solid rgba(255,152,0,0.3);
 }
 
 .view-toggle button.active {
-    background: var(--primary-color); 
-    color: var(--background-color); 
-    border-color: var(--primary-color); 
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    color: #0f0f1e;
+    border-color: #ff9800;
+    font-weight: bold;
+    box-shadow: 0 0 15px rgba(255,152,0,0.5);
 }
 
-/* Info panel - kept white for contrast, but moved the fixed position */
-.info-panel {
-    position: fixed;
-    right: 20px;
-    top: 100px;
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    max-width: 250px;
-    display: none;
-    z-index: 1000;
-}
-
-/* Tracking Panel */
 .tracking-panel {
     position: fixed;
     right: 20px;
     top: 100px;
-    background: linear-gradient(135deg, #005fa3 0%, #004c8c 100%);
-    color: white;
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+    color: #e5edf7;
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0,119,204,0.6);
+    box-shadow: 0 6px 30px rgba(0,0,0,0.8), 0 0 40px rgba(255,152,0,0.2);
     max-width: 280px;
     display: none;
-    border: 2px solid rgba(255,255,255,0.3);
+    border: 2px solid rgba(255,152,0,0.5);
     z-index: 1000;
 }
 
-/* Search box container */
+.tracking-panel.active {
+    display: block;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.tracking-panel h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    border-bottom: 2px solid rgba(255,152,0,0.5);
+    padding-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ff9800;
+    text-shadow: 0 0 10px rgba(255,152,0,0.5);
+}
+
+.tracking-panel .tracking-icon {
+    font-size: 20px;
+}
+
+.tracking-panel .stat {
+    margin: 10px 0;
+    font-size: 14px;
+    background: rgba(255,152,0,0.1);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,152,0,0.3);
+}
+
+.tracking-panel .stat-label {
+    font-weight: 600;
+    opacity: 0.8;
+    display: block;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #bbb;
+}
+
+.tracking-panel .stat-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ff9800;
+}
+
+.tracking-panel .clear-track {
+    margin-top: 15px;
+    width: 100%;
+    background: rgba(255,152,0,0.2);
+    padding: 8px;
+    text-align: center;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid rgba(255,152,0,0.5);
+    color: #ff9800;
+    font-weight: bold;
+}
+
+.tracking-panel .clear-track:hover {
+    background: rgba(255,152,0,0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255,152,0,0.3);
+}
+
+.gdp-democracy-panel {
+    display: none;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px auto;      /* center horizontally */
+    border: 1px solid rgba(255,152,0,0.3);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    max-width: 1000px;      /* same cap as Orbit/map */
+}
+
+.gdp-democracy-panel.active { display: block; }
+
+.gdp-democracy-panel h3 {
+    margin-top: 0;
+    color: #ff9800;
+    font-size: 18px;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px rgba(255,152,0,0.3);
+}
+
 .search-container {
     position: relative;
     display: inline-block;
@@ -810,85 +925,86 @@ h2 {
 #trackingSearch {
     width: 200px;
     padding: 8px 12px;
-    border: 2px solid #555;
+    border: 2px solid rgba(255,152,0,0.3);
     border-radius: 6px;
     font-size: 14px;
     transition: all 0.3s;
-    background: #333;
-    color: var(--text-color);
+    background: rgba(0,0,0,0.3);
+    color: #e5edf7;
+}
+
+#trackingSearch::placeholder {
+    color: #bbb;
 }
 
 #trackingSearch:focus {
     outline: none;
-    border-color: #0077cc;
-    box-shadow: 0 0 0 3px rgba(0,119,204,0.1);
+    border-color: #ff9800;
+    box-shadow: 0 0 15px rgba(255,152,0,0.3);
+    background: rgba(0,0,0,0.5);
 }
 
-/* Tracked entity highlight */
 .planet.tracked, .cluster.tracked {
-    stroke: #ff6b35 !important;
+    stroke: #4CAF50 !important;
     stroke-width: 4 !important;
-    filter: drop-shadow(0 0 12px #ff6b35) drop-shadow(0 0 4px #ff6b35);
+    filter: drop-shadow(0 0 15px #4CAF50) drop-shadow(0 0 8px #4CAF50);
     animation: pulse 2s ease-in-out infinite;
 }
 
-/* Autocomplete suggestions */
+@keyframes pulse {
+    0%, 100% {
+        stroke-width: 4;
+        opacity: 1;
+        filter: drop-shadow(0 0 15px #4CAF50) drop-shadow(0 0 8px #4CAF50);
+    }
+    50% {
+        stroke-width: 5;
+        opacity: 0.9;
+        filter: drop-shadow(0 0 25px #4CAF50) drop-shadow(0 0 12px #4CAF50);
+    }
+}
+
+.trail.tracked {
+    stroke-width: 3 !important;
+    opacity: 0.8 !important;
+    stroke: #4CAF50 !important;
+}
+
 .autocomplete-suggestions {
     position: absolute;
-    background: #282c34;
-    border: 2px solid #0077cc;
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+    border: 2px solid #ff9800;
     border-top: none;
     border-radius: 0 0 6px 6px;
     max-height: 200px;
     overflow-y: auto;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 20px rgba(255,152,0,0.2);
     z-index: 1000;
+    width: 224px;
+    display: none;
 }
+
+.autocomplete-suggestions.active { display: block; }
 
 .suggestion-item {
     padding: 10px 12px;
     cursor: pointer;
     transition: background 0.2s;
-    border-bottom: 1px solid #444;
+    border-bottom: 1px solid rgba(255,152,0,0.2);
+    color: #e5edf7;
 }
 
 .suggestion-item:hover {
-    background: #3a4049;
+    background: rgba(255,152,0,0.2);
 }
 
 .suggestion-item .name {
     font-weight: 600;
-    color: var(--text-color);
+    color: #ff9800;
 }
 
 .suggestion-item .type {
     font-size: 12px;
-    color: #6c757d;
+    color: #bbb;
     margin-left: 8px;
-}
-
-/* GDP Chart Panel Style */
-.gdp-democracy-panel {
-    position: fixed;
-    left: 50%;
-    bottom: 20px;
-    transform: translateX(-50%);
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    max-width: 900px;
-    width: 90%;
-    border: 1px solid #dee2e6;
-    display: none;
-    z-index: 999;
-}
-
-.gdp-democracy-panel h3 {
-    margin-top: 0;
-    color: #212529;
-    font-size: 18px;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
 }
