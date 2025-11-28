@@ -332,6 +332,18 @@ h2 {
     margin-top: 5px;
 }
 
+#region-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    font-size: 13px;
+    color: #222;
+    font-weight: 500;
+}
+
 
 #map-fullscreen {
     position: relative;
@@ -421,20 +433,6 @@ h2 {
 #floating-title,
 #floating-filter {
     display: none !important;
-}
-#region-legend {
-    background: rgba(255,255,255,0.88);
-    padding: 10px 14px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 16px;
-    max-width: 360px;
-    margin-left: 25px;
-    font-size: 13px;
-    color: #222;
-    font-weight: 500;
 }
 
 /* --- Mission Briefing Styles --- */

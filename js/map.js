@@ -9,6 +9,10 @@ const svg = d3.select("#map")
 
 const zoom = d3.zoom()
     .scaleExtent([0.5, 6])
+    .filter(event => {
+        // Only allow zoom via scroll wheel, not drag
+        return event.type === 'wheel';
+    })
     .on("zoom", (event) => {
 
         const k = event.transform.k;
@@ -60,12 +64,12 @@ regionLegend.html(
            display:inline-flex;
            align-items:center;
            margin-right:18px;
-           font-size:14px;
-           color:#222;
+           font-size:13px;
+           color:#e2e2e2;
        ">
            <span style="
-               width:15px;
-               height:15px;
+               width:14px;
+               height:14px;
                background:${color};
                border-radius:50%;
                margin-right:6px;
@@ -82,23 +86,61 @@ regionLegend.html(
 
 let rotation = [0, 0];
 
+// Region center coordinates [longitude, latitude] for automatic rotation
+const regionCenters = {
+    "Europe": [15, 50],
+    "North America": [-100, 45],
+    "Asia": [100, 30],
+    "South America": [-60, -15],
+    "Oceania": [135, -25],
+    "Africa": [20, 0],
+    "Other": [0, 0]
+};
 
-const drag = d3.drag().on("drag", (event) => {
-    rotation[0] += event.dx * 0.5;
-    rotation[1] -= event.dy * 0.5;
+// Function to smoothly rotate to a region
+function rotateToRegion(regionName) {
+    if (!regionCenters[regionName]) return;
+    
+    const [targetLon, targetLat] = regionCenters[regionName];
+    
+    // Use d3 transition for smooth rotation
+    d3.transition()
+        .duration(1500)
+        .tween("rotate", function() {
+            const interpolateLon = d3.interpolate(rotation[0], -targetLon);
+            const interpolateLat = d3.interpolate(rotation[1], -targetLat);
+            
+            return function(t) {
+                rotation[0] = interpolateLon(t);
+                rotation[1] = interpolateLat(t);
+                projection.rotate(rotation);
+                mapLayer.selectAll("path").attr("d", path);
+            };
+        });
+}
 
 
-    rotation[1] = Math.max(-90, Math.min(90, rotation[1]));
+const drag = d3.drag()
+    .on("start", () => {
+        svg.style("cursor", "grabbing");
+    })
+    .on("drag", (event) => {
+        rotation[0] += event.dx * 0.5;
+        rotation[1] -= event.dy * 0.5;
 
+        // Clamp vertical rotation to prevent flipping
+        rotation[1] = Math.max(-90, Math.min(90, rotation[1]));
 
-    projection.rotate(rotation);
+        projection.rotate(rotation);
 
-
-    mapLayer.selectAll("path").attr("d", path);
-});
-
+        mapLayer.selectAll("path").attr("d", path);
+    })
+    .on("end", () => {
+        svg.style("cursor", "grab");
+    });
 
 svg.call(drag);
+svg.style("cursor", "grab");
 
 
 const regionLookup = {
@@ -765,9 +807,25 @@ Promise.all([
                     regionColors[d.properties.region] || "#7E7E7E"
                 )
                 .attr("stroke-width", 1.4);
+            // Reset rotation to default view
+            d3.transition()
+                .duration(1500)
+                .tween("rotate", function() {
+                    const interpolateLon = d3.interpolate(rotation[0], 0);
+                    const interpolateLat = d3.interpolate(rotation[1], 0);
+                    
+                    return function(t) {
+                        rotation[0] = interpolateLon(t);
+                        rotation[1] = interpolateLat(t);
+                        projection.rotate(rotation);
+                        mapLayer.selectAll("path").attr("d", path);
+                    };
+                });
             return;
         }
 
+        // Rotate globe to show the selected region
+        rotateToRegion(selected);
 
         const selectedCountries = countries.filter(
             d => d.properties.region === selected && d.properties.metrics
