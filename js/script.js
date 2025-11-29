@@ -7,6 +7,11 @@ const tooltip = d3
   .attr("class", "tooltip")
   .style("display", "none");
 
+// Time tracking and scoring
+let startTime = null;
+let correctAnswers = 0;
+const totalQuestions = 5;
+
 const sections = [
   { id: "map", correct: "B", init: initMapVis, next: "flows" },
   { id: "flows", correct: "B", init: initFlowsVis, next: "dashboard" },
@@ -44,6 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const beginBtn = document.getElementById("begin-investigation-btn");
   if (beginBtn) {
     beginBtn.addEventListener("click", () => {
+      // Start the timer
+      startTime = Date.now();
+      
       // Hide intro page
       document.getElementById("intro-page").style.display = "none";
 
@@ -100,6 +108,15 @@ document.querySelectorAll(".continue-btn").forEach((btn) => {
 
       // Special handling for final task (orbit)
       if (sectionId === "orbit") {
+        // Calculate total time
+        const endTime = Date.now();
+        const totalTimeMs = endTime - startTime;
+        const totalTimeMinutes = Math.floor(totalTimeMs / 60000);
+        const totalTimeSeconds = Math.floor((totalTimeMs % 60000) / 1000);
+        
+        // Determine ranking based on time and accuracy
+        const ranking = determineRanking(totalTimeMs, correctAnswers);
+        
         // Hide all sections
         document.querySelectorAll(".vis-section").forEach((section) => {
           section.style.display = "none";
@@ -108,8 +125,12 @@ document.querySelectorAll(".continue-btn").forEach((btn) => {
         // Show final congratulations page
         const finalPage = document.getElementById("final-page");
         if (finalPage) {
+          // Update the final message with ranking
+          updateFinalMessage(ranking, totalTimeMinutes, totalTimeSeconds, correctAnswers);
+          
           finalPage.classList.remove("hidden");
           finalPage.style.display = "flex";
+          
           finalPage.scrollIntoView({ behavior: "smooth" });
         }
         return;
@@ -150,6 +171,7 @@ function checkAnswer(id, selected) {
   feedbackBox.classList.remove("feedback-correct", "feedback-incorrect");
 
   if (selected === section.correct) {
+    correctAnswers++;
     feedbackBox.innerHTML =
       "<strong>✅ GOOD WORK, AGENT.</strong> Access Granted. Scroll down for the analysis.";
     feedbackBox.classList.add("feedback-correct");
@@ -1835,3 +1857,138 @@ function initOrbitVis() {
         `);
     });
 }
+
+// --- RANKING SYSTEM ---
+
+function determineRanking(timeMs, correct) {
+  const timeMinutes = timeMs / 60000;
+  
+  // Perfect score rankings based on speed
+  if (correct === 5) {
+    if (timeMinutes < 10) return "cheetah";
+    if (timeMinutes < 15) return "falcon";
+    if (timeMinutes < 20) return "panther";
+    return "owl";
+  }
+  
+  // Good score (4 correct)
+  if (correct === 4) {
+    if (timeMinutes < 15) return "fox";
+    return "wolf";
+  }
+  
+  // Average score (3 correct)
+  if (correct === 3) {
+    if (timeMinutes < 20) return "bear";
+    return "elephant";
+  }
+  
+  // Below average
+  if (correct === 2) return "turtle";
+  
+  // Needs improvement
+  return "sloth";
+}
+
+function updateFinalMessage(ranking, minutes, seconds, correct) {
+  const rankings = {
+    cheetah: {
+      emoji: "🐆",
+      title: "CHEETAH AGENT",
+      color: "#FFD700",
+      message: `Incredible, Agent! You completed all tasks in ${minutes}m ${seconds}s with a perfect score of ${correct}/${totalQuestions}. Your speed and precision are unmatched. You're operating at elite field agent level—lightning fast analysis with flawless accuracy. The agency needs more operatives like you.`
+    },
+    falcon: {
+      emoji: "🦅",
+      title: "FALCON OPERATIVE",
+      color: "#FFA500",
+      message: `Outstanding work, Agent. ${minutes}m ${seconds}s with ${correct}/${totalQuestions} correct answers shows exceptional performance. You combined sharp vision with swift execution. Your analytical prowess is exactly what we look for in our top-tier analysts.`
+    },
+    panther: {
+      emoji: "🐆",
+      title: "PANTHER ANALYST",
+      color: "#9370DB",
+      message: `Excellent job, Agent. You finished in ${minutes}m ${seconds}s with a perfect ${correct}/${totalQuestions} score. You moved with purpose and struck with precision. Your methodical approach and perfect accuracy demonstrate true professional competence.`
+    },
+    owl: {
+      emoji: "🦉",
+      title: "OWL STRATEGIST",
+      color: "#4169E1",
+      message: `Well done, Agent. ${minutes}m ${seconds}s with ${correct}/${totalQuestions} correct shows wisdom and thoroughness. You took your time to ensure accuracy—a valuable trait in intelligence work. Sometimes the careful analyst catches what the rushed one misses.`
+    },
+    fox: {
+      emoji: "🦊",
+      title: "FOX INVESTIGATOR",
+      color: "#FF6347",
+      message: `Good work, Agent. You completed the mission in ${minutes}m ${seconds}s with ${correct}/${totalQuestions} correct. Your clever approach and solid performance show real potential. With a bit more attention to detail, you'll be running operations in no time.`
+    },
+    wolf: {
+      emoji: "🐺",
+      title: "WOLF TRACKER",
+      color: "#708090",
+      message: `Solid performance, Agent. ${minutes}m ${seconds}s with ${correct}/${totalQuestions} correct demonstrates determination and focus. You stayed on the trail and saw most of it through successfully. Keep honing those analytical skills.`
+    },
+    bear: {
+      emoji: "🐻",
+      title: "BEAR OBSERVER",
+      color: "#8B4513",
+      message: `Decent work, Agent. You finished in ${minutes}m ${seconds}s with ${correct}/${totalQuestions} correct. You showed strength in tackling the mission, though there's room to sharpen your analytical edge. Keep studying the patterns—you'll get there.`
+    },
+    elephant: {
+      emoji: "🐘",
+      title: "ELEPHANT SURVEYOR",
+      color: "#696969",
+      message: `You completed the mission in ${minutes}m ${seconds}s with ${correct}/${totalQuestions} correct, Agent. Your steady approach got you through, but intelligence work demands both accuracy and efficiency. Review the data more carefully on your next assignment.`
+    },
+    turtle: {
+      emoji: "🐢",
+      title: "TURTLE TRAINEE",
+      color: "#2F4F4F",
+      message: `Mission complete, Agent. ${minutes}m ${seconds}s with ${correct}/${totalQuestions} correct. You crossed the finish line, but field work requires sharper pattern recognition. Take time to review the briefings and strengthen your data analysis fundamentals.`
+    },
+    sloth: {
+      emoji: "🦥",
+      title: "SLOTH RECRUIT",
+      color: "#556B2F",
+      message: `You finished in ${minutes}m ${seconds}s with ${correct}/${totalQuestions} correct, Agent. This mission was challenging, and you need to work on both speed and accuracy. Consider this a learning experience—review the data carefully and run through the scenarios again.`
+    }
+  };
+  
+  const rank = rankings[ranking];
+  
+  const finalMessage = document.getElementById("final-message");
+  const finalTitle = document.querySelector("#final-page h1");
+  const finalSubtitle = document.querySelector("#final-page .subtitle");
+  
+  if (finalTitle) {
+    finalTitle.innerHTML = `${rank.emoji} MISSION ACCOMPLISHED`;
+    finalTitle.style.color = rank.color;
+  }
+  
+  if (finalSubtitle) {
+    finalSubtitle.innerHTML = `Classification: <strong>${rank.title}</strong>`;
+    finalSubtitle.style.color = rank.color;
+  }
+  
+  if (finalMessage) {
+    finalMessage.innerHTML = `
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="font-size: 5em; margin-bottom: 10px;">${rank.emoji}</div>
+        <div style="font-size: 1.8em; font-weight: bold; color: ${rank.color}; margin-bottom: 10px;">${rank.title}</div>
+        <div style="font-size: 1.2em; color: #bbb; margin-bottom: 20px;">
+          Time: ${minutes}m ${seconds}s | Score: ${correct}/${totalQuestions}
+        </div>
+      </div>
+      <p><strong>{Confidential}</strong></p>
+      <p>${rank.message}</p>
+      <p>You've analyzed global population dynamics, migration flows, health indicators, demographic forces, and democratic evolution across 70 years of data. The patterns you've uncovered will inform critical policy decisions.</p>
+      <p style="margin-top: 30px; color: #4CAF50; font-weight: 600;">— Director, Global Intelligence Division</p>
+      <div style="text-align: center; margin-top: 40px;">
+        <button class="submit-report-btn" onclick="location.reload()">
+          Restart Investigation
+        </button>
+      </div>
+    `;
+  }
+}
+

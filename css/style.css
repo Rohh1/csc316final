@@ -228,12 +228,21 @@ h2 {
     color: #e5edf7;
     border: 1px solid #333;
     min-height: 100vh;
+    height: 100vh;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     padding: 40px 20px;
+    padding-top: 60px;
     border-radius: 0;
     margin-bottom: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    z-index: 9999;
 }
 
 #final-page.hidden {
@@ -273,6 +282,25 @@ h2 {
 
 #final-message p {
     margin: 15px 0;
+}
+
+#final-message .ranking-badge {
+    display: inline-block;
+    padding: 20px 40px;
+    background: linear-gradient(135deg, rgba(255,152,0,0.2), rgba(76,175,80,0.2));
+    border: 2px solid;
+    border-radius: 12px;
+    margin: 20px 0;
+    animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(255,152,0,0.3);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(255,152,0,0.5), 0 0 60px rgba(76,175,80,0.3);
+    }
 }
 
 .tooltip { /* General tooltip style */
