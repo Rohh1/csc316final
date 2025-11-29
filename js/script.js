@@ -1984,11 +1984,84 @@ function updateFinalMessage(ranking, minutes, seconds, correct) {
       <p>You've analyzed global population dynamics, migration flows, health indicators, demographic forces, and democratic evolution across 70 years of data. The patterns you've uncovered will inform critical policy decisions.</p>
       <p style="margin-top: 30px; color: #4CAF50; font-weight: 600;">— Director, Global Intelligence Division</p>
       <div style="text-align: center; margin-top: 40px;">
-        <button class="submit-report-btn" onclick="location.reload()">
+        <button class="submit-report-btn" onclick="redactAndRestart()">
           Restart Investigation
         </button>
       </div>
     `;
   }
+}
+
+// Redaction effect before restart
+function redactAndRestart() {
+  const finalMessage = document.getElementById("final-message");
+  if (!finalMessage) {
+    location.reload();
+    return;
+  }
+  
+  // Add redaction overlay only to paragraphs (not divs with stats)
+  const paragraphs = finalMessage.querySelectorAll('p');
+  let delay = 0;
+  
+  // Define how many lines per paragraph (based on your order)
+  const linesPerParagraph = [2, 3, 2]; // First paragraph: 2 lines, second: 3 lines, third: 2 lines
+  
+  paragraphs.forEach((p, pIndex) => {
+    const numLines = linesPerParagraph[pIndex] || 1;
+    
+    for (let lineIndex = 0; lineIndex < numLines; lineIndex++) {
+      setTimeout(() => {
+        // Create redaction bar
+        const redactionBar = document.createElement('div');
+        
+        // Calculate vertical position based on line index
+        const lineSpacing = 100 / (numLines + 1); // Distribute lines evenly
+        const topPosition = lineSpacing * (lineIndex + 1);
+        
+        redactionBar.style.cssText = `
+          position: absolute;
+          left: 0;
+          width: 100%;
+          height: 6px;
+          background: #000;
+          top: ${topPosition}%;
+          transform: translateY(-50%) scaleX(0);
+          z-index: 1000;
+          animation: redactSlide 0.3s ease-out forwards;
+        `;
+        
+        // Position relative to parent
+        p.style.position = 'relative';
+        p.appendChild(redactionBar);
+        
+      }, delay);
+      delay += 80; // Slightly faster stagger between individual lines
+    }
+  });
+  
+  // Add CSS animation for redaction effect
+  if (!document.getElementById('redaction-style')) {
+    const style = document.createElement('style');
+    style.id = 'redaction-style';
+    style.textContent = `
+      @keyframes redactSlide {
+        from {
+          transform: translateY(-50%) scaleX(0);
+          transform-origin: left;
+        }
+        to {
+          transform: translateY(-50%) scaleX(1);
+          transform-origin: left;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  // Reload after all redactions complete
+  setTimeout(() => {
+    location.reload();
+  }, delay + 500);
 }
 
