@@ -1077,3 +1077,101 @@ h2 {
     color: #bbb;
     margin-left: 8px;
 }
+
+/* Dropdown/Select Styling - CIA Command Center Theme */
+select {
+    padding: 10px 15px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+    color: #e5edf7;
+    border: 2px solid rgba(255, 152, 0, 0.4);
+    border-radius: 8px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 152, 0, 0.1);
+    outline: none;
+    min-width: 200px;
+    height: 42px;
+    line-height: 1.4;
+}
+
+select:hover {
+    border-color: #ff9800;
+    background: linear-gradient(135deg, #252541 0%, #1a1a2e 100%);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 152, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+select:focus {
+    border-color: #ff9800;
+    box-shadow: 0 0 20px rgba(255, 152, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+select option {
+    background: #1a1a2e;
+    color: #e5edf7;
+    padding: 10px;
+    font-weight: 600;
+}
+
+select option:hover {
+    background: rgba(255, 152, 0, 0.2);
+}
+
+/* Controls container styling */
+#controls, .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 152, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+#controls label, .controls label {
+    color: #ff9800;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 10px rgba(255, 152, 0, 0.3);
+    margin: 0;
+    line-height: 1;
+}
+
+.controls-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+/* Fix any pseudo-elements or default styling */
+.controls::before,
+.controls::after,
+#controls::before,
+#controls::after {
+    display: none !important;
+}
+
+/* Ensure button alignment in controls */
+.controls .continue-btn,
+#controls .continue-btn {
+    margin: 0;
+    flex-shrink: 0;
+    padding: 10px 20px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* Specific styling for cluster button */
+#clusterToggle {
+    white-space: nowrap;
+}
