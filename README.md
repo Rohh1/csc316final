@@ -1,6 +1,6 @@
 # CSC316 - Final Project
 
-## The Global Migration Mystery
+## [The Global Migration Mystery](https://rohh1.github.io/csc316final/)
 
 ## Authors and Contributors
 
@@ -33,6 +33,7 @@ Screencast Video: https://play.library.utoronto.ca/watch/8f0bbb9919b9bf58a46abfc
 
 -----
 
+## Visuals
 HTML:\
 index.html — main site structure, story-mode layout, containers for all visualizations.
 
@@ -84,3 +85,9 @@ F. Force Galaxy (Birth–Death–Life)\
 
 
 G. Democracy Orbit\
+
+## Datasets
+
+## Features
+
+## Links
