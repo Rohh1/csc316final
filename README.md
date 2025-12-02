@@ -1,8 +1,8 @@
-## CSC316: Data Visualization: Foundations and Advanced Programming - Final Project
+## CSC316: Data Visualization - Final Project
 
 ## [The Global Migration Mystery](https://rohh1.github.io/csc316final/)
 
-## Authors and Contributors
+## Authors and Contributors:
 
 This project was created by **Team MIRRY**.
 * Yanze Wang
@@ -11,16 +11,15 @@ This project was created by **Team MIRRY**.
 * Rohan Sahota
 * Mohammad Fahim Uddin Alvi
 
-## Project Overview
+## Project Overview:
 
-In this project, we utilize CIA Factbook data to create novel visualizations and provide a new perspective on analyzing population data worldwide.
-This project investigates how countries grow, shrink, migrate, age, and change politically — using a collection of highly interactive visualizations built in D3.
-This interactive “story-mode” website guides the user through global demographic intelligence analysis using multiple complex visualizations: a 3D rotating Earth, animated migration flows, a population-health dashboard, a force-directed birth–death galaxy, and a democracy orbit.
-Each visualization is embedded as a mission based task, followed by quizzes and a final ranking.
+This interactive data visualization project explores global migration patterns and their relationship with demographic, economic, and political factors. Through a series of engaging visualizations and a story-mode format, users can investigate the complexities of migration, population health, and democracy across countries worldwide.
+
+In this project, users embark on a mission to uncover the mysteries of global migration. They will navigate through various visualizations, each designed to highlight different aspects of migration and its impact on countries. The project combines interactive elements, quizzes, and a narrative structure to create an immersive learning experience.
 
 -----
 
-## Table of Contents
+## Table of Contents:
 
 * [Project Structure](https://github.com/Rohh1/csc316final#project-structure)
 * [Libraries & Datasets](https://github.com/Rohh1/csc316final#datasets)
@@ -29,7 +28,7 @@ Each visualization is embedded as a mission based task, followed by quizzes and 
 
 -----
 
-## Project Structure
+## Project Structure:
 **HTML - Story and Format:**
 * index.html — main site structure, story-mode layout, containers for all visualizations.
 
@@ -53,46 +52,59 @@ Each visualization is embedded as a mission based task, followed by quizzes and 
 * data/democracy_data_clean.csv - Dataset providing democracy indices and political indicators for countries.
 * data/gdp_country.csv - Dataset containing GDP information for countries.
 
-## Datasets
+## Datasets:
 
-1. CIA World Factbook (https://www.cia.gov/the-world-factbook/) - Primary dataset containing demographic, economic, and geographic information for countries worldwide.
-2. Democracy Data (https://www.v-dem.net/en/data/) - Dataset providing democracy indices and political indicators for countries.
-3. GDP Data (https://data.worldbank.org/indicator/NY.GDP.MKTP.CD) - Dataset containing GDP information for countries.
+1. [CIA World Factbook](https://www.cia.gov/the-world-factbook/) - Primary dataset containing demographic, economic, and geographic information for countries worldwide.
+2. [Democracy Data](https://www.v-dem.net/en/data/) - Dataset providing democracy indices and political indicators for countries.
+3. [GDP Data](https://data.worldbank.org/indicator/NY.GDP.MKTP.CD) - Dataset containing GDP information for countries.
 
 
-## Features
+## Features:
 Explanation of Non-Obvious Features:
 
-A. Story-Mode Navigation
+**A. Story-Mode Navigation (script.js)**:
 
+* Fullscreen video background with typewriter text intro.
+* Mission-based structure: each visualization is a "mission" with instructions and quizzes.
+* Smooth transitions between visualizations with fade effects.
 
+**B. 3D Earth (map.js)**:
 
-B. 3D Earth (map.js)
+* Scrollable and draggable globe
+* Population growth bloom effect: countries with high growth rates glow.
+* Region targeting: click on regions to zoom in and highlight.
 
-Scroll to zoom (custom filter prevents drag-zoom conflict)
-Region snapping: selecting "Asia" rotates the globe smoothly toward Asia
-Population map appears only when a region filter is applied
-Growth Bloom automatically updates based on selected region
+**C. Migration Flights Visualization (migration_flights.js)**:
 
-C. Migration Flights Visualization
+* Animated arcs representing migration flows between countries.
+* Airplane icons flying along migration paths.
+* Toggle between inbound and outbound migration views.
 
+**D. Migration Chord Diagram + Bars (demographics.js)**:
 
+* Chord diagram showing migration flows between countries.
+* Stacked bar chart comparing natural increase vs migration for selected countries.
+* Interactive tooltips with detailed statistics.
 
-D. Migration Chord Diagram + Bars
+**E. Population Health Dashboard (dashboard.js)**:
 
+* Scatter plot of life expectancy vs infant mortality rates.
+* Quadrant swarm plot showing birth and death rates.
+* Interactive zoom and tooltips for detailed country data.
 
+**F. Force Galaxy - Birth–Death–Life (force-galaxy.js)**:
 
-E. Population Health Dashboard
+* Force-directed simulation clustering countries based on birth and death rates.
+* Glow effect for countries with extreme birth or death rates.
+* Interactive tooltips and country highlighting.
 
+**G. Democracy Orbit (orbit.js)**:
 
+* Radial visualization of democracy indicators.
+* Orbiting countries based on democracy scores.
+* Search functionality to track specific countries.
 
-F. Force Galaxy (Birth–Death–Life)
-
-
-
-G. Democracy Orbit
-
-## Links
+## Links:
 Link to project (GitHub Pages): https://rohh1.github.io/csc316final/
 
 Github Repoistory: https://github.com/Rohh1/csc316final/
