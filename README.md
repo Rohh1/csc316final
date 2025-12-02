@@ -2,7 +2,7 @@
 
 Title: The Global Migration Mystery
 Course: CSC316 — Final project
-Authors: Yanze Wang
+Authors: Yanze Wang, Rohan Singh, Rohan Sahota, Ismail H. Iraz, Mohammad Fahim Uddin Alvi
 
 
 In this project, we utilize CIA Factbook data to create novel visualizations and provide a new perspective on analyzing population data worldwide.
@@ -11,7 +11,8 @@ This interactive “story-mode” website guides the user through global demogra
 Each visualization is embedded as a mission based task, followed by quizzes and a final ranking.
 
 Link: https://rohh1.github.io/csc316final/
-Screencast Video:
+
+Screencast Video: https://play.library.utoronto.ca/watch/8f0bbb9919b9bf58a46abfc99a296b85
 
 
 HTML:\
