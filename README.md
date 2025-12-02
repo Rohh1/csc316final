@@ -2,6 +2,7 @@
 
 Title: The Global Migration Mystery
 Course: CSC316 — Final project
+
 Authors: Yanze Wang, Rohan Singh, Rohan Sahota, Ismail H. Iraz, Mohammad Fahim Uddin Alvi
 
 
@@ -36,6 +37,9 @@ css/style.css — Overall theme, layout, fullscreen video background, tooltips, 
 
 Explanation of Non-Obvious Features:\
 A. Story-Mode Navigation\
+
+
+
 B. 3D Earth (map.js)\
 
 Scroll to zoom (custom filter prevents drag-zoom conflict)\
@@ -47,7 +51,19 @@ Growth Bloom automatically updates based on selected region\
 
 
 C. Migration Flights Visualization\
+
+
+
 D. Migration Chord Diagram + Bars
+
+
+
 E. Population Health Dashboard\
+
+
+
 F. Force Galaxy (Birth–Death–Life)\
+
+
+
 G. Democracy Orbit\
