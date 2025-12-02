@@ -48,7 +48,17 @@ Each visualization is embedded as a mission based task, followed by quizzes and 
 **CSS:**
 * css/style.css — Overall theme, layout, fullscreen video background, tooltips, transitions, and UI.
 
+**Data Files:**
+* data/cia_factbook.csv - Primary dataset with demographic, economic, and geographic info.
+* data/democracy_data_clean.csv - Dataset providing democracy indices and political indicators for countries.
+* data/gdp_country.csv - Dataset containing GDP information for countries.
+
 ## Datasets
+
+1. CIA World Factbook (https://www.cia.gov/the-world-factbook/) - Primary dataset containing demographic, economic, and geographic information for countries worldwide.
+2. Democracy Data (https://www.v-dem.net/en/data/) - Dataset providing democracy indices and political indicators for countries.
+3. GDP Data (https://data.worldbank.org/indicator/NY.GDP.MKTP.CD) - Dataset containing GDP information for countries.
+
 
 ## Features
 Explanation of Non-Obvious Features:
@@ -84,5 +94,7 @@ G. Democracy Orbit
 
 ## Links
 Link to project (GitHub Pages): https://rohh1.github.io/csc316final/
-Github Repoistory: https://github.com/Rohh1/csc316final
-Screencast Video: https://play.library.utoronto.ca/watch/8f0bbb9919b9bf58a46abfc99a296b85
+
+Github Repoistory: https://github.com/Rohh1/csc316final/
+
+Screencast Video: https://play.library.utoronto.ca/watch/8f0bbb9919b9bf58a46abfc99a296b85/
