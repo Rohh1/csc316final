@@ -105,8 +105,6 @@ Explanation of Non-Obvious Features:
 * Search functionality to track specific countries.
 
 ## Links:
-Link to project (GitHub Pages): https://rohh1.github.io/csc316final/
-
-Github Repoistory: https://github.com/Rohh1/csc316final/
-
-Screencast Video: https://play.library.utoronto.ca/watch/8f0bbb9919b9bf58a46abfc99a296b85/
+* Link to project (GitHub Pages): https://rohh1.github.io/csc316final/
+* GitHub Repository: https://github.com/Rohh1/csc316final/
+* Screencast Video: https://play.library.utoronto.ca/watch/8f0bbb9919b9bf58a46abfc99a296b85/
