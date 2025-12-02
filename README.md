@@ -1,4 +1,4 @@
-# CSC316: Data Visualization: Foundations and Advanced Programming - Final Project
+## CSC316: Data Visualization: Foundations and Advanced Programming - Final Project
 
 ## [The Global Migration Mystery](https://rohh1.github.io/csc316final/)
 
@@ -30,40 +30,41 @@ Each visualization is embedded as a mission based task, followed by quizzes and 
 -----
 
 ## Project Structure
-HTML:
+**HTML - Story and Format:**
 * index.html — main site structure, story-mode layout, containers for all visualizations.
 
-JavaScript — All Core Visualizations:\
-* js/map.js — 3D Orthographic Earth (drag/rotate, scroll zoom, region targeting, population growth bloom).\
-* js/migration_flights.js — Animated global migration arcs, planes, inbound/outbound toggle.\
-* js/dashboard.js — Life expectancy vs infant mortality medical cross plot + birth-death quadrant swarm.\
-* js/demographics.js — Stacked bar comparison of natural increase vs migration across countries.\
-* js/force-galaxy.js — Birth–death “galaxy” simulation with gravity clustering and glow effect.\
-* js/orbit.js — Democracy Orbit visualization: radial democracy indicators + country tracking & search.\
-* js/scatter.js — Interactive demographic scatter with zoom, tooltips, axis switching.\
+**JavaScript — All Core Visualizations:**
+* js/map.js — 3D Orthographic Earth (drag/rotate, scroll zoom, region targeting, population growth bloom).
+* js/migration_flights.js — Animated global migration arcs, planes, inbound/outbound toggle.
+* js/dashboard.js — Life expectancy vs infant mortality medical cross plot + birth-death quadrant swarm.
+* js/demographics.js — Stacked bar comparison of natural increase vs migration across countries.
+* js/force-galaxy.js — Birth–death “galaxy” simulation with gravity clustering and glow effect.
+* js/orbit.js — Democracy Orbit visualization: radial democracy indicators + country tracking & search.
+* js/scatter.js — Interactive demographic scatter with zoom, tooltips, axis switching.
 
-JavaScript — Game & Story Mode:\
+**JavaScript — Game & Story Mode:**
 * js/script.js — Global mission flow, initialization of each visualization, scoring, quiz logic, typewriter intro, transitions.
 
-CSS:\
+**CSS:**
 * css/style.css — Overall theme, layout, fullscreen video background, tooltips, transitions, and UI.
 
 ## Datasets
 
 ## Features
-Explanation of Non-Obvious Features:\
-A. Story-Mode Navigation\
+Explanation of Non-Obvious Features:
+
+A. Story-Mode Navigation
 
 
 
-B. 3D Earth (map.js)\
+B. 3D Earth (map.js)
 
-Scroll to zoom (custom filter prevents drag-zoom conflict)\
-Region snapping: selecting "Asia" rotates the globe smoothly toward Asia\
-Population map appears only when a region filter is applied\
-Growth Bloom automatically updates based on selected region\
+Scroll to zoom (custom filter prevents drag-zoom conflict)
+Region snapping: selecting "Asia" rotates the globe smoothly toward Asia
+Population map appears only when a region filter is applied
+Growth Bloom automatically updates based on selected region
 
-C. Migration Flights Visualization\
+C. Migration Flights Visualization
 
 
 
@@ -71,15 +72,15 @@ D. Migration Chord Diagram + Bars
 
 
 
-E. Population Health Dashboard\
+E. Population Health Dashboard
 
 
 
-F. Force Galaxy (Birth–Death–Life)\
+F. Force Galaxy (Birth–Death–Life)
 
 
 
-G. Democracy Orbit\
+G. Democracy Orbit
 
 ## Links
 Link to project (GitHub Pages): https://rohh1.github.io/csc316final/
