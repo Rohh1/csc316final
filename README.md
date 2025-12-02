@@ -1,10 +1,17 @@
-# CSC316 Final Project
+# CSC316 - Final Project
 
-Title: The Global Migration Mystery
-Course: CSC316 — Final project
+## The Global Migration Mystery
 
-Authors: Yanze Wang, Rohan Singh, Rohan Sahota, Ismail H. Iraz, Mohammad Fahim Uddin Alvi
+## Authors and Contributors
 
+This project was created by **Team MIRRY**.
+* Yanze Wang
+* Rohan Singh
+* Ismail H. Iraz
+* Rohan Sahota
+* Mohammad Fahim Uddin Alvi
+
+## Project Overview
 
 In this project, we utilize CIA Factbook data to create novel visualizations and provide a new perspective on analyzing population data worldwide.
 This project investigates how countries grow, shrink, migrate, age, and change politically — using a collection of highly interactive visualizations built in D3.
@@ -15,6 +22,16 @@ Link: https://rohh1.github.io/csc316final/
 
 Screencast Video: https://play.library.utoronto.ca/watch/8f0bbb9919b9bf58a46abfc99a296b85
 
+-----
+
+## Table of Contents
+
+* [Visuals](https://github.com/Rohh1/csc316final#visuals)
+* [Libraries & Datasets](https://github.com/Rohh1/csc316final#datasets)
+* [Features](https://github.com/Rohh1/csc316final#features)
+* [Project Link & Screencast](https://github.com/Rohh1/csc316final#links)
+
+-----
 
 HTML:\
 index.html — main site structure, story-mode layout, containers for all visualizations.
