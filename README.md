@@ -1,10 +1,10 @@
-## CSC316: Data Visualization - Final Project
+# CSC316: Data Visualization - Final Project
 
 ## [The Global Migration Mystery](https://rohh1.github.io/csc316final/)
 
 ## Authors and Contributors:
 
-This project was created by **Team MIRRY**.
+This project was created by **Team MIRRY**!
 * Yanze Wang
 * Rohan Singh
 * Ismail H. Iraz
