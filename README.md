@@ -55,7 +55,7 @@ In this project, users embark on a mission to uncover the mysteries of global mi
 ## Datasets:
 
 1. [CIA World Factbook](https://www.cia.gov/the-world-factbook/) - Primary dataset containing demographic, economic, and geographic information for countries worldwide.
-2. [Democracy Data](https://www.v-dem.net/en/data/) - Dataset providing democracy indices and political indicators for countries.
+2. [Democracy Data](https://www.christianbjoernskov.com/bjoernskovrodedata/) - Dataset providing democracy indices and political indicators for countries.
 3. [GDP Data](https://data.worldbank.org/indicator/NY.GDP.MKTP.CD) - Dataset containing GDP information for countries.
 
 
